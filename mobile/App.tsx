@@ -9,11 +9,17 @@ import ForgotPasswordScreen from "./src/screens/ForgotPasswordScreen";
 import OTPVerificationScreen from "./src/screens/OTPVerificationScreen";
 import CreateNewPassWordScreen from "./src/screens/CreateNewPasswordScreen";
 import ChangePasswordScreen from "./src/screens/ChangePasswordScreen";
+import HomeUINavigation from "./src/navigations/HomeUINavigation";
 const Stack = createStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen
+          name="HomeUINavigation"
+          component={HomeUINavigation}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="ChangePassword"
           component={ChangePasswordScreen}
