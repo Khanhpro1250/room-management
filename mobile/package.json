@@ -9,11 +9,11 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@ant-design/react-native": "^5.0.4",
     "@react-navigation/bottom-tabs": "^6.5.8",
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/stack": "^6.3.17",
     "@types/react": "~18.2.14",
+    "antd-mobile": "^5.32.3",
     "expo": "~49.0.10",
     "expo-status-bar": "~1.6.0",
     "react": "18.2.0",
