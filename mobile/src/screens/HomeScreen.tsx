@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import React from "react";
 import { Bars3Icon } from "react-native-heroicons/outline";
+import RentCost from "../components/RentCost";
 import Announcement from "../components/Announcement";
 
 export default function HomeScreen() {
@@ -27,11 +28,19 @@ export default function HomeScreen() {
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
+            marginBottom: 20,
           }}
         >
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Bars3Icon style={{ marginHorizontal: 10 }} stroke={"black"} />
-            <Text>Home</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Bars3Icon style={{ marginEnd: 10 }} stroke={"blue"} />
+            <Text style={{ fontSize: 20, fontWeight: "bold", color: "blue" }}>
+              Home
+            </Text>
           </View>
           <Image
             source={require("../../assets/profile.jpg")}
@@ -40,54 +49,58 @@ export default function HomeScreen() {
         </View>
         {/* content */}
         <View style={{ flex: 1 }}>
-          {/* Top content */}
-          <View
-            style={{
-              flex: 1,
-              marginBottom: 30,
-              justifyContent: "center",
-            }}
-          >
-            <Text>Ưu tiên</Text>
-            <Announcement
-              title="Tiền phòng"
-              room="P.406 Tháng 10"
-              status="Trạng thái: Chưa thanh toán"
-            />
-          </View>
           {/* Bottom content */}
-          <View style={{ flex: 3 }}>
+          <View style={{ flex: 1 }}>
             <Text>All Session</Text>
             <ScrollView>
+              <RentCost title="Bóng đèn bị hỏng" room="P.406" />
               <Announcement
-                title="Nhắc nhở"
-                room="P.406"
-                status="Huỳnh Khanh và Trang Đoàn"
+                title="Khóa cửa chính bị kẹt"
+                room="Tất cả"
+                address="52B5, Phước Kiểng, Nhà Bè"
+                user="Admin"
+                date="10/09/2023"
+                priority="Cao"
               />
               <Announcement
-                title="Nhắc nhở"
-                room="P.406"
-                status="Huỳnh Khanh và Phương Ngân"
+                title="Nhắc nhở làm ồn"
+                room="P.104"
+                address="52B5, Phước Kiểng, Nhà Bè"
+                user="Admin"
+                date="10/09/2023"
+                priority="Cao"
               />
               <Announcement
-                title="Tiền phòng"
-                room="P.406 Tháng 10"
-                status="Trạng thái: Chưa thanh toán"
+                title="Tường bị rạn nứt"
+                room="Tất cả"
+                address="52B5, Phước Kiểng, Nhà Bè"
+                user="Admin"
+                date="10/09/2023"
+                priority="Trung bình"
               />
               <Announcement
-                title="Tiền phòng"
-                room="P.406 Tháng 10"
-                status="Trạng thái: Chưa thanh toán"
+                title="Không được bỏ rác phía trước"
+                room="P.206"
+                address="52B5, Phước Kiểng, Nhà Bè"
+                user="Admin"
+                date="10/09/2023"
+                priority="Thấp"
               />
               <Announcement
-                title="Tiền phòng"
-                room="P.406 Tháng 10"
-                status="Trạng thái: Chưa thanh toán"
+                title="Cẩn thận trộm cắp"
+                room="Tất cả"
+                address="52B5, Phước Kiểng, Nhà Bè"
+                user="Admin"
+                date="10/09/2023"
+                priority="Cao"
               />
               <Announcement
-                title="Tiền phòng"
-                room="P.406 Tháng 10"
-                status="Trạng thái: Chưa thanh toán"
+                title="Tường bị rạn nứt"
+                room="P.112"
+                address="52B5, Phước Kiểng, Nhà Bè"
+                user="Admin"
+                date="10/09/2023"
+                priority="Cao"
               />
             </ScrollView>
           </View>
