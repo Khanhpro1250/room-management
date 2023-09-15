@@ -10,11 +10,17 @@ import OTPVerificationScreen from "./src/screens/OTPVerificationScreen";
 import CreateNewPassWordScreen from "./src/screens/CreateNewPasswordScreen";
 import ChangePasswordScreen from "./src/screens/ChangePasswordScreen";
 import HomeUINavigation from "./src/navigations/HomeUINavigation";
+import DetailCostScreen from "./src/screens/DetailCostScreen";
 const Stack = createStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen
+          name="DetailCost"
+          component={DetailCostScreen}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="HomeUINavigation"
           component={HomeUINavigation}
