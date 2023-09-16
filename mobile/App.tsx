@@ -11,11 +11,18 @@ import CreateNewPassWordScreen from "./src/screens/CreateNewPasswordScreen";
 import ChangePasswordScreen from "./src/screens/ChangePasswordScreen";
 import HomeUINavigation from "./src/navigations/HomeUINavigation";
 import DetailCostScreen from "./src/screens/DetailCostScreen";
+import DetailRoomScreen from "./src/screens/DetailRoomScreen";
+import DetailRoomNavigation from "./src/navigations/DetailRoomNavigation";
 const Stack = createStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen
+          name="DetailRoom"
+          component={DetailRoomNavigation}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="DetailCost"
           component={DetailCostScreen}
