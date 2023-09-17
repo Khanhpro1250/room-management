@@ -1,133 +1,114 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import React from "react";
 import { RadioButton } from "react-native-paper";
-import { HomeIcon } from "react-native-heroicons/outline";
+import { ChevronRightIcon, HomeIcon } from "react-native-heroicons/outline";
+import ServicesCard from "../components/ServicesCard";
 
 export default function DetailRoomScreen() {
   return (
-    <View>
-      <Text style={{ fontWeight: "bold", fontSize: 20, alignSelf: "center" }}>
-        3.000.000 đ
-      </Text>
-      {/* dich vu */}
+    <View style={{ flex: 1, backgroundColor: "white", paddingHorizontal: 22 }}>
       <View
         style={{
-          flexDirection: "row",
-          justifyContent: "space-around",
+          elevation: 10,
+          shadowColor: "black",
+          backgroundColor: "white",
+          borderRadius: 10,
+          padding: 25,
+          marginVertical: 20,
         }}
       >
-        <View style={{ alignItems: "center" }}>
-          <Text>Diện tích</Text>
-          <Text>22 m</Text>
-          <Text>Phòng ngủ</Text>
-          <Text>1</Text>
-          <Text>Số người tối đa</Text>
-          <Text>2</Text>
-        </View>
-        <View style={{ alignItems: "center" }}>
-          <Text>Tầng</Text>
-          <Text>4</Text>
-          <Text>Phòng khách</Text>
-          <Text>0</Text>
-          <Text>Tiền cọc</Text>
-          <Text>2.000.000 đ</Text>
+        <Text
+          style={{
+            fontWeight: "bold",
+            fontSize: 20,
+            alignSelf: "center",
+            color: "gold",
+          }}
+        >
+          3.000.000 đ
+        </Text>
+        {/* dich vu */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-around",
+          }}
+        >
+          <View style={{ alignItems: "center" }}>
+            <Text style={styles.title}>Diện tích</Text>
+            <Text style={styles.info}>22 m</Text>
+            <Text style={styles.title}>Phòng ngủ</Text>
+            <Text style={styles.info}>1</Text>
+            <Text style={styles.title}>Số người tối đa</Text>
+            <Text style={styles.info}>2</Text>
+          </View>
+          <View style={{ alignItems: "center" }}>
+            <Text style={styles.title}>Tầng</Text>
+            <Text style={styles.info}>4</Text>
+            <Text style={styles.title}>Phòng khách</Text>
+            <Text style={styles.info}>0</Text>
+            <Text style={styles.title}>Tiền cọc</Text>
+            <Text style={styles.info}>2.000.000 đ</Text>
+          </View>
         </View>
       </View>
       {/* Hop dong */}
-      <View style={{ alignItems: "center" }}>
-        <Text>Hợp đồng #000078</Text>
-        <Text>Từ 15-09-2023 đến 15-09-2024</Text>
-        <TouchableOpacity
-          style={{
-            borderRadius: 5,
-            borderWidth: 1,
-            borderColor: "grey",
-            padding: 10,
-          }}
-        >
-          <Text style={{ color: "green" }}>Xem chi tiết</Text>
+      <View
+        style={{
+          alignItems: "center",
+          elevation: 3,
+          shadowColor: "black",
+          backgroundColor: "white",
+          borderRadius: 10,
+          padding: 10,
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <View>
+          <Text style={styles.title}>Hợp đồng #000078</Text>
+          <Text>Từ 15-09-2023 đến 15-09-2024</Text>
+        </View>
+        <TouchableOpacity>
+          <ChevronRightIcon stroke={"grey"} />
         </TouchableOpacity>
-      </View>
-      {/* gender */}
-      <View style={{ flexDirection: "row" }}>
-        <Text>Gender</Text>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <RadioButton value="first" status={"unchecked"} />
-          <Text>Nam</Text>
-        </View>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <RadioButton value="first" status={"checked"} />
-          <Text>Nữ</Text>
-        </View>
       </View>
       {/* Dich vu */}
       <View>
-        <Text>Dich vu co phi</Text>
-        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          <View
-            style={{
-              borderWidth: 1,
-              borderRadius: 10,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <HomeIcon stroke={"black"} />
-            <Text>Máy lạnh</Text>
-            <Text>200.000 đ/ Phòng</Text>
-          </View>
-          <View
-            style={{
-              borderWidth: 1,
-              borderRadius: 10,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <HomeIcon stroke={"black"} />
-            <Text>Máy lạnh</Text>
-            <Text>200.000 đ/ Phòng</Text>
-          </View>
-          <View
-            style={{
-              borderWidth: 1,
-              borderRadius: 10,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <HomeIcon stroke={"black"} />
-            <Text>Máy lạnh</Text>
-            <Text>200.000 đ/ Phòng</Text>
-          </View>
-          <View
-            style={{
-              borderWidth: 1,
-              borderRadius: 10,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <HomeIcon stroke={"black"} />
-            <Text>Máy lạnh</Text>
-            <Text>200.000 đ/ Phòng</Text>
-          </View>
-          <View
-            style={{
-              borderWidth: 1,
-              borderRadius: 10,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <HomeIcon stroke={"black"} />
-            <Text>Máy lạnh</Text>
-            <Text>200.000 đ/ Phòng</Text>
-          </View>
+        <Text style={{ fontWeight: "bold", fontSize: 16, marginVertical: 10 }}>
+          Dịch vụ có phí
+        </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+          }}
+        >
+          <ServicesCard />
+          <ServicesCard />
+          <ServicesCard />
+          <ServicesCard />
+          <ServicesCard />
+          <ServicesCard />
         </View>
       </View>
-      <Text>Dịch vụ miễn phí</Text>
-      <Text>Dữ liệu trống</Text>
+      <Text style={{ fontWeight: "bold", fontSize: 16, marginVertical: 10 }}>
+        Dịch vụ miễn phí
+      </Text>
+      <Text style={{ fontWeight: "bold", fontSize: 16, marginVertical: 10 }}>
+        Dịch vụ có phí
+      </Text>
     </View>
   );
 }
+const styles = StyleSheet.create({
+  title: {
+    fontWeight: "bold",
+  },
+  info: {
+    fontSize: 13,
+    color: "grey",
+    fontWeight: "bold",
+  },
+});

@@ -17,7 +17,6 @@ export default function HomeScreen() {
       style={{
         flex: 1,
         paddingTop: StatusBar.currentHeight,
-        marginTop: 10,
         backgroundColor: "white",
       }}
     >
@@ -29,6 +28,7 @@ export default function HomeScreen() {
             justifyContent: "space-between",
             alignItems: "center",
             marginBottom: 20,
+            marginTop: 10,
           }}
         >
           <View
@@ -37,7 +37,7 @@ export default function HomeScreen() {
               alignItems: "center",
             }}
           >
-            <Bars3Icon style={{ marginEnd: 10 }} stroke={"blue"} />
+            {/* <Bars3Icon style={{ marginEnd: 10 }} stroke={"blue"} /> */}
             <Text style={{ fontSize: 20, fontWeight: "bold", color: "blue" }}>
               Home
             </Text>

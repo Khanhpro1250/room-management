@@ -13,11 +13,22 @@ import HomeUINavigation from "./src/navigations/HomeUINavigation";
 import DetailCostScreen from "./src/screens/DetailCostScreen";
 import DetailRoomScreen from "./src/screens/DetailRoomScreen";
 import DetailRoomNavigation from "./src/navigations/DetailRoomNavigation";
+import ProfileScreen from "./src/screens/ProfileScreen";
 const Stack = createStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen
+          name="HomeUINavigation"
+          component={HomeUINavigation}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="DetailRoom"
           component={DetailRoomNavigation}
@@ -28,11 +39,7 @@ export default function App() {
           component={DetailCostScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="HomeUINavigation"
-          component={HomeUINavigation}
-          options={{ headerShown: false }}
-        />
+
         <Stack.Screen
           name="ChangePassword"
           component={ChangePasswordScreen}

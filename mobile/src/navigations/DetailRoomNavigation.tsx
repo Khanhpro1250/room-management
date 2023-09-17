@@ -3,7 +3,8 @@ import React from "react";
 import { ChevronLeftIcon, ShareIcon } from "react-native-heroicons/outline";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import DetailRoomScreen from "../screens/DetailRoomScreen";
-import UserInformationScreen from "../screens/UserInformationScreen";
+
+import RoommatesScreen from "../screens/RoommatesScreen";
 
 const Tab = createMaterialTopTabNavigator();
 export default function DetailRoomNavigation() {
@@ -12,7 +13,6 @@ export default function DetailRoomNavigation() {
       style={{
         flex: 1,
         paddingTop: StatusBar.currentHeight,
-        marginTop: 10,
         backgroundColor: "white",
       }}
     >
@@ -24,6 +24,7 @@ export default function DetailRoomNavigation() {
             justifyContent: "center",
             marginBottom: 20,
             marginHorizontal: 22,
+            marginTop: 10,
           }}
         >
           <ChevronLeftIcon stroke={"black"} />
@@ -43,8 +44,8 @@ export default function DetailRoomNavigation() {
             options={{ tabBarLabel: "Thông tin" }}
           />
           <Tab.Screen
-            name="UserInfor"
-            component={UserInformationScreen}
+            name="Roommates"
+            component={RoommatesScreen}
             options={{ tabBarLabel: "Người thuê" }}
           />
         </Tab.Navigator>

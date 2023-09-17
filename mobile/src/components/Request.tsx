@@ -17,7 +17,7 @@ interface Props {
   date: String;
   priority: String;
 }
-export default function Announcement(props) {
+export default function Request(props) {
   return (
     <TouchableOpacity>
       <View
@@ -74,10 +74,6 @@ export default function Announcement(props) {
               {props.priority}
             </Text>
           </View>
-          <View style={{ flexDirection: "row" }}>
-            <HomeIcon stroke={"grey"} size={18} style={{ marginEnd: 5 }} />
-            <Text style={{ fontSize: 13 }}>{props.room}</Text>
-          </View>
 
           <View style={{ flexDirection: "row" }}>
             <MapPinIcon stroke={"grey"} size={18} style={{ marginEnd: 5 }} />
@@ -91,6 +87,16 @@ export default function Announcement(props) {
               <Text style={{ fontSize: 12 }}>{props.user}</Text>
             </View>
             <Text style={{ fontSize: 12, color: "green" }}>{props.date}</Text>
+          </View>
+          {/* Trang thai */}
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <UserIcon stroke={"grey"} size={18} style={{ marginEnd: 5 }} />
+              <Text style={{ fontSize: 12 }}>Trạng thái</Text>
+            </View>
+            <Text style={{ fontSize: 12, color: "green" }}>{props.status}</Text>
           </View>
         </View>
       </View>
