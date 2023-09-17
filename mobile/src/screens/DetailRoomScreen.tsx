@@ -11,7 +11,7 @@ export default function DetailRoomScreen() {
         style={{
           elevation: 10,
           shadowColor: "black",
-          backgroundColor: "white",
+          backgroundColor: "whitesmoke",
           borderRadius: 10,
           padding: 25,
           marginVertical: 20,
@@ -58,7 +58,7 @@ export default function DetailRoomScreen() {
           alignItems: "center",
           elevation: 3,
           shadowColor: "black",
-          backgroundColor: "white",
+          backgroundColor: "moccasin",
           borderRadius: 10,
           padding: 10,
           flexDirection: "row",
@@ -85,12 +85,24 @@ export default function DetailRoomScreen() {
             justifyContent: "space-between",
           }}
         >
-          <ServicesCard />
-          <ServicesCard />
-          <ServicesCard />
-          <ServicesCard />
-          <ServicesCard />
-          <ServicesCard />
+          <ServicesCard
+            name="Máy lạnh"
+            price="200.000 đ/Phòng"
+            color="violet"
+          />
+          <ServicesCard name="Tủ lạnh" price="150.000 đ/Phòng" color="gold" />
+          <ServicesCard name="TV" price="100.000 đ/Phòng" color="cyan" />
+          <ServicesCard
+            name="Máy giặc"
+            price="300.000 đ/Phòng"
+            color="darkorange"
+          />
+          <ServicesCard
+            name="Điện"
+            price="200.000 đ/kWh"
+            color="darkturquoise"
+          />
+          <ServicesCard name="Nước" price="20.000 đ/m3" color="hotpink" />
         </View>
       </View>
       <Text style={{ fontWeight: "bold", fontSize: 16, marginVertical: 10 }}>

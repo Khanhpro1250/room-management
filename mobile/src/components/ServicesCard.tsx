@@ -2,7 +2,12 @@ import { View, Text } from "react-native";
 import React from "react";
 import { HomeIcon } from "react-native-heroicons/outline";
 
-export default function ServicesCard() {
+interface props {
+  name: String;
+  price: String;
+  color: String;
+}
+export default function ServicesCard(props) {
   return (
     <View
       style={{
@@ -11,15 +16,16 @@ export default function ServicesCard() {
         alignItems: "center",
         elevation: 3,
         shadowColor: "black",
-        backgroundColor: "white",
+        backgroundColor: props.color,
         marginVertical: 5,
         height: 80,
+        width: 120,
         padding: 3,
       }}
     >
       <HomeIcon stroke={"black"} />
-      <Text style={{ fontSize: 12 }}>Máy lạnh</Text>
-      <Text style={{ fontSize: 12 }}>200.000 đ/ Phòng</Text>
+      <Text style={{ fontSize: 12 }}>{props.name}</Text>
+      <Text style={{ fontSize: 12 }}>{props.price}</Text>
     </View>
   );
 }
