@@ -14,6 +14,7 @@ import DetailCostScreen from "./src/screens/DetailCostScreen";
 import DetailRoomScreen from "./src/screens/DetailRoomScreen";
 import DetailRoomNavigation from "./src/navigations/DetailRoomNavigation";
 import ProfileScreen from "./src/screens/ProfileScreen";
+import CreateRequestScreen from "./src/screens/CreateRequestScreen";
 const Stack = createStackNavigator();
 export default function App() {
   return (
@@ -24,6 +25,12 @@ export default function App() {
           component={HomeUINavigation}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="AddRequest"
+          component={CreateRequestScreen}
+          options={{ headerShown: false }}
+        />
+
         <Stack.Screen
           name="Profile"
           component={ProfileScreen}

@@ -11,7 +11,7 @@ import { ChevronLeftIcon, ShareIcon } from "react-native-heroicons/outline";
 import Request from "../components/Request";
 import { Button } from "react-native-paper";
 
-export default function RequestsScreen() {
+export default function RequestsScreen({ navigation }) {
   return (
     <SafeAreaView
       style={{
@@ -33,7 +33,13 @@ export default function RequestsScreen() {
             <Text style={{ fontSize: 18, fontWeight: "bold" }}>
               Danh sách yêu cầu
             </Text>
-            <Button mode="contained" buttonColor="violet" onPress={() => {}}>
+            <Button
+              mode="contained"
+              buttonColor="violet"
+              onPress={() => {
+                navigation.navigate("AddRequest");
+              }}
+            >
               <Text>Thêm</Text>
             </Button>
           </View>
