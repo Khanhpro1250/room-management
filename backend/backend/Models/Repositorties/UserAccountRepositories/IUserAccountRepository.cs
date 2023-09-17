@@ -1,11 +1,15 @@
-﻿using backend.Controllers;
-using backend.Models.Entities.UserAccount;
+﻿using backend.Models.Entities.UserAccount;
+using MongoDB.Driver;
 
 namespace backend.Models.Repositorties.UserAccountRepositories;
 
 public interface IUserAccountRepository
 {
     Task<List<User>> GetListUser();
-    Task<User> GetListUserById(string userId);
-    Task<User> CreateUser(test user);
+    Task<User> GetUserById(string userId);
+    Task<User> CreateUser(User user);
+    Task<User> UpdateUser(User user,string userId);
+    IMongoCollection<User> GetQueryable();
+
+    Task DeleteMenu(string id);
 }

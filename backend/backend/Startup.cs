@@ -1,5 +1,7 @@
 ﻿using System.Text;
+using backend.Models.Repositorties.MenuRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
+using backend.Services.IMenuService;
 using backend.Services.UserServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -33,18 +35,28 @@ public class Startup
         app.UseRouting();
 
         app.UseAuthorization();
+        
+        app.UseCors();
+        app.UseStaticFiles();
+        
+        app.UseSpa(spa =>
+        {
+            spa.Options.SourcePath = "wwwroot";
+            // if (env.IsDevelopment()) spa.UseProxyToSpaDevelopmentServer("http://localhost:7179");
+        });
 
 
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
             endpoints.MapSwagger();
-   
+            
         });
     }
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddAutoMapper(typeof(Startup));
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddControllersWithViews();
@@ -52,16 +64,8 @@ public class Startup
         services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo() { Title = "My API", Version = "v1" }); });
 
         // Add CORS
-        services.AddCors(options =>
-        {
-            options.AddPolicy("CorsPolicy", builder =>
-            {
-                builder.AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .WithOrigins("http://localhost:3000")
-                    .AllowCredentials();
-            });
-        });
+        services.AddCors();
+        
 
         // AddDbContext
          // services.AddDbContext<ApplicationDbContext>(options =>
@@ -77,7 +81,11 @@ public class Startup
              var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
              return new UserAccountRepository(mongoClient, "room_manager");
          });
-         
+         services.AddSingleton<IMenuRepository>(_ =>
+         {
+             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+             return new MenuRepository(mongoClient, "room_manager");
+         });
          // AddAuthentication
          services.AddAuthentication(options =>
          {
@@ -102,5 +110,8 @@ public class Startup
 
         // AddScoped
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IMenuService, MenuService>();
+
+        services.AddReverseProxy();
     }
 }

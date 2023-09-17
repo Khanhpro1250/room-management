@@ -1,0 +1,9 @@
+build/
+bld/
+bin/
+Bin/
+obj/
+Obj/
+
+/node_modules
+/**/*/node_modules

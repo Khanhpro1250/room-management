@@ -1,24 +1,48 @@
+using backend.DTOs.UserDtos;
 using backend.Models.Entities.UserAccount;
 using backend.Models.Repositorties.UserAccountRepositories;
+using backend.Services.UserServices;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/identity")]
 public class UserAccountController : ControllerBase
 {
-    private readonly IUserAccountRepository _userAccountRepository;
+    private readonly IUserService _userService;
 
-    public UserAccountController(IUserAccountRepository userAccountRepository)
+    public UserAccountController(IUserService userService)
     {
-        _userAccountRepository = userAccountRepository;
+        _userService = userService;
     }
-    
-    [HttpPost]
-    public ActionResult CreateUserCount([FromBody] test user)
+
+
+    [HttpPost("user-account")]
+    public async Task<ActionResult> CreateUserCount([FromBody] CreateUpdateUserDtos user)
     {
-        var result = _userAccountRepository.CreateUser(user);
+        await _userService.CreateUser(user);
         return new ObjectResult(user);
+    }
+
+    [HttpGet("user-account/{userId}")]
+    public async Task<ActionResult> GetUserDetail([FromRoute] string userId)
+    {
+        var user = await _userService.GetUserById(userId);
+        return new ObjectResult(user);
+    }
+
+    [HttpPut("user-account/{id}")]
+    public async Task<ActionResult> UpdateUserCount([FromBody] CreateUpdateUserDtos user, [FromRoute] string id)
+    {
+        var result = await _userService.UpdateUser(user, id);
+        return new ObjectResult(result);
+    }
+
+    [HttpDelete("user-account/{id}")]
+    public async Task<ActionResult> DeleteUserCount([FromRoute] string id)
+    {
+        await _userService.DeleteMenu(id);
+        return new OkResult();
     }
 }
