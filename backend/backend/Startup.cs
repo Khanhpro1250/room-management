@@ -1,6 +1,8 @@
 ﻿using System.Text;
+using backend.Models.Repositorties.HouseRerositories;
 using backend.Models.Repositorties.MenuRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
+using backend.Services.HouseServices;
 using backend.Services.IMenuService;
 using backend.Services.UserServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -36,14 +38,15 @@ public class Startup
 
         app.UseAuthorization();
         
-        app.UseCors();
+        // app.UseCors();
+        app.UseCors("AllowReactFrontend");
         app.UseStaticFiles();
         
-        app.UseSpa(spa =>
-        {
-            spa.Options.SourcePath = "wwwroot";
-            // if (env.IsDevelopment()) spa.UseProxyToSpaDevelopmentServer("http://localhost:7179");
-        });
+        // app.UseSpa(spa =>
+        // {
+        //     spa.Options.SourcePath = "wwwroot";
+        //     // if (env.IsDevelopment()) spa.UseProxyToSpaDevelopmentServer("http://localhost:7179");
+        // });
 
 
         app.UseEndpoints(endpoints =>
@@ -64,7 +67,17 @@ public class Startup
         services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo() { Title = "My API", Version = "v1" }); });
 
         // Add CORS
-        services.AddCors();
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowReactFrontend",
+                builder =>
+                {
+                    builder
+                        .WithOrigins("http://localhost:3000") // Adjust this to match your React app's address
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+        });
         
 
         // AddDbContext
@@ -85,6 +98,12 @@ public class Startup
          {
              var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
              return new MenuRepository(mongoClient, "room_manager");
+         });
+         
+         services.AddSingleton<IHouseRepository>(_ =>
+         {
+             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+             return new HouseRepository(mongoClient, "room_manager");
          });
          // AddAuthentication
          services.AddAuthentication(options =>
@@ -108,10 +127,9 @@ public class Startup
         // AddAuthorization
         services.AddAuthorization(options => { options.AddPolicy("Admin", policy => policy.RequireRole("Admin")); });
 
-        // AddScoped
+        // AddScoped adService
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IMenuService, MenuService>();
-
-        services.AddReverseProxy();
+        services.AddScoped<IHouseService, HouseService>();
     }
 }

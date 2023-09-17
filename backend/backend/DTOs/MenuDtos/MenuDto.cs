@@ -7,6 +7,7 @@ public class MenuDto
     public string Route { get; set; }
     public string Icon { get; set; }
     public string Path { get; set; }
+    public string  abc { get; set; }
     public bool IsDisplay { get; set; } = false;
     public int Level { get; set; } = 1;
     public string Permissions { get; set; }

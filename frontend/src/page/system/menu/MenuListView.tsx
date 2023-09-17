@@ -21,6 +21,8 @@ const MenuListView: React.FC = () => {
         gridRef: gridRef,
     });
 
+    console.log(gridController);
+
     const onCreate = () => {
         modalRef.current?.onOpen(
             <MenuForm
@@ -113,40 +115,40 @@ const MenuListView: React.FC = () => {
 
     return (
         <AppContainer>
-            {gridController?.loading ? (
+            {/* {gridController?.loading ? (
                 <Loading />
-            ) : (
-                <>
-                    <BaseGrid
-                        columnDefs={MenuColDefs}
-                        data={gridController?.data}
-                        ref={gridRef}
-                        numberRows={false}
-                        pagination={false}
-                        actionRowsList={{
-                            hasEditBtn: true,
-                            hasDeleteBtn: true,
-                            hasCreateChildBtn: true,
-                            onClickCreateChildBtn: onCreateChild,
-                            onClickEditBtn: onUpdate,
-                            onClickDeleteBtn: onDelete,
-                        }}
-                        treeData
-                        actionRowsWidth={120}
-                        autoGroupColumnDef={autoGroupColumnDef}
-                        getDataPath={getDataPath}
-                        groupDefaultExpanded={-1}
-                    >
-                        <GridToolbar
-                            hasCreateButton
-                            hasRefreshButton
-                            onClickCreateButton={onCreate}
-                            onClickRefreshButton={() => gridController?.reloadData()}
-                        />
-                    </BaseGrid>
-                    <ModalBase ref={modalRef} />
-                </>
-            )}
+            ) : ( */}
+            <>
+                <BaseGrid
+                    columnDefs={MenuColDefs}
+                    data={gridController?.data}
+                    ref={gridRef}
+                    numberRows={false}
+                    pagination={false}
+                    actionRowsList={{
+                        hasEditBtn: true,
+                        hasDeleteBtn: true,
+                        hasCreateChildBtn: true,
+                        onClickCreateChildBtn: onCreateChild,
+                        onClickEditBtn: onUpdate,
+                        onClickDeleteBtn: onDelete,
+                    }}
+                    treeData
+                    actionRowsWidth={120}
+                    autoGroupColumnDef={autoGroupColumnDef}
+                    getDataPath={getDataPath}
+                    groupDefaultExpanded={-1}
+                >
+                    <GridToolbar
+                        hasCreateButton
+                        hasRefreshButton
+                        onClickCreateButton={onCreate}
+                        onClickRefreshButton={() => gridController?.reloadData()}
+                    />
+                </BaseGrid>
+                <ModalBase ref={modalRef} />
+            </>
+            {/* )} */}
         </AppContainer>
     );
 };
