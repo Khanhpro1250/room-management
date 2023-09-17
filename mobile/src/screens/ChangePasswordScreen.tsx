@@ -12,7 +12,6 @@ import InputText from "../components/InputText";
 import ButtonPrimary from "../components/ButtonPrimary";
 import { Colors } from "../utils/Colors";
 import { TextInput } from "react-native-gesture-handler";
-import { Button, InputItem, List } from "@ant-design/react-native";
 
 const ChangePasswordScreen = () => {
   return (
