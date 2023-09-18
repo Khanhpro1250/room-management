@@ -1,12 +1,14 @@
 ﻿using System.Text;
 using backend.Models.Repositorties.ContractRepositories;
 using backend.Models.Repositorties.CustomerRepositories;
+using backend.Models.Repositorties.DepositRepositories;
 using backend.Models.Repositorties.HouseRerositories;
 using backend.Models.Repositorties.MenuRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
 using backend.Services.ContractServices;
 using backend.Services.CustomerServices;
+using backend.Services.DepositServices;
 using backend.Services.HouseServices;
 using backend.Services.MenuService;
 using backend.Services.RoomServices;
@@ -94,6 +96,11 @@ public class Startup
         // services.AddIdentity<User, IdentityUser>()
         //    .AddEntityFrameworkStores<ApplicationDbContext>()
         //    .AddDefaultTokenProviders();
+        services.AddSingleton<IDepositRepository>(_ =>
+        {
+            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+            return new DepositRepository(mongoClient, "room_manager");
+        });
         services.AddSingleton<IContractRepository>(_ =>
         {
             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
@@ -154,5 +161,6 @@ public class Startup
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IContractService, ContractService>();
+        services.AddScoped<IDepositService, DepositService>();
     }
 }
