@@ -39,7 +39,6 @@ namespace backend.Models.Repositorties.RoomRepositories
             await _room.UpdateOneAsync(filter, update);
             return room;
         }
-
         public async Task DeleteRoom(string id)
         {
             var filter = Builders<Room>.Filter.Eq(x => x.Id, id);
