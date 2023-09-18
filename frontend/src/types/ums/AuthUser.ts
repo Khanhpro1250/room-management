@@ -25,7 +25,6 @@ export interface IUser {
     phoneNumber?: string;
     password?: string;
     rePassword?: string;
-    amount?: number;
 }
 
 export interface LoginParam {
