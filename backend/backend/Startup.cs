@@ -1,9 +1,11 @@
 ﻿using System.Text;
 using backend.Models.Repositorties.HouseRerositories;
 using backend.Models.Repositorties.MenuRepositories;
+using backend.Models.Repositorties.RoomRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
 using backend.Services.HouseServices;
 using backend.Services.IMenuService;
+using backend.Services.RoomServices;
 using backend.Services.UserServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -78,18 +80,22 @@ public class Startup
                         .AllowAnyMethod();
                 });
         });
-        
+
 
         // AddDbContext
-         // services.AddDbContext<ApplicationDbContext>(options =>
-         //     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-        
-         // AddIdentity
-         // services.AddIdentity<User, IdentityUser>()
-         //    .AddEntityFrameworkStores<ApplicationDbContext>()
-         //    .AddDefaultTokenProviders();
-         
-         services.AddSingleton<IUserAccountRepository>(_ =>
+        // services.AddDbContext<ApplicationDbContext>(options =>
+        //     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+        // AddIdentity
+        // services.AddIdentity<User, IdentityUser>()
+        //    .AddEntityFrameworkStores<ApplicationDbContext>()
+        //    .AddDefaultTokenProviders();
+        services.AddSingleton<IRoomRepository>(_ =>
+        {
+            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+            return new RoomRepository(mongoClient, "room_manager");
+        });
+        services.AddSingleton<IUserAccountRepository>(_ =>
          {
              var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
              return new UserAccountRepository(mongoClient, "room_manager");
@@ -131,5 +137,6 @@ public class Startup
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IMenuService, MenuService>();
         services.AddScoped<IHouseService, HouseService>();
+        services.AddScoped<IRoomService, RoomService>();
     }
 }

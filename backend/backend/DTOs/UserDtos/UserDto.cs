@@ -3,7 +3,6 @@
 public class UserDto
 {
     public string Id { get; set; }
-    public string Name { get; set; }
     public string UserName { get; set; }
     public string UserCode { get; set; }
     public string FullName { get; set; }

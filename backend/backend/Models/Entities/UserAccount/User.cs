@@ -5,7 +5,7 @@ namespace backend.Models.Entities.UserAccount;
 
 public class User: AuditedEntity
 {
-    public string Name { get; set; }
+   
     public string UserName { get; set; }
     public string UserCode { get; set; }
     public string PasswordHash { get; set; }

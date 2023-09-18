@@ -7,7 +7,7 @@
         public string ContractId { get; set; }
         public bool IsRepresent {  get; set; }
         public string IdentityNumber {  get; set; }
-        puvlic string IdentityImgLink { get; set; }
+        public string IdentityImgLink { get; set; }
 
     }
 }
