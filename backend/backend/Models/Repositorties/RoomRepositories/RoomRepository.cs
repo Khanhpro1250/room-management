@@ -1,5 +1,4 @@
 ﻿using backend.Models.Entities.Rooms;
-using backend.Models.Entities.UserAccount;
 using MongoDB.Driver;
 
 namespace backend.Models.Repositorties.RoomRepositories
@@ -34,11 +33,10 @@ namespace backend.Models.Repositorties.RoomRepositories
         public async Task<Room> UpdateRoom(Room room, string roomId)
         {
             var filter = Builders<Room>.Filter.Eq(x => x.Id, roomId);
-            var update = Builders<Room>.Update
-                .Set(x => x, room);
-            await _room.UpdateOneAsync(filter, update);
+            await _room.ReplaceOneAsync(filter, room);
             return room;
         }
+
         public async Task DeleteRoom(string id)
         {
             var filter = Builders<Room>.Filter.Eq(x => x.Id, id);

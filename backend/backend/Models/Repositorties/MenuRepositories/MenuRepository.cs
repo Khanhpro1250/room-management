@@ -23,9 +23,7 @@ public class MenuRepository : IMenuRepository
     public async Task<Menu> UpdateMenu(Menu menu, string id)
     {
         var filter = Builders<Menu>.Filter.Eq(x => x.Id, id);
-        var update = Builders<Menu>.Update
-            .Set(x => x, menu);
-        await _menu.UpdateOneAsync(filter, update);
+        await _menu.ReplaceOneAsync(filter, menu);
         return menu;
     }
 

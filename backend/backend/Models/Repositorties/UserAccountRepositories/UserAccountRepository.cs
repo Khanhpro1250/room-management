@@ -1,7 +1,4 @@
-﻿using backend.Controllers;
-using backend.DTOs.UserDtos;
-using backend.Models.Entities.UserAccount;
-using Microsoft.EntityFrameworkCore;
+﻿using backend.Models.Entities.UserAccount;
 using MongoDB.Driver;
 
 namespace backend.Models.Repositorties.UserAccountRepositories;
@@ -38,19 +35,17 @@ public class UserAccountRepository : IUserAccountRepository
     public async Task<User> UpdateUser(User user, string userId)
     {
         var filter = Builders<User>.Filter.Eq(x => x.Id, userId);
-        var update = Builders<User>.Update
-            .Set(x => x, user);
-        await _user.UpdateOneAsync(filter,update);
+        await _user.ReplaceOneAsync(filter, user);
         return user;
     }
-    
+
     public async Task DeleteMenu(string id)
     {
         var filter = Builders<User>.Filter.Eq(x => x.Id, id);
         await _user.DeleteOneAsync(filter);
     }
 
-    public  IMongoCollection<User> GetQueryable()
+    public IMongoCollection<User> GetQueryable()
     {
         return _user;
     }
