@@ -16,7 +16,7 @@ import { useMergeState } from '~/hook/useMergeState';
 import { baseDeleteApi, requestApi } from '~/lib/axios';
 import { DELETE_USER_BY_ID_API, USER_LIST_API } from '~/page/system/user/api/api';
 import { Menu } from '~/types/layout/Menu';
-import { ComboOption, ITuition } from '~/types/shared';
+import { ComboOption } from '~/types/shared';
 import { AppUser, IUser } from '~/types/ums/AuthUser';
 import UserForm from './component/UserForm';
 
@@ -30,7 +30,7 @@ const UserListView: React.FC = () => {
     const gridRef = useRef<BaseGridRef>(null);
     const modalRef = useRef<ModalRef>(null);
     const [user, setUser] = useState<AppUser | null>(null);
-    const gridController = useBaseGrid<ITuition>({
+    const gridController = useBaseGrid({
         url: USER_LIST_API,
         gridRef: gridRef,
     });
@@ -58,7 +58,7 @@ const UserListView: React.FC = () => {
             />,
             'Tạo mới tài khoản',
             '80%',
-            faAppleAlt
+            faAppleAlt,
         );
     };
     const onCreate = () => {
@@ -69,12 +69,9 @@ const UserListView: React.FC = () => {
                     gridController?.reloadData();
                 }}
                 onClose={modalRef.current?.onClose}
-                
             />,
             'Tạo mới tài khoản',
             '50%',
-           
-        
         );
     };
 

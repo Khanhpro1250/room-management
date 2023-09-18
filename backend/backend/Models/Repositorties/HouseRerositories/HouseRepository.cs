@@ -18,4 +18,9 @@ public class HouseRepository : IHouseRepository
          await _house.InsertOneAsync(house);
          return house;
     }
+    
+    public IMongoCollection<House> GetQueryable()
+    {
+        return _house;
+    }
 }

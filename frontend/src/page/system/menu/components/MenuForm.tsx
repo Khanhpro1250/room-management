@@ -29,24 +29,24 @@ interface State {
 
 const MenuForm: React.FC<Props> = props => {
     const formRef = useRef<BaseFormRef>(null);
-    const [state, setState] = useMergeState<State>({
-        loading: true,
-        roles: [],
-    });
+    // const [state, setState] = useMergeState<State>({
+    //     loading: true,
+    //     roles: [],
+    // });
 
-    const fetchComBoPermission = async () => {
-        const res = await requestApi('get', COMBO_ROLE_API);
-        if (res.data?.success) {
-            setState({
-                loading: false,
-                roles: res.data?.result,
-            });
-        }
-    };
+    // const fetchComBoPermission = async () => {
+    //     const res = await requestApi('get', COMBO_ROLE_API);
+    //     if (res.data?.success) {
+    //         setState({
+    //             loading: false,
+    //             roles: res.data?.result,
+    //         });
+    //     }
+    // };
 
-    useEffect(() => {
-        fetchComBoPermission();
-    }, []);
+    // useEffect(() => {
+    //     fetchComBoPermission();
+    // }, []);
 
     const onSubmit = async () => {
         const isValidForm = await formRef.current?.isFieldsValidate();
@@ -105,7 +105,7 @@ const MenuForm: React.FC<Props> = props => {
         }
     };
 
-    if (state.loading) return <Loading />
+    // if (state.loading) return <Loading />
     return (
         <AppModalContainer>
             <BaseForm
@@ -143,18 +143,18 @@ const MenuForm: React.FC<Props> = props => {
                         initialValue: false,
                         valuePropName: 'checked',
                     },
-                    {
-                        label: 'Quyền xem',
-                        name: nameof.full<Menu>(x => x.permissions),
-                        children: (
-                            <Select
-                                options={state.roles}
-                                showSearch
-                                allowClear
-                                placeholder="Chọn quyền..."
-                            />
-                        ),
-                    },
+                    // {
+                    //     label: 'Quyền xem',
+                    //     name: nameof.full<Menu>(x => x.permissions),
+                    //     children: (
+                    //         <Select
+                    //             options={state.roles}
+                    //             showSearch
+                    //             allowClear
+                    //             placeholder="Chọn quyền..."
+                    //         />
+                    //     ),
+                    // },
                 ]}
                 labelAlign="left"
                 labelCol={4}

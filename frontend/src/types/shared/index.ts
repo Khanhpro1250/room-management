@@ -1,5 +1,5 @@
 export * from './ComboOption';
-export * from './Tuition'
+export * from './House';
 
 export type Identifier = string | number;
 

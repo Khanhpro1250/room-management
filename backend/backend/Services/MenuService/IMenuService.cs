@@ -1,10 +1,11 @@
-﻿using backend.DTOs.MenuDtos;
+﻿using backend.Controllers.Dtos.Responese;
+using backend.DTOs.MenuDtos;
 
-namespace backend.Services.IMenuService;
+namespace backend.Services.MenuService;
 
 public interface IMenuService
 {
-    Task<List<MenuDto>> GetListMenus();
+    Task<PaginatedList<MenuDto>> GetListMenus();
     Task<List<MenuLayoutDto>> GetMenuLayout();
     Task<MenuDto> GetDetailMenu(string id);
     Task<MenuDto> CreateMenu(CreateUpdateMenuDto menuDto);

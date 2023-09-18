@@ -1,8 +1,10 @@
 ﻿using backend.Models.Entities.Houses;
+using MongoDB.Driver;
 
 namespace backend.Models.Repositorties.HouseRerositories;
 
 public interface IHouseRepository
 {
     Task<House> CreateHouse(House house);
+    IMongoCollection<House> GetQueryable();
 }

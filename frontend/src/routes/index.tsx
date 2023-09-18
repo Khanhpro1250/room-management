@@ -11,10 +11,9 @@ const NotFound = React.lazy(() => import('~/component/Layout/NotFound'));
 const MenuListView = React.lazy(() => import('~/page/system/menu/MenuListView'));
 const RoleListView = React.lazy(() => import('~/page/system/role/RoleListView'));
 const UserListView = React.lazy(() => import('~/page/system/user/UserListView'));
+const HouseListView = React.lazy(() => import('~/page/house/HouseListView'));
 
 //home
-const TuitionListView = React.lazy(() => import('~/page/home/tuition/TuitionListView'));
-const TuitionHistoryListView = React.lazy(() => import('~/page/home/tuition-history/TuitionHistoryListView'));
 
 const routeList = [
     {
@@ -53,10 +52,10 @@ const routeList = [
             {
                 path: 'home',
                 children: [
-                    // {
-                    //     path: 'tuition',
-                    //     element: <TuitionListView />,
-                    // },
+                    {
+                        path: 'house',
+                        element: <HouseListView />,
+                    },
                     // {
                     //     path: 'tuition-history',
                     //     element: <TuitionHistoryListView />,

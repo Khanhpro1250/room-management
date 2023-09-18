@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
+using backend.Controllers.Dtos.Responese;
 using backend.DTOs.MenuDtos;
 using backend.Models.Entities.Menus;
 using backend.Models.Repositorties.MenuRepositories;
 
-namespace backend.Services.IMenuService;
+using MongoDB.Driver;
 
-public class MenuService : IMenuService
+namespace backend.Services.MenuService;
+
+public class MenuService :IMenuService
 {
     private readonly IMenuRepository _menuRepository;
     private readonly IMapper _mapper;
@@ -16,11 +19,20 @@ public class MenuService : IMenuService
         _mapper = mapper;
     }
 
-    public async Task<List<MenuDto>> GetListMenus()
+    public async Task<PaginatedList<MenuDto>> GetListMenus()
     {
-        var menuList = await _menuRepository.GetListMenu();
-        var result = _mapper.Map<List<Menu>, List<MenuDto>>(menuList);
-        return result;
+        // var menuList = await _menuRepository.GetListMenu();
+        // var result = _mapper.Map<List<Menu>, List<MenuDto>>(menuList);
+        var queryable = _menuRepository.GetQueryable();
+        var listMenu = await queryable
+            .Find(x=> true)
+            .ToListAsync();
+        
+        return new PaginatedList<MenuDto>(_mapper.Map<List<Menu>,List<MenuDto>>(listMenu), listMenu.Count, 0, 10);
+            
+        
+        
+        // return new PaginatedList<MenuDto>();
     }
 
     public async Task<List<MenuLayoutDto>> GetMenuLayout()
@@ -74,14 +86,15 @@ public class MenuService : IMenuService
 
     private List<string> BuildTreeGroup(string path, List<Menu> menus)
     {
-        var arrPath = path.Split(".").ToList();
+        var arrPath = path?.Split(".").ToList();
         var groupResponse = new List<string>();
 
-        foreach (var id in arrPath)
-        {
-            var menu = menus.FirstOrDefault(x => x.Id == id)?.Name ?? "";
-            groupResponse.Add(menu);
-        }
+        if (arrPath != null)
+            foreach (var id in arrPath)
+            {
+                var menu = menus.FirstOrDefault(x => x.Id == id)?.Name ?? "";
+                groupResponse.Add(menu);
+            }
 
         return groupResponse;
     }

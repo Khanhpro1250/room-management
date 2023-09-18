@@ -4,7 +4,7 @@ using backend.Models.Repositorties.MenuRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
 using backend.Services.HouseServices;
-using backend.Services.IMenuService;
+using backend.Services.MenuService;
 using backend.Services.RoomServices;
 using backend.Services.UserServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,7 +32,7 @@ public class Startup
             app.UseSwaggerUI();
         }
 
-        app.UseHttpsRedirection();
+        // app.UseHttpsRedirection();
 
         app.UseStaticFiles();
 
@@ -40,14 +40,14 @@ public class Startup
 
         app.UseAuthorization();
         
-        // app.UseCors();
-        app.UseCors("AllowReactFrontend");
+        app.UseCors();
+        // app.UseCors("AllowReactFrontend");
         app.UseStaticFiles();
         
         // app.UseSpa(spa =>
         // {
         //     spa.Options.SourcePath = "wwwroot";
-        //     // if (env.IsDevelopment()) spa.UseProxyToSpaDevelopmentServer("http://localhost:7179");
+        //     if (env.IsDevelopment()) spa.UseProxyToSpaDevelopmentServer("http://localhost:5179");
         // });
 
 
@@ -69,18 +69,18 @@ public class Startup
         services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo() { Title = "My API", Version = "v1" }); });
 
         // Add CORS
-        services.AddCors(options =>
-        {
-            options.AddPolicy("AllowReactFrontend",
-                builder =>
-                {
-                    builder
-                        .WithOrigins("http://localhost:3000") // Adjust this to match your React app's address
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                });
-        });
-
+        services.AddCors();
+        // options =>
+        // {
+        //     options.AddPolicy("AllowReactFrontend",
+        //         builder =>
+        //         {
+        //             builder
+        //                 .WithOrigins("http://localhost:3000") // Adjust this to match your React app's address
+        //                 .AllowAnyHeader()
+        //                 .AllowAnyMethod();
+        //         });
+        // }
 
         // AddDbContext
         // services.AddDbContext<ApplicationDbContext>(options =>
