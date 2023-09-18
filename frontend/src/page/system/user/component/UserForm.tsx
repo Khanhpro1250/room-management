@@ -53,6 +53,10 @@ const UserForm: React.FC<Props> = props => {
             props?.onSubmitSuccessfully?.();
             props.onClose?.();
             return;
+        } else {
+            NotifyUtil.error(NotificationConstant.TITLE, response?.data?.message ?? 'Có lỗi xảy ra');
+            props.onClose?.();
+            return;
         }
     };
 
@@ -86,11 +90,6 @@ const UserForm: React.FC<Props> = props => {
                         name: nameof.full<IUser>(x => x.phoneNumber),
                         children: <Input placeholder="Nhập số điện thoại ..." />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
-                    },
-                    {
-                        label: 'Số dư ( mặc định )',
-                        name: nameof.full<IUser>(x => x.amount),
-                        children: <Input type="number" defaultValue={0} placeholder="Nhập tên vai trò ..." />,
                     },
                     {
                         label: 'Vai trò',

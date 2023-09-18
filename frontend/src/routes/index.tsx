@@ -39,14 +39,14 @@ const routeList = [
                     //         // </PrivateRoute>
                     //     ),
                     // },
-                    // {
-                    //     path: 'user',
-                    //     element: (
-                    //         <PrivateRoute>
-                    //             <UserListView />
-                    //         </PrivateRoute>
-                    //     ),
-                    // },
+                    {
+                        path: 'user',
+                        element: (
+                            // <PrivateRoute>
+                            <UserListView />
+                            // </PrivateRoute>
+                        ),
+                    },
                 ],
             },
             {

@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using backend.DTOs.UserDtos;
 using backend.Models.Entities.UserAccount;
 using backend.Models.Repositorties.UserAccountRepositories;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+using backend.Controllers.Dtos;
+using backend.Controllers.Dtos.Responese;
 using MongoDB.Driver;
 
 namespace backend.Services.UserServices;
@@ -21,11 +20,12 @@ public class UserService : IUserService
         _mapper = mapper;
     }
 
-    public async Task<List<UserDto>> GetListUser()
+    public async Task<PaginatedList<UserDto>> GetListUser()
     {
-        var listUser = await _userAccountRepository.GetListUser();
+        var queryable = _userAccountRepository.GetQueryable();
+        var listUser = await queryable.Find(x => true).ToListAsync();
         var result = _mapper.Map<List<User>, List<UserDto>>(listUser);
-        return result;
+        return new PaginatedList<UserDto>(result, result.Count, 0, 10);
     }
 
     public async Task<UserDto> GetUserById(string userId)
@@ -49,8 +49,30 @@ public class UserService : IUserService
         return _mapper.Map<User, UserDto>(result);
     }
 
+    public async Task<bool> IsValidUserRegister(CreateUpdateUserDtos userDtos)
+    {
+        var queryable = _userAccountRepository.GetQueryable();
+        var findUser = await queryable
+            .Find(x => x.UserName.Contains(userDtos.UserName) || x.EmailAddress.Contains(userDtos.EmailAddress))
+            .FirstOrDefaultAsync();
+        return findUser == null;
+    }
+
     public async Task DeleteMenu(string id)
     {
         await _userAccountRepository.DeleteMenu(id);
+    }
+
+
+    public async Task<List<ComboOptionDto>> GetComboUser()
+    {
+        var queryable = _userAccountRepository.GetQueryable();
+        var listUser = await queryable.Find(x => true).ToListAsync();
+        var result = listUser.Select(x => new ComboOptionDto()
+        {
+            Value = x.Id,
+            Label = $"{x.UserCode} - {x.FullName}"
+        }).ToList();
+        return result;
     }
 }
