@@ -4,6 +4,7 @@ using backend.Models.Repositorties.CustomerRepositories;
 using backend.Models.Repositorties.DepositRepositories;
 using backend.Models.Repositorties.HouseRerositories;
 using backend.Models.Repositorties.MenuRepositories;
+using backend.Models.Repositorties.RequestRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
 using backend.Services.ContractServices;
@@ -11,6 +12,7 @@ using backend.Services.CustomerServices;
 using backend.Services.DepositServices;
 using backend.Services.HouseServices;
 using backend.Services.MenuService;
+using backend.Services.RequestServices;
 using backend.Services.RoomServices;
 using backend.Services.UserServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -96,6 +98,11 @@ public class Startup
         // services.AddIdentity<User, IdentityUser>()
         //    .AddEntityFrameworkStores<ApplicationDbContext>()
         //    .AddDefaultTokenProviders();
+        services.AddSingleton<IRequestRepository>(_ =>
+        {
+            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+            return new RequestRepository(mongoClient, "room_manager");
+        });
         services.AddSingleton<IDepositRepository>(_ =>
         {
             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
@@ -162,5 +169,6 @@ public class Startup
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IContractService, ContractService>();
         services.AddScoped<IDepositService, DepositService>();
+        services.AddScoped<IRequestService, RequestService>();
     }
 }
