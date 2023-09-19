@@ -7,6 +7,7 @@ using backend.Models.Repositorties.MenuRepositories;
 using backend.Models.Repositorties.NotificationRepositories;
 using backend.Models.Repositorties.RequestRepositories;
 using backend.Models.Repositorties.RoomRepositories;
+using backend.Models.Repositorties.ServiceRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
 using backend.Services.ContractServices;
 using backend.Services.CustomerServices;
@@ -16,6 +17,7 @@ using backend.Services.MenuService;
 using backend.Services.NotificationServices;
 using backend.Services.RequestServices;
 using backend.Services.RoomServices;
+using backend.Services.ServiceServices;
 using backend.Services.UserServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -100,6 +102,11 @@ public class Startup
         // services.AddIdentity<User, IdentityUser>()
         //    .AddEntityFrameworkStores<ApplicationDbContext>()
         //    .AddDefaultTokenProviders();
+        services.AddSingleton<IServiceRepository>(_ =>
+        {
+            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+            return new ServiceRepository(mongoClient, "room_manager");
+        });
         services.AddSingleton<INotificationRepository>(_ =>
         {
             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
@@ -178,5 +185,6 @@ public class Startup
         services.AddScoped<IDepositService, DepositService>();
         services.AddScoped<IRequestService, RequestService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IServiceService, ServiceService>();
     }
 }
