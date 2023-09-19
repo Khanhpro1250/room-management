@@ -48,7 +48,7 @@ export default function RoommatesScreen({ navigation }) {
         }}
       >
         <View>
-          <Text style={styles.title}>Huỳnh Công Khanh</Text>
+          v<Text style={styles.title}>Huỳnh Công Khanh</Text>
           <Text>Ngày sinh: 13-03-2001</Text>
           <Text>CCCD: 387443921</Text>
         </View>

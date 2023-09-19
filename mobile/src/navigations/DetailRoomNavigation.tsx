@@ -5,6 +5,7 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import DetailRoomScreen from "../screens/DetailRoomScreen";
 
 import RoommatesScreen from "../screens/RoommatesScreen";
+import PaymentHistoryScreen from "../screens/PaymentHistoryScreen";
 
 const Tab = createMaterialTopTabNavigator();
 export default function DetailRoomNavigation() {
@@ -47,6 +48,11 @@ export default function DetailRoomNavigation() {
             name="Roommates"
             component={RoommatesScreen}
             options={{ tabBarLabel: "Người thuê" }}
+          />
+          <Tab.Screen
+            name="History"
+            component={PaymentHistoryScreen}
+            options={{ tabBarLabel: "Lịch sử thanh toán" }}
           />
         </Tab.Navigator>
       </View>

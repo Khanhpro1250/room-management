@@ -6,12 +6,61 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronLeftIcon, ShareIcon } from "react-native-heroicons/outline";
 import Request from "../components/Request";
-import { Button } from "react-native-paper";
-
+import { ActivityIndicator, Button } from "react-native-paper";
+import Axios from "axios";
+type Request = {
+  Title: string;
+  Content: string;
+  Status: string;
+};
 export default function RequestsScreen({ navigation }) {
+  const [isLoading, setLoading] = useState(true);
+  const [data, setData] = useState<Request[]>([]);
+  const getRequests = () => {
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    };
+    try {
+      Axios.get("https://10.0.2.2:7179/api/request/index", { headers })
+        .then((response) => {
+          console.log("123123", response.data);
+          setData(response.data);
+        })
+        .catch((error) => console.log(error));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const getMovies = async () => {
+    try {
+      const response = await fetch("https://10.0.2.2:7179/api/request/index");
+      const json = await response.json();
+      setData(json.movies);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    getMovies();
+    getRequests();
+    // const headers = {
+    //   "Content-Type": "application/json",
+    // };
+    // Axios.get("http://10.0.2.2:7179/api/request/index", { headers })
+    //   .then((res) => {
+    //     console.log("123123123", res);
+    //   })
+    //   .catch((error) => console.log(error));
+  }, []);
+
   return (
     <SafeAreaView
       style={{
