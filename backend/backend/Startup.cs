@@ -9,6 +9,7 @@ using backend.Models.Repositorties.RequestRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Models.Repositorties.ServiceRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
+using backend.Models.Repositorties.UserAccountRepositories.RoleRepositories;
 using backend.Services.ContractServices;
 using backend.Services.CustomerServices;
 using backend.Services.DepositServices;
@@ -16,6 +17,7 @@ using backend.Services.HouseServices;
 using backend.Services.MenuService;
 using backend.Services.NotificationServices;
 using backend.Services.RequestServices;
+using backend.Services.RoleServices;
 using backend.Services.RoomServices;
 using backend.Services.ServiceServices;
 using backend.Services.UserServices;
@@ -102,6 +104,11 @@ public class Startup
         // services.AddIdentity<User, IdentityUser>()
         //    .AddEntityFrameworkStores<ApplicationDbContext>()
         //    .AddDefaultTokenProviders();
+        services.AddSingleton<IRoleRepository>(_ =>
+        {
+            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+            return new RoleRepository(mongoClient, "room_manager");
+        });
         services.AddSingleton<IServiceRepository>(_ =>
         {
             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
@@ -186,5 +193,6 @@ public class Startup
         services.AddScoped<IRequestService, RequestService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IServiceService, ServiceService>();
+        services.AddScoped<IRoleService, RoleService>();
     }
 }
