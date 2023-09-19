@@ -4,6 +4,7 @@ using backend.Models.Entities.UserAccount;
 using backend.Models.Repositorties.UserAccountRepositories;
 using backend.Controllers.Dtos;
 using backend.Controllers.Dtos.Responese;
+using backend.Utils;
 using MongoDB.Driver;
 
 namespace backend.Services.UserServices;
@@ -35,6 +36,12 @@ public class UserService : IUserService
         return result;
     }
 
+    public async Task<User> GetUserByUserName(string userName)
+    {
+        var user = await _userAccountRepository.GetUserByUserName(userName);
+        return user;
+    }
+
     public async Task<UserDto> CreateUser(CreateUpdateUserDtos user)
     {
         var userEntity = _mapper.Map<CreateUpdateUserDtos, User>(user);
@@ -49,6 +56,15 @@ public class UserService : IUserService
         return _mapper.Map<User, UserDto>(result);
     }
 
+    public async Task<UserDto> RegisterUser(CreateUpdateUserDtos user)
+    {
+        var userEntity = _mapper.Map<CreateUpdateUserDtos, User>(user);
+        var passWordHash = PasswordHasher.HashPassword(user.Password);
+        userEntity.PasswordHash = passWordHash;
+        var result = await _userAccountRepository.CreateUser(userEntity);
+        return _mapper.Map<User, UserDto>(result);
+    }
+
     public async Task<bool> IsValidUserRegister(CreateUpdateUserDtos userDtos)
     {
         var queryable = _userAccountRepository.GetQueryable();
@@ -57,11 +73,7 @@ public class UserService : IUserService
             .FirstOrDefaultAsync();
         return findUser == null;
     }
-
-    public async Task DeleteMenu(string id)
-    {
-        await _userAccountRepository.DeleteMenu(id);
-    }
+    
 
 
     public async Task<List<ComboOptionDto>> GetComboUser()

@@ -196,3 +196,4 @@ E:\DA2\room-management\backend\backend\obj\Debug\net6.0\refint\backend.dll
 E:\DA2\room-management\backend\backend\obj\Debug\net6.0\backend.pdb
 E:\DA2\room-management\backend\backend\obj\Debug\net6.0\backend.genruntimeconfig.cache
 E:\DA2\room-management\backend\backend\obj\Debug\net6.0\ref\backend.dll
+E:\DA2\room-management\backend\backend\bin\Debug\net6.0\BCrypt.Net-Core.dll

@@ -50,8 +50,8 @@ export const AppProvider = ({ children }: AppProviderProps) => {
                 <QueryClientProvider client={queryClient}>
                     {/* <AuthProvider> */}
                     <Router>{children}</Router>
-                    {/* </AuthProvider> */}
-                    {/* {process.env.NODE_ENV !== 'test' && <ReactQueryDevtools />} */}
+                    {/* </AuthProvider>
+                    {process.env.NODE_ENV !== 'test' && <ReactQueryDevtools />} */}
                 </QueryClientProvider>
             </ErrorBoundary>
         </React.Suspense>

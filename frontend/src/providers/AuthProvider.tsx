@@ -20,10 +20,10 @@ export const AuthProvider = ({ children }: Props) => {
         dispatch(fetchAuthDataAsync());
     }, []);
 
-    // if (checkLoginLoading) return <Loading />;
-    // if (isAuthenticated === false) {
-    //     return <LoginView />;
-    // }
+    if (checkLoginLoading) return <Loading />;
+    if (isAuthenticated === false) {
+        return <LoginView />;
+    }
 
     return <>{children}</>;
 };

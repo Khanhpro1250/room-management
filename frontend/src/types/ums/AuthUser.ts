@@ -32,3 +32,14 @@ export interface LoginParam {
     password: string;
     rememberMe: boolean;
 }
+
+export interface RegisterParam {
+    username: string;
+    password: string;
+    rePassword: string;
+    fullName?: string;
+    emailAddress: string;
+    phoneNumber: string;
+    userCode?: string;
+    address?: string;
+}

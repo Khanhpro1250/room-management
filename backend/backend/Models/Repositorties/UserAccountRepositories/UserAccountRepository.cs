@@ -26,6 +26,13 @@ public class UserAccountRepository : IUserAccountRepository
         return result ?? new User();
     }
 
+    public async Task<User> GetUserByUserName(string userName)
+    {
+        var result = await _user.Find(x => x.UserName == userName).FirstOrDefaultAsync();
+
+        return result ?? new User();
+    }
+
     public async Task<User> CreateUser(User user)
     {
         await _user.InsertOneAsync(user);

@@ -8,11 +8,15 @@ import { loginAsync } from '~/store/authSlice';
 import { LoginParam } from '~/types/ums/AuthUser';
 import { ButtonBase } from '../Elements/Button/ButtonBase';
 import BaseForm, { BaseFormRef } from '../Form/BaseForm';
+import { useNavigate } from 'react-router-dom';
 
 const LoginView: React.FC = () => {
     const formRef = useRef<BaseFormRef>(null);
 
     const dispatch = useDispatch();
+
+    const history = useNavigate();
+    const backToRegister = () => history('/register');
 
     const onLogin = () => {
         const loginParams = formRef.current?.getFieldsValue() as LoginParam;
@@ -51,6 +55,7 @@ const LoginView: React.FC = () => {
                         return (
                             <div className="flex items-center justify-center w-full">
                                 <ButtonBase title="Đăng nhập" size="md" onClick={onLogin} />
+                                <ButtonBase title="Đăng ký" size="md" onClick={backToRegister} />
                             </div>
                         );
                     }}

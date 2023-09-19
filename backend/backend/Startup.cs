@@ -21,6 +21,7 @@ using backend.Services.RoleServices;
 using backend.Services.RoomServices;
 using backend.Services.ServiceServices;
 using backend.Services.UserServices;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -52,6 +53,7 @@ public class Startup
 
         app.UseRouting();
 
+        app.UseAuthentication();
         app.UseAuthorization();
         
         app.UseCors();
@@ -84,26 +86,21 @@ public class Startup
 
         // Add CORS
         services.AddCors();
-        // options =>
-        // {
-        //     options.AddPolicy("AllowReactFrontend",
-        //         builder =>
-        //         {
-        //             builder
-        //                 .WithOrigins("http://localhost:3000") // Adjust this to match your React app's address
-        //                 .AllowAnyHeader()
-        //                 .AllowAnyMethod();
-        //         });
-        // }
-
-        // AddDbContext
-        // services.AddDbContext<ApplicationDbContext>(options =>
-        //     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-        // AddIdentity
-        // services.AddIdentity<User, IdentityUser>()
-        //    .AddEntityFrameworkStores<ApplicationDbContext>()
-        //    .AddDefaultTokenProviders();
+        
+        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options =>
+            {
+                options.Cookie.Name = "CookieAuth"; // Set your cookie name
+                // Configure other options as needed
+            });
+        
+        // services.AddAuthentication("CookieAuth")
+        //     .AddCookie("CookieAuth", options =>
+        //     {
+        //         options.LoginPath = "/api/identity/login"; // Set the login endpoint
+        //         options.AccessDeniedPath = "/api/identity/accessdenied"; // Set the access denied endpoint
+        //     });
+        //
         services.AddSingleton<IRoleRepository>(_ =>
         {
             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
@@ -161,26 +158,26 @@ public class Startup
              return new HouseRepository(mongoClient, "room_manager");
          });
          // AddAuthentication
-         services.AddAuthentication(options =>
-         {
-             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-         })
-        .AddJwtBearer(options =>
-         {
-             options.RequireHttpsMetadata = false;
-             options.SaveToken = true;
-             options.TokenValidationParameters = new TokenValidationParameters
-             {
-                 ValidateIssuerSigningKey = true,
-                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["Jwt:Key"])),
-                 ValidateIssuer = false, 
-                 ValidateAudience = false
-             };
-         });
+        //  services.AddAuthentication(options =>
+        //  {
+        //      options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        //      options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        //  })
+        // .AddJwtBearer(options =>
+        //  {
+        //      options.RequireHttpsMetadata = false;
+        //      options.SaveToken = true;
+        //      options.TokenValidationParameters = new TokenValidationParameters
+        //      {
+        //          ValidateIssuerSigningKey = true,
+        //          IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["Jwt:Key"])),
+        //          ValidateIssuer = false, 
+        //          ValidateAudience = false
+        //      };
+        //  });
 
         // AddAuthorization
-        services.AddAuthorization(options => { options.AddPolicy("Admin", policy => policy.RequireRole("Admin")); });
+        // services.AddAuthorization(options => { options.AddPolicy("Admin", policy => policy.RequireRole("Admin")); });
 
         // AddScoped adService
         services.AddScoped<IUserService, UserService>();
