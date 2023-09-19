@@ -1,7 +1,5 @@
 ﻿using backend.Controllers.Dtos.Responese;
 using backend.Controllers.Dtos;
-using backend.DTOs.CustomerDtos;
-using backend.Services.CustomerServices;
 using Microsoft.AspNetCore.Mvc;
 using backend.Services.RequestServices;
 using backend.DTOs.RequestDtos;
