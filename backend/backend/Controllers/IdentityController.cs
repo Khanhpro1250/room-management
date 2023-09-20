@@ -48,8 +48,7 @@ public class IdentityController : ControllerBase
         var userDto = await _userService.RegisterUser(user);
         return ApiResponse<UserDto>.Ok(userDto);
     }
-    [HttpGet("check-login")]
-    []
+    
 
     [HttpPost("add")]
     public async Task<ApiResponse<UserDto>> CreateUserCount([FromBody] CreateUpdateUserDtos user)

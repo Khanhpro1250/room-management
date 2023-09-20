@@ -25,9 +25,11 @@ export default function RequestsScreen({ navigation }) {
       "Content-Type": "application/json",
     };
     try {
-      Axios.get("https://10.0.2.2:7179/api/request/index", { headers })
+      Axios.get("https://api.coindesk.com/v1/bpi/currentprice.json", {
+        headers,
+      })
         .then((response) => {
-          console.log("123123", response.data);
+          console.log("Api:", response.data);
           setData(response.data);
         })
         .catch((error) => console.log(error));
@@ -37,19 +39,8 @@ export default function RequestsScreen({ navigation }) {
       setLoading(false);
     }
   };
-  const getMovies = async () => {
-    try {
-      const response = await fetch("https://10.0.2.2:7179/api/request/index");
-      const json = await response.json();
-      setData(json.movies);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+
   useEffect(() => {
-    getMovies();
     getRequests();
     // const headers = {
     //   "Content-Type": "application/json",
