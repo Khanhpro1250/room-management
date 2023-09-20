@@ -2,7 +2,7 @@
 import { Input } from 'antd';
 import * as React from 'react';
 import { useRef } from 'react';
-import bgImageUrl from '~/assets/login/background_login.png';
+import bgImageUrl from '~/assets/login/login_background.svg';
 import { RegisterParam } from '~/types/ums/AuthUser';
 import { ButtonBase } from '../Elements/Button/ButtonBase';
 import BaseForm, { BaseFormRef } from '../Form/BaseForm';
@@ -51,7 +51,7 @@ const RegisterView: React.FC = () => {
 
     return (
         <div className="w-full h-screen relative flex items-center justify-center">
-            <img src={bgImageUrl} className="w-full h-full absolute top-0 left-0 -z-10" alt="" />
+            <img src={bgImageUrl} className="w-full h-full absolute top-0 left-0 -z-10 object-cover" alt="" />
             <div className="w-[500px] h-[450px] bg-white rounded-md shadow bg-opacity-2 p-3">
                 <BaseForm
                     ref={formRef}
