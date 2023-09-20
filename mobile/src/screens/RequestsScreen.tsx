@@ -12,9 +12,9 @@ import Request from "../components/Request";
 import { ActivityIndicator, Button } from "react-native-paper";
 import Axios from "axios";
 type Request = {
-  Title: string;
-  Content: string;
-  Status: string;
+  title: string;
+  content: string;
+  status: string;
 };
 export default function RequestsScreen({ navigation }) {
   const [isLoading, setLoading] = useState(true);
@@ -25,12 +25,12 @@ export default function RequestsScreen({ navigation }) {
       "Content-Type": "application/json",
     };
     try {
-      Axios.get("https://api.coindesk.com/v1/bpi/currentprice.json", {
+      Axios.get("http://413a-42-113-221-18.ngrok-free.app/api/request/index", {
         headers,
       })
         .then((response) => {
-          console.log("Api:", response.data);
-          setData(response.data);
+          console.log("Api:", response.data.result.items);
+          setData(response.data.result.items);
         })
         .catch((error) => console.log(error));
     } catch (error) {
@@ -85,6 +85,15 @@ export default function RequestsScreen({ navigation }) {
           </View>
 
           <ScrollView>
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              data.map((x, id) => {
+                return (
+                  <Request key={id} address={x.title} priority={x.status} />
+                );
+              })
+            )}
             <Request
               title="Khóa cửa chính bị kẹt"
               address="52B5, Phước Kiểng, Nhà Bè"

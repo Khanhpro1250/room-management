@@ -55,8 +55,8 @@ public class Startup
 
         app.UseAuthentication();
         app.UseAuthorization();
-        
-        app.UseCors();
+
+        app.UseCors("AllowReactNativeApp");
         // app.UseCors("AllowReactFrontend");
         app.UseStaticFiles();
         
@@ -85,7 +85,7 @@ public class Startup
         services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo() { Title = "My API", Version = "v1" }); });
 
         // Add CORS
-        services.AddCors();
+        
         
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>
@@ -191,5 +191,17 @@ public class Startup
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IServiceService, ServiceService>();
         services.AddScoped<IRoleService, RoleService>();
+
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowReactNativeApp", builder =>
+            {
+                // Allow requests from the React Native app's origin (e.g., http://localhost:7179)
+                builder.WithOrigins("http://localhost:19006")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+        
     }
 }
