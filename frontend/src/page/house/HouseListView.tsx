@@ -7,6 +7,8 @@ import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
 import { useBaseGrid } from '~/hook/useBaseGrid';
 import { House } from '~/types/shared/House';
 import { HOUSE_INDEX_API } from './api/house.api';
+import HomeForm from './components/HomeForm';
+import _ from 'lodash';
 
 const HouseListView: React.FC = () => {
     const gridRef = useRef<BaseGridRef>(null);
@@ -15,6 +17,35 @@ const HouseListView: React.FC = () => {
         url: HOUSE_INDEX_API,
         gridRef: gridRef,
     });
+
+    const onCreate = () => {
+        modalRef.current?.onOpen(
+            <HomeForm
+                onSubmitSuccessfully={() => {
+                    modalRef.current?.onClose();
+                    gridController?.reloadData();
+                }}
+                onClose={modalRef.current?.onClose}
+            />,
+            'Tạo mới nhà',
+            '50%',
+        );
+    };
+
+    const onCreateChild = (data: House) => {
+        modalRef.current?.onOpen(
+            <HomeForm
+                parentId={_.get(data, 'id')}
+                onSubmitSuccessfully={() => {
+                    modalRef.current?.onClose();
+                    gridController?.reloadData();
+                }}
+                onClose={modalRef.current?.onClose}
+            />,
+            `Thêm phòng cho nhà - ${data.name}`,
+            '50%',
+        );
+    };
 
     const MenuColDefs: BaseGridColDef[] = [
         {
@@ -41,6 +72,7 @@ const HouseListView: React.FC = () => {
             },
         },
     ];
+
     return (
         <AppContainer>
             {gridController?.loading ? (
@@ -57,7 +89,7 @@ const HouseListView: React.FC = () => {
                             hasEditBtn: true,
                             hasDeleteBtn: true,
                             hasCreateChildBtn: true,
-                            // onClickCreateChildBtn: onCreateChild,
+                            onClickCreateChildBtn: onCreateChild,
                             // onClickEditBtn: onUpdate,
                             // onClickDeleteBtn: onDelete,
                         }}
@@ -69,7 +101,7 @@ const HouseListView: React.FC = () => {
                         <GridToolbar
                             hasCreateButton
                             hasRefreshButton
-                            // onClickCreateButton={onCreate}
+                            onClickCreateButton={onCreate}
                             onClickRefreshButton={() => gridController?.reloadData()}
                         />
                     </BaseGrid>

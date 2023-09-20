@@ -85,7 +85,7 @@ const UserListView: React.FC = () => {
         },
         {
             headerName: 'Username',
-            field: nameof.full<AppUser>(x => x.username),
+            field: nameof.full<AppUser>(x => x.userName),
             minWidth: 200,
             flex: 1,
             cellStyle: { textAlign: 'center', fontWeight: '500' },

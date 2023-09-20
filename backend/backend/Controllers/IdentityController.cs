@@ -24,10 +24,40 @@ public class IdentityController : ControllerBase
         _userService = userService;
         _mapper = mapper;
     }
-    
+
+    [HttpGet("check-login")]
+    public async Task<ApiResponse<LoginReponseDto>> CreateUserCount()
+
+    {
+        if (HttpContext.User.Identity != null && HttpContext.User.Identity.IsAuthenticated)
+        {
+            var usernameClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
+
+            if (usernameClaim != null)
+
+            {
+                string username = usernameClaim.Value;
+
+                var findUser = await _userService.GetUserByUserName(username);
+
+                var userClone = _mapper.Map<User, UserDto>(findUser);
+                var result = new LoginReponseDto
+                {
+                    User = userClone
+                };
+
+                return ApiResponse<LoginReponseDto>.Ok(result);
+            }
+
+            return ApiResponse<LoginReponseDto>.Fail("User not login");
+        }
+
+        return ApiResponse<LoginReponseDto>.Fail("User not login");
+    }
+
     [HttpPost("login")]
-    public async Task<ApiResponse<UserDto>> Login([FromBody] LoginDto login)
-    { 
+    public async Task<ApiResponse<LoginReponseDto>> Login([FromBody] LoginDto login)
+    {
         var findUser = await _userService.GetUserByUserName(login.UserName);
         var isValidPassword = findUser != null && PasswordHasher.VerifyPassword(login.Password, findUser.PasswordHash);
         if (isValidPassword)
@@ -36,10 +66,23 @@ public class IdentityController : ControllerBase
                 new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, findUser.UserName) },
                     CookieAuthenticationDefaults.AuthenticationScheme)),
                 new AuthenticationProperties { IsPersistent = true });
-            return ApiResponse<UserDto>.Ok(_mapper.Map<User,UserDto>(findUser));
+            var result = new LoginReponseDto()
+            {
+                User = _mapper.Map<User, UserDto>(findUser)
+            };
+            return ApiResponse<LoginReponseDto>.Ok(result);
         }
-        return ApiResponse<UserDto>.Fail("Login failed");
+
+        return ApiResponse<LoginReponseDto>.Fail("Login failed");
     }
+
+    [HttpGet("logout")]
+    public async Task<ApiResponse<object>> Logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return ApiResponse<object>.Ok();
+    }
+
     [HttpPost("register")]
     public async Task<ApiResponse<UserDto>> RegisterUser([FromBody] CreateUpdateUserDtos user)
     {
@@ -48,7 +91,7 @@ public class IdentityController : ControllerBase
         var userDto = await _userService.RegisterUser(user);
         return ApiResponse<UserDto>.Ok(userDto);
     }
-    
+
 
     [HttpPost("add")]
     public async Task<ApiResponse<UserDto>> CreateUserCount([FromBody] CreateUpdateUserDtos user)

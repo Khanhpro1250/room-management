@@ -6,9 +6,10 @@ export interface AuthUser {
 
 export interface AppUser {
     id: string;
-    username: string;
+    userName: string;
     fullName?: string;
     isSupper: boolean;
+    isAdmin: boolean;
     emailAddress: string;
     phoneNumber?: string;
     orgId?: string;
@@ -18,7 +19,7 @@ export interface AppUser {
 
 export interface IUser {
     id: string;
-    username: string;
+    userName: string;
     fullName?: string;
     isAdmin: boolean;
     emailAddress: string;
@@ -28,13 +29,13 @@ export interface IUser {
 }
 
 export interface LoginParam {
-    username: string;
+    userName: string;
     password: string;
     rememberMe: boolean;
 }
 
 export interface RegisterParam {
-    username: string;
+    userName: string;
     password: string;
     rePassword: string;
     fullName?: string;

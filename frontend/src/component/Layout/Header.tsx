@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Avatar, Dropdown, Menu } from 'antd';
 import React from 'react';
 import { useDispatch } from 'react-redux';
+import { Navigate } from 'react-router-dom';
 import { useAppState } from '~/AppStore';
 import { logoutAsync } from '~/store/authSlice';
 
@@ -16,7 +17,7 @@ interface Props {
 const Header: React.FC<Props> = props => {
     const dispatch = useDispatch();
     const { toggle } = props;
-    const { isAuthenticated, authUser } = useAppState(state => state.authData);
+    const { authUser } = useAppState(state => state.authData);
 
     const onActionClick = (action: Action) => {
         switch (action) {
@@ -57,7 +58,7 @@ const Header: React.FC<Props> = props => {
                             icon={<UserOutlined style={{ color: '#198ae3' }} />}
                             className="flex items-center justify-center bg-white rounded-full"
                         />
-                        <span className="mx-2">{authUser?.user.username}</span>
+                        <span className="mx-2">{authUser?.user?.userName}</span>
                         <CaretDownFilled />
                     </div>
                 </Dropdown>

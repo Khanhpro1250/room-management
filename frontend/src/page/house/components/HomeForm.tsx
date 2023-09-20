@@ -1,26 +1,28 @@
 import { faClose, faSave } from '@fortawesome/free-solid-svg-icons';
-import { Input, Select } from 'antd';
+import { Input } from 'antd';
 import { Method } from 'axios';
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
 import { AppModalContainer } from '~/component/Layout/AppModalContainer';
 import NotificationConstant from '~/configs/contants';
+import { House } from '~/types/shared';
+import { HOUSE_CREATE_API, HOUSE_UPDATE_API } from '../api/house.api';
 import { requestApi } from '~/lib/axios';
-import { IUser } from '~/types/ums/AuthUser';
 import NotifyUtil from '~/util/NotifyUtil';
-import { CREATE_USER_API, UPDATE_USER_API } from '../api/api';
+import { useSelector } from 'react-redux';
+import { RootState } from '~/AppStore';
 
 interface Props {
+    parentId?: string;
     readonly?: boolean;
-    initialValues?: Partial<IUser>;
+    initialValues?: Partial<House>;
     onClose?: () => void;
     onSubmitSuccessfully?: () => void;
 }
-
-const UserForm: React.FC<Props> = props => {
+const HomeForm: React.FC<Props> = props => {
     const formRef = useRef<BaseFormRef>(null);
-
+    const { authUser } = useSelector((state: RootState) => state.authData);
     const onSubmit = async () => {
         const urlParams: Record<
             string,
@@ -31,12 +33,12 @@ const UserForm: React.FC<Props> = props => {
             }
         > = {
             create: {
-                url: CREATE_USER_API,
+                url: HOUSE_CREATE_API,
                 method: 'post',
                 message: NotificationConstant.DESCRIPTION_CREATE_SUCCESS,
             },
             update: {
-                url: `${UPDATE_USER_API}/${props.initialValues?.id}`,
+                url: `${HOUSE_UPDATE_API}/${props.initialValues?.id}`,
                 method: 'put',
                 message: NotificationConstant.DESCRIPTION_UPDATE_SUCCESS,
             },
@@ -46,6 +48,7 @@ const UserForm: React.FC<Props> = props => {
 
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
+            userId: authUser?.user.id,
         });
 
         if (response.data?.success) {
@@ -59,7 +62,6 @@ const UserForm: React.FC<Props> = props => {
             return;
         }
     };
-
     return (
         <AppModalContainer>
             <BaseForm
@@ -68,45 +70,16 @@ const UserForm: React.FC<Props> = props => {
                 ref={formRef}
                 baseFormItem={[
                     {
-                        label: 'Tên người dùng',
-                        name: nameof.full<IUser>(x => x.fullName),
-                        children: <Input placeholder="Nhập tên người dùng ..." />,
+                        label: 'Nhà',
+                        name: nameof.full<House>(x => x.name),
+                        children: <Input placeholder="Nhập tên nhà ..." />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                     },
                     {
-                        label: 'Tên đăng nhập',
-                        name: nameof.full<IUser>(x => x.userName),
+                        label: 'Địa chỉ',
+                        name: nameof.full<House>(x => x.location),
                         children: <Input placeholder="Nhập địa chỉ email ..." />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
-                    },
-                    {
-                        label: 'Địa chỉ email',
-                        name: nameof.full<IUser>(x => x.emailAddress),
-                        children: <Input placeholder="Nhập địa chỉ email ..." />,
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
-                    },
-                    {
-                        label: 'Số điện thoại',
-                        name: nameof.full<IUser>(x => x.phoneNumber),
-                        children: <Input placeholder="Nhập số điện thoại ..." />,
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
-                    },
-                    {
-                        label: 'Vai trò',
-                        name: nameof.full<IUser>(x => x.isAdmin),
-                        children: (
-                            <Select
-                                style={{ color: '#333' }}
-                                options={[
-                                    { label: 'Quản trị viên', value: true },
-                                    { label: 'Người dùng', value: false },
-                                ]}
-                                defaultValue={false}
-                                showSearch
-                                allowClear
-                                placeholder="Chọn học kì..."
-                            />
-                        ),
                     },
                 ]}
                 labelAlign="left"
@@ -124,4 +97,4 @@ const UserForm: React.FC<Props> = props => {
     );
 };
 
-export default UserForm;
+export default HomeForm;

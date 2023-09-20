@@ -43,9 +43,9 @@ const routeList = [
                     {
                         path: 'user',
                         element: (
-                            // <PrivateRoute>
-                            <UserListView />
-                            // </PrivateRoute>
+                            <PrivateRoute>
+                                <UserListView />
+                            </PrivateRoute>
                         ),
                     },
                 ],

@@ -32,11 +32,12 @@ const PrivateRoute: FC<Props> = props => {
         };
         const menu = menus.filter(menu => {
             const isMatch = menu.route === location.pathname;
-            const currentRouteParamArr = menu.route.match(/:\w+/g) || [];
+            const currentRouteParamArr = menu.route.match(/:\w+/g) || ([] as any[]);
             const matchWithRouteParams = matchRoutes?.find(matchRoute => {
+                const matchRoutePath = matchRoute.route.path ?? '';
                 const originPathName = getOriginPathFromMatchRoute(matchRoute);
                 if (originPathName.includes(menu.route) && matchRoute.route.path) {
-                    return currentRouteParamArr.includes(matchRoute.route.path);
+                    return currentRouteParamArr.includes(matchRoutePath);
                 }
             });
             return isMatch || !isEmpty(matchWithRouteParams);

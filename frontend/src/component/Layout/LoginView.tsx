@@ -2,22 +2,22 @@
 import { Input } from 'antd';
 import * as React from 'react';
 import { useRef } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 // import bgImageUrl from '~/assets/login/background_login.png';
 import bgImageUrl from '~/assets/login/login_background.svg';
 import { loginAsync } from '~/store/authSlice';
 import { LoginParam } from '~/types/ums/AuthUser';
 import { ButtonBase } from '../Elements/Button/ButtonBase';
 import BaseForm, { BaseFormRef } from '../Form/BaseForm';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
+import { RootState } from '~/AppStore';
 
 const LoginView: React.FC = () => {
     const formRef = useRef<BaseFormRef>(null);
 
     const dispatch = useDispatch();
 
-    const history = useNavigate();
-    const backToRegister = () => history('/register');
+    const { isAuthenticated } = useSelector((state: RootState) => state.authData);
 
     const onLogin = () => {
         const loginParams = formRef.current?.getFieldsValue() as LoginParam;
@@ -28,6 +28,10 @@ const LoginView: React.FC = () => {
         );
     };
 
+    if (!!isAuthenticated) {
+        return <Navigate to={'/'} />;
+    }
+
     return (
         <div className="w-full h-screen relative flex items-center justify-center">
             <img src={bgImageUrl} className="w-full h-full absolute top-0 left-0 -z-10 object-cover" alt="" />
@@ -37,7 +41,7 @@ const LoginView: React.FC = () => {
                     baseFormItem={[
                         {
                             label: 'Tài khoản',
-                            name: nameof.full<LoginParam>(x => x.username),
+                            name: nameof.full<LoginParam>(x => x.userName),
                             children: <Input />,
                             rules: [{ required: true }],
                         },
@@ -56,7 +60,7 @@ const LoginView: React.FC = () => {
                         return (
                             <div className="flex items-center justify-center w-full">
                                 <ButtonBase title="Đăng nhập" size="md" onClick={onLogin} />
-                                <ButtonBase title="Đăng ký" size="md" onClick={backToRegister} />
+                                <ButtonBase title="Đăng ký" size="md" onClick={() => <Navigate to={'/register'} />} />
                             </div>
                         );
                     }}

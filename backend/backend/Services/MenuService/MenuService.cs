@@ -52,7 +52,8 @@ public class MenuService :IMenuService
                 Level = menu.Level,
                 Path = menu.Path,
                 BreadCrumbs = BuildTreeGroup(menu.Path,menuList),
-                Permissions = menu.Permissions
+                Permissions = menu.Permissions,
+                HasPermissionToAccess = true
             });
         }
 

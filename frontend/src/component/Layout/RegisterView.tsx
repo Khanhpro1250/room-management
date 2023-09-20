@@ -11,13 +11,15 @@ import NotificationConstant from '~/configs/contants';
 import NotifyUtil from '~/util/NotifyUtil';
 import { requestApi } from '~/lib/axios';
 import { REGISTER_API } from '~/configs';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { ValidateUtils } from '~/util/ValidateUltil';
+import { useSelector } from 'react-redux';
+import { RootState } from '~/AppStore';
 
 const RegisterView: React.FC = () => {
     const formRef = useRef<BaseFormRef>(null);
     const history = useNavigate();
-
+    const { isAuthenticated } = useSelector((state: RootState) => state.authData);
     const backToLogin = () => history('/login');
     const onSave = async () => {
         const registerValue = formRef.current?.getFieldsValue() as RegisterParam;
@@ -49,6 +51,10 @@ const RegisterView: React.FC = () => {
         }
     };
 
+    if (!!isAuthenticated) {
+        return <Navigate to={'/'} />;
+    }
+
     return (
         <div className="w-full h-screen relative flex items-center justify-center">
             <img src={bgImageUrl} className="w-full h-full absolute top-0 left-0 -z-10 object-cover" alt="" />
@@ -70,7 +76,7 @@ const RegisterView: React.FC = () => {
                         },
                         {
                             label: 'Tài khoản',
-                            name: nameof.full<RegisterParam>(x => x.username),
+                            name: nameof.full<RegisterParam>(x => x.userName),
                             children: <Input />,
                             rules: [{ required: true }],
                         },
@@ -107,7 +113,7 @@ const RegisterView: React.FC = () => {
                         return (
                             <div className="flex items-center justify-center w-full">
                                 <ButtonBase title="Đăng ký" size="md" onClick={onSave} />
-                                <ButtonBase title="Đăng nhập" size="md" onClick={backToLogin} />
+                                <ButtonBase title="Đăng nhập" size="md" onClick={() => <Navigate to={'/login'} />} />
                             </div>
                         );
                     }}
