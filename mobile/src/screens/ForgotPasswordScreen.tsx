@@ -10,9 +10,10 @@ import React from "react";
 import { ChevronLeftIcon } from "react-native-heroicons/outline";
 import InputText from "../components/InputText";
 import ButtonPrimary from "../components/ButtonPrimary";
-import {Colors} from "../utils/Colors";
+import { Colors } from "../utils/Colors";
+import axios from "axios";
 
-export default function ForgotPasswordScreen() {
+export default function ForgotPasswordScreen({ navigation }) {
   return (
     <SafeAreaView
       style={{
@@ -45,7 +46,13 @@ export default function ForgotPasswordScreen() {
           your account.
         </Text>
         <InputText placeholder="Enter your email" />
-        <ButtonPrimary title="Send Code" color={Colors.btnPrimary} />
+        <ButtonPrimary
+          title="Send Code"
+          color={Colors.btnPrimary}
+          onPressBtn={() => {
+            navigation.navigate("OTPVerification");
+          }}
+        />
         <View
           style={{
             flexDirection: "row",

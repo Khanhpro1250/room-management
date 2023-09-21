@@ -5,10 +5,12 @@ interface Props {
   color?: string;
   fontColor?: string;
   title?: string;
+  onPressBtn: () => void;
 }
 export default function ButtonPrimary(props: Props) {
   return (
     <TouchableOpacity
+      onPress={props.onPressBtn}
       style={{
         backgroundColor: props.color,
         borderRadius: 8,
