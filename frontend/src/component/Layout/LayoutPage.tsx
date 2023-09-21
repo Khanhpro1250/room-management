@@ -51,7 +51,7 @@ const LayoutPage: React.FC = () => {
             <div className="w-full px-2.5 h-full flex flex-col justify-between relative">
                 <div
                     className="w-full h-[140px] absolute top-0 left-0 -z-10"
-                    style={{ background: 'linear-gradient(90deg,#046db3 0,#1696cf 60%,#20aade)' }}
+                    style={{ background: 'linear-gradient(90deg,rgb(17 69 118) 0px, rgb(87 124 159) 60%, rgb(174 201 225))' }}
                 />
                 <div
                     className="w-full absolute left-0 -z-10"

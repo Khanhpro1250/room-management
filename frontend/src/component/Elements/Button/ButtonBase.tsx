@@ -5,13 +5,14 @@ import * as React from 'react';
 import { BaseIcon } from '~/component/Icon/BaseIcon';
 
 const variants = {
-    primary: 'bg-blue-500 text-white hover:bg-white hover:text-blue-600 hover:border-blue-500',
+    primary: 'bg-sky-600 text-white hover:bg-white hover:text-blue-600 hover:border-blue-500',
     inverse: 'bg-slate-600 text-blue-600 hover:bg-white hover:text-slate hover:border-slate-500',
-    danger: 'bg-red-600 text-white hover:bg-white hover:text-red-600 hover:border-red-500',
+    danger: 'bg-red-800 text-white hover:bg-white hover:text-red-600 hover:border-red-500',
     info: 'bg-gray-400 text-white hover:bg-white hover:text-gray-600 hover:border-gray-500',
     warning: 'bg-amber-500 text-white hover:bg-white hover:bg-red-500:text-red-600',
-    success: 'bg-green-500 text-white hover:bg-white hover:text-green-600 hover:border-green-500',
+    success: 'bg-emerald-800 text-white hover:bg-white hover:text-green-600 hover:border-green-500',
 };
+
 
 const sizes = {
     xs: 'py-1 px-2 text-xs',

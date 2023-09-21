@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
 import { RootState } from '~/AppStore';
-import backgroundLogo from '~/assets/layout/background_logo.jpg';
+import backgroundLogo from '~/assets/login/login_background.svg';
 import { BaseIcon } from '~/component/Icon/BaseIcon';
 import { MenuIcon } from '~/component/Icon/MenuIcon';
 import { setOpenKeys, setSelectKeys } from '~/store/layoutSlice';
