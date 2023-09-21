@@ -19,6 +19,7 @@ using backend.Services.NotificationServices;
 using backend.Services.RequestServices;
 using backend.Services.RoleServices;
 using backend.Services.RoomServices;
+using backend.Services.SendMailServices;
 using backend.Services.ServiceServices;
 using backend.Services.UserServices;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -191,6 +192,9 @@ public class Startup
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IServiceService, ServiceService>();
         services.AddScoped<IRoleService, RoleService>();
+        
+        //Sendmail
+        services.AddScoped<ISendMailService, SendMailService>();
 
         services.AddCors(options =>
         {
