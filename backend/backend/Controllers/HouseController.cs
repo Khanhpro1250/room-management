@@ -35,7 +35,7 @@ public class HouseController : ControllerBase
     }
 
     [HttpGet("test-send-mail")]
-    public async Task SendMail([FromBody]string mail = default,[FromBody] string body = default)
+    public async Task SendMail([FromRoute]string mail ,[FromBody] string body ="")
     {
         string htmlContent = @"<!doctype html>
 <html xmlns=""http://www.w3.org/1999/xhtml"" xmlns:v=""urn:schemas-microsoft-com:vml"" xmlns:o=""urn:schemas-microsoft-com:office:office"">
