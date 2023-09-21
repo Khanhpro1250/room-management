@@ -21,6 +21,11 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
+          name="ForgotPassword"
+          component={ForgotPasswordScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="HomeUINavigation"
           component={HomeUINavigation}
           options={{ headerShown: false }}
@@ -62,11 +67,7 @@ export default function App() {
           component={OTPVerificationScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="ForgotPassword"
-          component={ForgotPasswordScreen}
-          options={{ headerShown: false }}
-        />
+
         <Stack.Screen
           name="RegisterScreen"
           component={RegisterScreen}
