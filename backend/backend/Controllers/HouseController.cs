@@ -34,8 +34,8 @@ public class HouseController : ControllerBase
         return ApiResponse<HouseDto>.Ok(result);
     }
 
-    [HttpGet("test-send-mail")]
-    public async Task SendMail([FromRoute]string mail ,[FromBody] string body ="")
+    [HttpPost("test-send-mail")]
+    public async Task SendMail([FromQuery]string mail )
     {
         string htmlContent = @"<!doctype html>
 <html xmlns=""http://www.w3.org/1999/xhtml"" xmlns:v=""urn:schemas-microsoft-com:vml"" xmlns:o=""urn:schemas-microsoft-com:office:office"">
@@ -82,6 +82,6 @@ public class HouseController : ControllerBase
 </html>";
 
 
-        await _sendMailService.SendMail(mail ?? "khanhpro1250@gmail.com", "TEST send mail",body ?? htmlContent);
+        await _sendMailService.SendMail(mail, "TEST send mail",htmlContent);
     }
 }
