@@ -25,7 +25,7 @@ export default function RequestsScreen({ navigation }) {
       "Content-Type": "application/json",
     };
     try {
-      Axios.get("http://413a-42-113-221-18.ngrok-free.app/api/request/index", {
+      Axios.get(`https://localhost:7179/api/request/index`, {
         headers,
       })
         .then((response) => {

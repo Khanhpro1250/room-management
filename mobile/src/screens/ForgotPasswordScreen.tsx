@@ -14,6 +14,10 @@ import { Colors } from "../utils/Colors";
 import axios from "axios";
 
 export default function ForgotPasswordScreen({ navigation }) {
+  const headers = {
+    Accept: "*/*",
+    "Content-Type": "application/json",
+  };
   return (
     <SafeAreaView
       style={{
@@ -49,8 +53,17 @@ export default function ForgotPasswordScreen({ navigation }) {
         <ButtonPrimary
           title="Send Code"
           color={Colors.btnPrimary}
-          onPressBtn={() => {
-            navigation.navigate("OTPVerification");
+          onPressBtn={async () => {
+            await axios
+              .get(`https://api.genderize.io/`)
+              .then((res) => {
+                console.log(res);
+                console.log(res.data);
+              })
+              .catch((erro) => {
+                console.log(erro);
+              });
+            console.log("btn");
           }}
         />
         <View

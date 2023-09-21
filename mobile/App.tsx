@@ -30,6 +30,7 @@ export default function App() {
           component={HomeUINavigation}
           options={{ headerShown: false }}
         />
+
         <Stack.Screen
           name="AddRequest"
           component={CreateRequestScreen}
