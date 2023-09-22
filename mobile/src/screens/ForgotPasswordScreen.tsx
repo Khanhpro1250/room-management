@@ -17,6 +17,7 @@ export default function ForgotPasswordScreen({ navigation }) {
   const headers = {
     Accept: "*/*",
     "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
   };
   return (
     <SafeAreaView
@@ -55,7 +56,10 @@ export default function ForgotPasswordScreen({ navigation }) {
           color={Colors.btnPrimary}
           onPressBtn={async () => {
             await axios
-              .get(`https://api.genderize.io/`)
+              .get(`https://localhost:7179/api/house/test-send-mail`, {
+                params: { mail: "klasjnk@gmail.com" },
+                headers,
+              })
               .then((res) => {
                 console.log(res);
                 console.log(res.data);

@@ -34,7 +34,7 @@ public class HouseController : ControllerBase
         return ApiResponse<HouseDto>.Ok(result);
     }
 
-    [HttpPost("test-send-mail")]
+    [HttpGet("test-send-mail")]
     public async Task SendMail([FromQuery]string mail )
     {
         string htmlContent = @"<!doctype html>
