@@ -13,6 +13,7 @@ using backend.Models.Repositorties.UserAccountRepositories.RoleRepositories;
 using backend.Services.ContractServices;
 using backend.Services.CustomerServices;
 using backend.Services.DepositServices;
+using backend.Services.ExportWordPdfServices;
 using backend.Services.HouseServices;
 using backend.Services.MenuService;
 using backend.Services.NotificationServices;
@@ -60,7 +61,7 @@ public class Startup
         app.UseCors("AllowReactNativeApp");
         // app.UseCors("AllowReactFrontend");
         app.UseStaticFiles();
-        
+
         // app.UseSpa(spa =>
         // {
         //     spa.Options.SourcePath = "wwwroot";
@@ -72,7 +73,6 @@ public class Startup
         {
             endpoints.MapControllers();
             endpoints.MapSwagger();
-            
         });
     }
 
@@ -86,15 +86,15 @@ public class Startup
         services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo() { Title = "My API", Version = "v1" }); });
 
         // Add CORS
-        
-        
+
+
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>
             {
                 options.Cookie.Name = "CookieAuth"; // Set your cookie name
                 // Configure other options as needed
             });
-        
+
         // services.AddAuthentication("CookieAuth")
         //     .AddCookie("CookieAuth", options =>
         //     {
@@ -143,22 +143,22 @@ public class Startup
             return new RoomRepository(mongoClient, "room_manager");
         });
         services.AddSingleton<IUserAccountRepository>(_ =>
-         {
-             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-             return new UserAccountRepository(mongoClient, "room_manager");
-         });
-         services.AddSingleton<IMenuRepository>(_ =>
-         {
-             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-             return new MenuRepository(mongoClient, "room_manager");
-         });
-         
-         services.AddSingleton<IHouseRepository>(_ =>
-         {
-             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-             return new HouseRepository(mongoClient, "room_manager");
-         });
-         // AddAuthentication
+        {
+            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+            return new UserAccountRepository(mongoClient, "room_manager");
+        });
+        services.AddSingleton<IMenuRepository>(_ =>
+        {
+            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+            return new MenuRepository(mongoClient, "room_manager");
+        });
+
+        services.AddSingleton<IHouseRepository>(_ =>
+        {
+            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+            return new HouseRepository(mongoClient, "room_manager");
+        });
+        // AddAuthentication
         //  services.AddAuthentication(options =>
         //  {
         //      options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -192,10 +192,11 @@ public class Startup
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IServiceService, ServiceService>();
         services.AddScoped<IRoleService, RoleService>();
-        
+
         //Sendmail
         services.AddScoped<ISendMailService, SendMailService>();
-
+        //Export word-pdf
+        services.AddScoped<IExportService, ExportService>();
         services.AddCors(options =>
         {
             options.AddPolicy("AllowReactNativeApp", builder =>
@@ -207,6 +208,5 @@ public class Startup
                     ;
             });
         });
-        
     }
 }
