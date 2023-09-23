@@ -1,5 +1,5 @@
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { LightBulbIcon } from "react-native-heroicons/outline";
 
 // props: placeholder, isPassword
@@ -8,6 +8,7 @@ interface Props {
   isPassword?: boolean;
 }
 export default function InputText(props: Props) {
+  const [email, setEmail] = useState("");
   return (
     <View
       style={{
@@ -22,6 +23,9 @@ export default function InputText(props: Props) {
       }}
     >
       <TextInput
+        onChangeText={(text) => {
+          setEmail(text);
+        }}
         placeholder={props.placeholder}
         style={{ flex: 1, fontSize: 15, marginStart: 15 }}
       />
