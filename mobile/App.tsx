@@ -15,28 +15,55 @@ import DetailRoomScreen from "./src/screens/DetailRoomScreen";
 import DetailRoomNavigation from "./src/navigations/DetailRoomNavigation";
 import ProfileScreen from "./src/screens/ProfileScreen";
 import CreateRequestScreen from "./src/screens/CreateRequestScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 const Stack = createStackNavigator();
+
 export default function App() {
+  const [shouldDisplayWelcome, setShouldDisplayWelcome] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const _storeData = async () => {
+    try {
+      await AsyncStorage.getItem("isFirst")
+        .then((result) => {
+          if (result != undefined) setShouldDisplayWelcome(true);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } catch (error) {
+      // Error saving data
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    _storeData();
+  }, []);
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        {!loading && (
+          <Stack.Screen
+            name="Welcome"
+            component={WelcomScreen}
+            options={{ headerShown: false }}
+          />
+        )}
+        <Stack.Screen
+          name="HomeUINavigation"
+          component={HomeUINavigation}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="ForgotPassword"
           component={ForgotPasswordScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="HomeUINavigation"
-          component={HomeUINavigation}
-          options={{ headerShown: false }}
-        />
-
-        <Stack.Screen
           name="AddRequest"
           component={CreateRequestScreen}
           options={{ headerShown: false }}
         />
-
         <Stack.Screen
           name="Profile"
           component={ProfileScreen}
@@ -52,7 +79,6 @@ export default function App() {
           component={DetailCostScreen}
           options={{ headerShown: false }}
         />
-
         <Stack.Screen
           name="ChangePassword"
           component={ChangePasswordScreen}
@@ -68,7 +94,6 @@ export default function App() {
           component={OTPVerificationScreen}
           options={{ headerShown: false }}
         />
-
         <Stack.Screen
           name="RegisterScreen"
           component={RegisterScreen}
@@ -77,11 +102,6 @@ export default function App() {
         <Stack.Screen
           name="Login"
           component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Welcome"
-          component={WelcomScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

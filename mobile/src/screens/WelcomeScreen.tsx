@@ -9,15 +9,22 @@ import {
 import React from "react";
 import ButtonPrimary from "../components/ButtonPrimary";
 import { Colors } from "../utils/Colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function WelcomeScreen() {
+export default function WelcomeScreen({ navigation }) {
   return (
     <ImageBackground
       style={{ flex: 1 }}
       resizeMode="cover"
       source={require("../../assets/colorful.jpg")}
     >
-      <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          paddingTop: StatusBar.currentHeight,
+          marginHorizontal: 22,
+        }}
+      >
         <View
           style={{
             flex: 1,
@@ -36,8 +43,29 @@ export default function WelcomeScreen() {
             flex: 1,
           }}
         >
-          <ButtonPrimary title={"Log in"} color={Colors.btnPrimary} />
-          <ButtonPrimary title={"Register"} color="white" fontColor="black" />
+          <TouchableOpacity
+            onPress={async () => {
+              await AsyncStorage.setItem("isFirst", "true");
+              navigation.navigate("ForgotPassword");
+            }}
+            style={{
+              backgroundColor: "black",
+              borderRadius: 8,
+              height: 56,
+              justifyContent: "center",
+              alignItems: "center",
+              marginVertical: 15,
+            }}
+          >
+            <Text
+              style={{
+                color: "white",
+                fontSize: 15,
+              }}
+            >
+              Log in
+            </Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     </ImageBackground>

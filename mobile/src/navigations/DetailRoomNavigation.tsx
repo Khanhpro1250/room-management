@@ -6,6 +6,7 @@ import DetailRoomScreen from "../screens/DetailRoomScreen";
 
 import RoommatesScreen from "../screens/RoommatesScreen";
 import PaymentHistoryScreen from "../screens/PaymentHistoryScreen";
+import ContractScreen from "../screens/ContractScreen";
 
 const Tab = createMaterialTopTabNavigator();
 export default function DetailRoomNavigation() {
@@ -52,7 +53,12 @@ export default function DetailRoomNavigation() {
           <Tab.Screen
             name="History"
             component={PaymentHistoryScreen}
-            options={{ tabBarLabel: "Lịch sử thanh toán" }}
+            options={{ tabBarLabel: "Lịch sử" }}
+          />
+          <Tab.Screen
+            name="Contract"
+            component={ContractScreen}
+            options={{ tabBarLabel: "Hợp đồng" }}
           />
         </Tab.Navigator>
       </View>

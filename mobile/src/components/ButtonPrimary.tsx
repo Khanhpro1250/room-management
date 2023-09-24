@@ -5,7 +5,7 @@ interface Props {
   color?: string;
   fontColor?: string;
   title?: string;
-  onPressBtn: () => void;
+  onPressBtn?: () => void;
   disable?: number;
 }
 export default function ButtonPrimary(props: Props) {
