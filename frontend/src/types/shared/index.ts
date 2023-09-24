@@ -1,5 +1,6 @@
 export * from './ComboOption';
 export * from './House';
+export * from './Room';
 
 export type Identifier = string | number;
 

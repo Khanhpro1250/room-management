@@ -9,12 +9,14 @@ export interface BaseGridResponse<TData> {
     loading: boolean;
     data: TData[] | undefined;
     reloadData(): void;
+    setParams: (params: any) => void;
 }
 
 interface Props {
     url: string;
     gridRef?: React.RefObject<BaseGridRef>;
     pageSize?: number;
+    params?: any;
 }
 
 interface State<TData> {
@@ -53,7 +55,7 @@ export function useBaseGrid<TData>({ pageSize = 25, ...props }: Props): BaseGrid
             'get',
             props.url,
             {},
-            { params: query, headers: { [Authorization]: authUser?.token ?? '' } },
+            { params: { ...query, ...props.params }, headers: { [Authorization]: authUser?.token ?? '' } },
         );
 
         if (response.data?.success) {
@@ -69,5 +71,8 @@ export function useBaseGrid<TData>({ pageSize = 25, ...props }: Props): BaseGrid
     return {
         ...state,
         reloadData: fetchData,
+        setParams: (params: any) => {
+            props.params = params;
+        },
     };
 }

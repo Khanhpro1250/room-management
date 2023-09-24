@@ -1,4 +1,6 @@
-﻿using backend.DTOs.RoomDtos;
+﻿using backend.Controllers.Dtos;
+using backend.Controllers.Dtos.Responese;
+using backend.DTOs.RoomDtos;
 using backend.DTOs.UserDtos;
 using backend.Services.RoomServices;
 using backend.Services.UserServices;
@@ -46,10 +48,10 @@ namespace backend.Controllers
             return new OkResult();
         }
         [HttpGet("index")]
-        public async Task<ActionResult> GetListRoom()
+        public async Task<ApiResponse<PaginatedList<RoomDto>>> GetListRoom([FromQuery] string houseId)
         {
-            var result = await _roomService.GetListRoom();
-            return new ObjectResult(result);
+            var result = await _roomService.GetListRoom(houseId);
+            return ApiResponse<PaginatedList<RoomDto>>.Ok(result);
         }
 
 

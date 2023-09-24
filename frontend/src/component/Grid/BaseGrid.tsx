@@ -141,7 +141,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
         });
 
     return (
-        <div className="w-full h-full">
+        <div className="w-full h-[500px]">
             <div className="h-[6%]">{props.children}</div>
             <div className="w-full h-[94%] ag-theme-alpine grid base-grid">
                 {props.data && (
@@ -157,7 +157,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                         }}
                         suppressAutoSize
                         pagination={pagination}
-                        onGridReady={(params) => params.api.sizeColumnsToFit()}
+                        onGridReady={params => params.api.sizeColumnsToFit()}
                         treeData={props.treeData}
                         animateRows
                         getDataPath={props.getDataPath}

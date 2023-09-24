@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using backend.Controllers.Dtos;
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.UserDtos;
 using backend.Models.Entities.UserAccount;
 using backend.Models.Repositorties.UserAccountRepositories.RoleRepositories;
+using MongoDB.Driver;
 
 namespace backend.Services.RoleServices
 {
@@ -49,5 +51,22 @@ namespace backend.Services.RoleServices
             var result = await _roleRopository.UpdateRole(roleEntity, id);
             return _mapper.Map<Role, RoleDto>(result);
         }
+        
+        public async Task<List<ComboOptionDto>> GetComboRole()
+        {
+            var queryable = _roleRopository.GetQueryable();
+            var roles = await queryable.Find(x => true).ToListAsync();
+            var result = roles.Select(x=> new ComboOptionDto()
+                {
+                    
+                    Value = x.Id,
+                    Label = x.Name
+                })
+                .ToList();
+                
+            return result;
+
+        }
+
     }
 }

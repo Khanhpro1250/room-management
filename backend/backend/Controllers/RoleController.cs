@@ -53,5 +53,12 @@ namespace backend.Controllers
             await _roleService.DeleteRole(id);
             return ApiResponse.Ok();
         }
+
+        [HttpGet("combo")]
+        public async Task<ApiResponse<List<ComboOptionDto>>> GetComboRole()
+        {
+            var result = await _roleService.GetComboRole();
+            return ApiResponse<List<ComboOptionDto>>.Ok(result);
+        }
     }
 }

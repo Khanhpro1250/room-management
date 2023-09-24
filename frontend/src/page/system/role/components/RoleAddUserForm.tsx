@@ -6,13 +6,14 @@ import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 import Loading from '~/component/Elements/loading/Loading';
 import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
 import { AppModalContainer } from '~/component/Layout/AppModalContainer';
-import { COMBO_USER_WITH_KEY_API } from '~/configs';
+
 import NotificationConstant from '~/configs/contants';
 import { useMergeState } from '~/hook/useMergeState';
 import { requestApi } from '~/lib/axios';
 import { Identifier } from '~/types/shared';
 import NotifyUtil from '~/util/NotifyUtil';
 import { UPDATE_USER_ROLE_API } from '../api/api';
+import { COMBO_USER_API } from '../../user/api/api';
 
 interface Props {
     id: Identifier;
@@ -51,7 +52,7 @@ const RoleAddUserForm: React.FC<Props> = props => {
     };
 
     const fetchUsers = async () => {
-        const res = await requestApi('get', COMBO_USER_WITH_KEY_API);
+        const res = await requestApi('get', COMBO_USER_API);
         if (res?.data?.success) {
             setState({
                 loading: false,

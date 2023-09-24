@@ -1,15 +1,13 @@
-import { Identifier } from '.';
-
-export interface ComboOption<TValue = Identifier> {
+export interface ComboOption<TValue = string> {
     value: TValue;
     label: string;
 }
 
-export interface TreeComboOption<TValue = Identifier> extends ComboOption<TValue> {
+export interface TreeComboOption<TValue = string> extends ComboOption<TValue> {
     children: Array<TreeComboOption<TValue>>;
 }
 
-export interface ComboOptionWithKey<TValue = Identifier> {
+export interface ComboOptionWithKey<TValue = string> {
     key: TValue;
     label: string;
 }

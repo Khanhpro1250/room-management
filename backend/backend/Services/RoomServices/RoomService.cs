@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using backend.Controllers.Dtos.Responese;
 using backend.DTOs.RoomDtos;
 using backend.DTOs.UserDtos;
 using backend.Models.Entities.Rooms;
 using backend.Models.Entities.UserAccount;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
+using MongoDB.Driver;
 
 namespace backend.Services.RoomServices
 {
@@ -30,11 +32,12 @@ namespace backend.Services.RoomServices
             await _roomRepository.DeleteRoom(id);
         }
 
-        public async Task<List<RoomDto>> GetListRoom()
+        public async Task<PaginatedList<RoomDto>> GetListRoom(string houseId)
         {
-            var listRoom = await _roomRepository.GetListRoom();
+            var queryable = _roomRepository.GetQueryable();
+            var listRoom = await queryable.Find(x => x.HouseId.Contains(houseId)).ToListAsync();
             var result = _mapper.Map<List<Room>, List<RoomDto>>(listRoom);
-            return result;
+            return new PaginatedList<RoomDto>(result,result.Count,0,10);
         }
 
         public async Task<RoomDto> GetRoomById(string roomId)

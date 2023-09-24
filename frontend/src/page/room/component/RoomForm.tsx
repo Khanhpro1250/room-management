@@ -1,24 +1,26 @@
 import { faClose, faSave } from '@fortawesome/free-solid-svg-icons';
-import { Input, Select } from 'antd';
+import { Input } from 'antd';
 import { Method } from 'axios';
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
 import { AppModalContainer } from '~/component/Layout/AppModalContainer';
 import NotificationConstant from '~/configs/contants';
+import { Room } from '~/types/shared';
+
 import { requestApi } from '~/lib/axios';
-import { IUser } from '~/types/ums/AuthUser';
 import NotifyUtil from '~/util/NotifyUtil';
-import { CREATE_USER_API, UPDATE_USER_API } from '../api/api';
+import { ROOM_CREATE_API, ROOM_UPDATE_API } from '../api/room.api';
+import TextArea from 'antd/lib/input/TextArea';
 
 interface Props {
+    parentId?: string;
     readonly?: boolean;
-    initialValues?: Partial<IUser>;
+    initialValues?: Partial<Room>;
     onClose?: () => void;
     onSubmitSuccessfully?: () => void;
 }
-
-const UserForm: React.FC<Props> = props => {
+const RoomForm: React.FC<Props> = props => {
     const formRef = useRef<BaseFormRef>(null);
 
     const onSubmit = async () => {
@@ -31,12 +33,12 @@ const UserForm: React.FC<Props> = props => {
             }
         > = {
             create: {
-                url: CREATE_USER_API,
+                url: ROOM_CREATE_API,
                 method: 'post',
                 message: NotificationConstant.DESCRIPTION_CREATE_SUCCESS,
             },
             update: {
-                url: `${UPDATE_USER_API}/${props.initialValues?.id}`,
+                url: `${ROOM_UPDATE_API}/${props.initialValues?.id}`,
                 method: 'put',
                 message: NotificationConstant.DESCRIPTION_UPDATE_SUCCESS,
             },
@@ -46,6 +48,7 @@ const UserForm: React.FC<Props> = props => {
 
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
+            houseId: props.parentId,
         });
 
         if (response.data?.success) {
@@ -59,7 +62,6 @@ const UserForm: React.FC<Props> = props => {
             return;
         }
     };
-
     return (
         <AppModalContainer>
             <BaseForm
@@ -68,44 +70,44 @@ const UserForm: React.FC<Props> = props => {
                 ref={formRef}
                 baseFormItem={[
                     {
-                        label: 'Tên người dùng',
-                        name: nameof.full<IUser>(x => x.fullName),
-                        children: <Input placeholder="Nhập tên người dùng ..." />,
+                        label: 'Mã phòng',
+                        name: nameof.full<Room>(x => x.roomCode),
+                        children: <Input placeholder="Nhập mã phòng ..." />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                     },
                     {
-                        label: 'Tên đăng nhập',
-                        name: nameof.full<IUser>(x => x.userName),
-                        children: <Input placeholder="Nhập địa chỉ email ..." />,
+                        label: 'Số phòng',
+                        name: nameof.full<Room>(x => x.number),
+                        children: <Input placeholder="Nhập sô phòng ..." />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                     },
                     {
-                        label: 'Địa chỉ email',
-                        name: nameof.full<IUser>(x => x.emailAddress),
-                        children: <Input placeholder="Nhập địa chỉ email ..." />,
+                        label: 'Diện tích',
+                        name: nameof.full<Room>(x => x.acreage),
+                        children: <Input placeholder="Nhập diện tích ..." />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                     },
                     {
-                        label: 'Số điện thoại',
-                        name: nameof.full<IUser>(x => x.phoneNumber),
-                        children: <Input placeholder="Nhập số điện thoại ..." />,
+                        label: 'Số người ở tối đa',
+                        name: nameof.full<Room>(x => x.maxNumberOfPeople),
+                        children: <Input placeholder="Nhập số người ở tối đa ..." />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                     },
                     {
-                        label: 'Vai trò',
-                        name: nameof.full<IUser>(x => x.isAdmin),
-                        children: (
-                            <Select
-                                style={{ color: '#333' }}
-                                options={[
-                                    { label: 'Quản trị viên', value: true },
-                                    { label: 'Người dùng', value: false },
-                                ]}
-                                defaultValue={false}
-                                showSearch
-                                allowClear
-                            />
-                        ),
+                        label: 'Giá phòng',
+                        name: nameof.full<Room>(x => x.price),
+                        children: <Input placeholder="Nhập giá phòng ..." />,
+                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
+                    },
+                    {
+                        label: 'Cọc trước',
+                        name: nameof.full<Room>(x => x.deposit),
+                        children: <Input placeholder="Nhập số tiền đặt cọc ..." />,
+                    },
+                    {
+                        label: 'Mô tả',
+                        name: nameof.full<Room>(x => x.description),
+                        children: <TextArea placeholder="Nhập mô tả ..." />,
                     },
                 ]}
                 labelAlign="left"
@@ -123,4 +125,4 @@ const UserForm: React.FC<Props> = props => {
     );
 };
 
-export default UserForm;
+export default RoomForm;

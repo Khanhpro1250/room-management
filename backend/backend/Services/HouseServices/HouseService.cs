@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using backend.Controllers.Dtos;
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.HouseDtos;
 using backend.Models.Entities.Houses;
@@ -32,5 +33,17 @@ public class HouseService : IHouseService
         var totalCount = listHouse.Count;
         return new PaginatedList<HouseDto>(_mapper.Map<List<House>, List<HouseDto>>(listHouse),totalCount,0,10);
 
+    }
+
+    public async Task<List<ComboOptionDto>> GetComboHouse()
+    {
+        var queryable = _houseRepository.GetQueryable();
+        var listHouse = await queryable.Find(x => true).ToListAsync();
+        var result = listHouse.Select(x => new ComboOptionDto()
+        {
+            Label = x.Name,
+            Value = x.Id
+        }).ToList();
+        return result;
     }
 }

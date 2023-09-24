@@ -13,7 +13,6 @@ const variants = {
     success: 'bg-emerald-800 text-white hover:bg-white hover:text-green-600 hover:border-green-500',
 };
 
-
 const sizes = {
     xs: 'py-1 px-2 text-xs',
     sm: 'py-1 px-2 text-sm',
@@ -31,6 +30,7 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
     size?: keyof typeof sizes;
     tooltip?: string;
     title?: string;
+    uppercase?: boolean;
 } & IconProps;
 
 export const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -51,7 +51,9 @@ export const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 {...props}
             >
                 {startIcon && <BaseIcon icon={startIcon} />}
-                {props.title && <span className="uppercase mx-1">{props.title}</span>}
+                {props.title && (
+                    <span className={clsx('mx-1', props?.uppercase ? 'uppercase' : '')}>{props.title}</span>
+                )}
                 {endIcon && <BaseIcon icon={endIcon} />}
             </button>
         );

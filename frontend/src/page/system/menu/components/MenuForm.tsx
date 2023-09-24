@@ -105,7 +105,7 @@ const MenuForm: React.FC<Props> = props => {
         }
     };
 
-    // if (state.loading) return <Loading />
+    // if (state.loading) return <Loading />;
     return (
         <AppModalContainer>
             <BaseForm
@@ -146,14 +146,7 @@ const MenuForm: React.FC<Props> = props => {
                     // {
                     //     label: 'Quyền xem',
                     //     name: nameof.full<Menu>(x => x.permissions),
-                    //     children: (
-                    //         <Select
-                    //             options={state.roles}
-                    //             showSearch
-                    //             allowClear
-                    //             placeholder="Chọn quyền..."
-                    //         />
-                    //     ),
+                    //     children: <Select options={state.roles} showSearch allowClear placeholder="Chọn quyền..." />,
                     // },
                 ]}
                 labelAlign="left"
