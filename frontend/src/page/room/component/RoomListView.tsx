@@ -10,6 +10,7 @@ import { ROOM_INDEX_API } from '../api/room.api';
 import { GridToolbar } from '~/component/Grid/Components/GridToolbar';
 import Loading from '~/component/Elements/loading/Loading';
 import RoomForm from './RoomForm';
+import { Room } from '~/types/shared';
 
 export interface RoomListViewRef {
     onFilterChange: (formValues: any) => void;
@@ -31,27 +32,29 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
 
     const colDefs: BaseGridColDef[] = [
         {
-            headerName: 'Tên nhà',
-            field: nameof.full<House>(x => x.name),
+            headerName: 'Mã phòng',
+            field: nameof.full<Room>(x => x.roomCode),
             minWidth: 500,
         },
         {
-            headerName: 'Địa chỉ',
-            field: nameof.full<House>(x => x.location),
+            headerName: 'Số phòng',
+            field: nameof.full<Room>(x => x.number),
             width: 120,
         },
         {
-            headerName: 'Loại nhà',
-            field: nameof.full<House>(x => x.houseTypeName),
+            headerName: 'Diện tích',
+            field: nameof.full<Room>(x => x.acreage),
             width: 120,
         },
         {
-            headerName: 'Hình ảnh',
-            field: nameof.full<House>(x => x.imgLink),
+            headerName: 'Số người ở tối đa',
+            field: nameof.full<Room>(x => x.maxNumberOfPeople),
             width: 120,
-            cellRenderer: (params: any) => {
-                return <img style={{ width: '100%', height: '100%' }} src={params.value} />;
-            },
+        },
+        {
+            headerName: 'Tiền cọc',
+            field: nameof.full<Room>(x => x.deposit),
+            width: 120,
         },
     ];
 
@@ -85,7 +88,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
     };
 
     return (
-        <div className="overflow-auto p-0">
+        <>
             {gridController?.loading ? (
                 <Loading />
             ) : (
@@ -119,7 +122,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                     <ModalBase ref={modalRef} />
                 </>
             )}
-        </div>
+        </>
     );
 });
 

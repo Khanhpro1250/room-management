@@ -1,5 +1,5 @@
 import { faHouse, faList, faSync, faUserGear, faUserGroup } from '@fortawesome/free-solid-svg-icons';
-import { Tabs } from 'antd';
+import { Input, Tabs } from 'antd';
 import qs from 'qs';
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -10,9 +10,12 @@ import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
 import { useMergeState } from '~/hook/useMergeState';
 import { requestApi } from '~/lib/axios';
 import { RoomListViewRef } from '~/page/room/component/RoomListView';
-import { ComboOption } from '~/types/shared';
+import { ComboOption, Room } from '~/types/shared';
 import { HOUSE_COMBO_API } from '../house/api/house.api';
 import HomeForm from '../house/components/HomeForm';
+import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
+import NotificationConstant from '~/configs/contants';
+import TextArea from 'antd/lib/input/TextArea';
 
 const RoomListView = React.lazy(() => import('~/page/room/component/RoomListView'));
 
@@ -25,6 +28,7 @@ const RoomPage: React.FC = () => {
     const location = useLocation();
     const pushDomain = useNavigate();
     const modalRef = useRef<ModalRef>(null);
+    const formRef = useRef<BaseFormRef>(null);
     const roomListViewRef = useRef<RoomListViewRef>(null);
     const [state, setState] = useMergeState<State>({
         loading: true,
@@ -70,6 +74,42 @@ const RoomPage: React.FC = () => {
 
     return (
         <AppContainer className="body-page h-full overflow-auto">
+            <BaseForm
+                ref={formRef}
+                className="mb-2"
+                baseFormItem={[
+                    {
+                        label: 'Mã phòng',
+                        name: nameof.full<Room>(x => x.roomCode),
+                        children: <Input className="col-6" placeholder="Nhập mã phòng ..." />,
+                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
+                        className: 'col-span-6',
+                    },
+                    {
+                        label: 'Mã phòng',
+                        name: nameof.full<Room>(x => x.roomCode),
+                        children: <Input placeholder="Nhập mã phòng ..." />,
+                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
+                        className: 'col-span-6',
+                    },
+                    {
+                        label: 'Mã phòng',
+                        name: nameof.full<Room>(x => x.roomCode),
+                        children: <Input className="col-6" placeholder="Nhập mã phòng ..." />,
+                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
+                        className: 'col-span-6',
+                    },
+                    {
+                        label: 'Trạng thái',
+                        name: nameof.full<Room>(x => x.roomCode),
+                        children: <Input placeholder="Nhập mã phòng ..." />,
+                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
+                        className: 'col-span-6',
+                    },
+                ]}
+                labelAlign="left"
+                isHasFieldSet
+            />
             <Tabs
                 onChange={key => {
                     pushDomain({ search: qs.stringify({ tab: key }) });

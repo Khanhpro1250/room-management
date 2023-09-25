@@ -2,7 +2,8 @@ import { Form, FormInstance } from 'antd';
 import { NamePath } from 'antd/lib/form/interface';
 import clsx from 'clsx';
 import React, { useImperativeHandle, useRef } from 'react';
-import './styles/BaseForm.scss'
+import './styles/BaseForm.scss';
+import { Fieldset } from '../Elements/FieldSet/FieldSet';
 
 export interface BaseFormProps {
     initialValues?: Record<string, any>;
@@ -13,6 +14,7 @@ export interface BaseFormProps {
     baseFormItem?: BaseFormItem[];
     className?: string;
     width?: number | string;
+    isHasFieldSet?: boolean;
     renderBtnBottom?: () => JSX.Element;
     renderExtras?: () => JSX.Element;
 }
@@ -24,6 +26,7 @@ export interface BaseFormItem {
     initialValue?: any;
     valuePropName?: string;
     children?: React.ReactNode;
+    className?: string;
 }
 
 export interface FieldData {
@@ -61,30 +64,54 @@ const BaseForm = React.forwardRef<BaseFormRef, BaseFormProps>((props, ref) => {
 
     return (
         <div className={clsx('w-full h-full base-form', props.className)}>
-            <Form
-                labelCol={{ span: props.labelCol ?? 6 }}
-                wrapperCol={{ span: 24 - Number(props.labelCol ?? 6) }}
-                initialValues={props.initialValues}
-                autoComplete="off"
-                ref={formRef}
-                labelAlign={props.labelAlign}
-                layout={props.layout}
-                disabled={props.disabled}
-                style={{
-                    width: props.width,
-                }}
-            >
-                {props.baseFormItem?.map(item => {
-                  
-                    return (
-                        <Form.Item key={item.name} {...item}>
-                            {item.children}
-                        </Form.Item>
-                    );
-                })}
-            </Form>
-            {props.renderExtras?.()}
-            {props.renderBtnBottom?.()}
+            {props.isHasFieldSet ? (
+                <Fieldset title="Bộ lọc dữ liệu">
+                    <Form
+                        labelCol={{ span: props.labelCol ?? 6 }}
+                        wrapperCol={{ span: 24 - Number(props.labelCol ?? 6) }}
+                        initialValues={props.initialValues}
+                        autoComplete="off"
+                        ref={formRef}
+                        labelAlign={props.labelAlign}
+                        layout={props.layout}
+                        disabled={props.disabled}
+                        className="grid grid-cols-12 gap-4" // Remove the redundant "gird" typo
+                    >
+                        {props.baseFormItem?.map(item => {
+                            return (
+                                <Form.Item key={item.name} className={item.className} {...item}>
+                                    {item.children}
+                                </Form.Item>
+                            );
+                        })}
+                    </Form>
+                    {props.renderExtras?.()}
+                    {props.renderBtnBottom?.()}
+                </Fieldset>
+            ) : (
+                <>
+                    <Form
+                        labelCol={{ span: props.labelCol ?? 6 }}
+                        wrapperCol={{ span: 24 - Number(props.labelCol ?? 6) }}
+                        initialValues={props.initialValues}
+                        autoComplete="off"
+                        ref={formRef}
+                        labelAlign={props.labelAlign}
+                        layout={props.layout}
+                        disabled={props.disabled}
+                    >
+                        {props.baseFormItem?.map(item => {
+                            return (
+                                <Form.Item key={item.name} className={item.className} {...item}>
+                                    {item.children}
+                                </Form.Item>
+                            );
+                        })}
+                    </Form>
+                    {props.renderExtras?.()}
+                    {props.renderBtnBottom?.()}
+                </>
+            )}
         </div>
     );
 });
