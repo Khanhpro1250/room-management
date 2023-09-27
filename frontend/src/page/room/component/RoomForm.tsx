@@ -12,7 +12,7 @@ import { requestApi } from '~/lib/axios';
 import NotifyUtil from '~/util/NotifyUtil';
 import { ROOM_CREATE_API, ROOM_UPDATE_API } from '../api/room.api';
 import TextArea from 'antd/lib/input/TextArea';
-
+import Overlay, { OverlayRef } from '~/component/Elements/loading/Overlay';
 interface Props {
     parentId?: string;
     readonly?: boolean;
@@ -22,7 +22,7 @@ interface Props {
 }
 const RoomForm: React.FC<Props> = props => {
     const formRef = useRef<BaseFormRef>(null);
-
+    const overlayRef = useRef<OverlayRef>(null);
     const onSubmit = async () => {
         const urlParams: Record<
             string,
@@ -45,7 +45,7 @@ const RoomForm: React.FC<Props> = props => {
         };
         const formValues = formRef.current?.getFieldsValue();
         const urlParam = props.initialValues ? urlParams.update : urlParams.create;
-
+        overlayRef.current?.open();
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
             houseId: props.parentId,
@@ -55,10 +55,12 @@ const RoomForm: React.FC<Props> = props => {
             NotifyUtil.success(NotificationConstant.TITLE, urlParam.message);
             props?.onSubmitSuccessfully?.();
             props.onClose?.();
+            overlayRef.current?.close();
             return;
         } else {
             NotifyUtil.error(NotificationConstant.TITLE, response?.data?.message ?? 'Có lỗi xảy ra');
             props.onClose?.();
+            overlayRef.current?.close();
             return;
         }
     };
@@ -115,12 +117,21 @@ const RoomForm: React.FC<Props> = props => {
                 renderBtnBottom={() => {
                     return (
                         <div className="flex items-center justify-center w-full">
-                            {!props.readonly && <ButtonBase title="Lưu" startIcon={faSave} onClick={onSubmit} />}
-                            <ButtonBase title="Đóng" startIcon={faClose} variant="danger" onClick={props.onClose} />
+                            {!props.readonly && (
+                                <ButtonBase title="Lưu" size="md" startIcon={faSave} onClick={onSubmit} />
+                            )}
+                            <ButtonBase
+                                title="Đóng"
+                                size="md"
+                                startIcon={faClose}
+                                variant="danger"
+                                onClick={props.onClose}
+                            />
                         </div>
                     );
                 }}
             />
+            <Overlay ref={overlayRef} />
         </AppModalContainer>
     );
 };

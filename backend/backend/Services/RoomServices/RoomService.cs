@@ -6,6 +6,7 @@ using backend.Models.Entities.Rooms;
 using backend.Models.Entities.UserAccount;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
+using backend.Utils;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -40,10 +41,9 @@ namespace backend.Services.RoomServices
             var filterBuilder = Builders<Room>.Filter;
 
             var filter = filterBuilder.And(
-                filterBuilder.WhereIf(),
-                filterBuilder.Eq(x => x.HouseId, filterDto.HouseId),
-                filterBuilder.Where(x => String.IsNullOrEmpty(filterDto.RoomCode) || x.RoomCode.Contains(filterDto.RoomCode))
-                // filterBuilder.AnyIn(x => x.Status, filterDto.Status)
+                filterBuilder.WhereIf(!string.IsNullOrWhiteSpace(filterDto.RoomCode), x => x.RoomCode.Contains(filterDto.RoomCode)),
+                filterBuilder.Eq(x => x.HouseId, filterDto.HouseId)
+                // Add other conditions as needed
             );
             var listRoom = await queryable
                 .Find(filter)

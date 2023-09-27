@@ -11,7 +11,7 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/room")]
-    public class RoomController: ControllerBase
+    public class RoomController : ControllerBase
     {
         private readonly IRoomService _roomService;
 
@@ -26,34 +26,35 @@ namespace backend.Controllers
             await _roomService.CreateRoom(room);
             return new ObjectResult(room);
         }
+
         [HttpGet("detail/{roomId}")]
-        public async Task<ActionResult> GetRoomDetail([FromRoute] string roomId)
+        public async Task<ApiResponse<RoomDto>> GetRoomDetail([FromRoute] string roomId)
         {
             var result = await _roomService.GetRoomById(roomId);
-            return new ObjectResult(result);
+            return ApiResponse<RoomDto>.Ok(result);
         }
-        [HttpPost("update/{roomId}")]
-        public async Task<ActionResult> UpdateRoom([FromRoute] string roomId, [FromBody] CreateUpdateRoomDto room)
+
+        [HttpPut("update/{roomId}")]
+        public async Task<ApiResponse<RoomDto>> UpdateRoom([FromRoute] string roomId,
+            [FromBody] CreateUpdateRoomDto room)
         {
             var result = await _roomService.UpdateRoom(room, roomId);
-            return new ObjectResult(result);
-            
+            return ApiResponse<RoomDto>.Ok(result);
         }
 
 
         [HttpDelete("delete/{id}")]
-        public async Task<ActionResult> DeleteRoom([FromRoute] string id)
+        public async Task<ApiResponse<RoomDto>> DeleteRoom([FromRoute] string id)
         {
             await _roomService.DeleteRoom(id);
-            return new OkResult();
+            return ApiResponse<RoomDto>.Ok();
         }
+
         [HttpGet("index")]
         public async Task<ApiResponse<PaginatedList<RoomDto>>> GetListRoom([FromQuery] RoomFilterDto filterDto)
         {
             var result = await _roomService.GetListRoom(filterDto);
             return ApiResponse<PaginatedList<RoomDto>>.Ok(result);
         }
-
-
     }
 }

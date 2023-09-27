@@ -14,7 +14,7 @@ export interface BaseFormProps {
     baseFormItem?: BaseFormItem[];
     className?: string;
     width?: number | string;
-    // isHasFieldSet?: boolean;
+    isDisplayGrid?: boolean;
     renderBtnBottom?: () => JSX.Element;
     renderExtras?: () => JSX.Element;
 }
@@ -73,7 +73,7 @@ const BaseForm = React.forwardRef<BaseFormRef, BaseFormProps>((props, ref) => {
                 labelAlign={props.labelAlign}
                 layout={props.layout}
                 disabled={props.disabled}
-                className={props.labelAlign === 'left' ? 'grid grid-cols-12 gap-4' : ''} // Remove the redundant "gird" typo
+                className={props.isDisplayGrid ? 'grid grid-cols-12 gap-4' : ''} // Remove the redundant "gird" typo
             >
                 {props.baseFormItem?.map(item => {
                     return (

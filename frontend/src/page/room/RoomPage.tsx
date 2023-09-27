@@ -1,5 +1,7 @@
-import { faHouse, faList, faSearch, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import { icon } from '@fortawesome/fontawesome-svg-core';
+import { faBed, faEdit, faHouse, faList, faSearch, faTrash, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import { Input, Tabs } from 'antd';
+import _ from 'lodash';
 import qs from 'qs';
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -9,11 +11,13 @@ import Loading from '~/component/Elements/loading/Loading';
 import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
 import { AppContainer } from '~/component/Layout/AppContainer';
 import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
+import NotificationConstant from '~/configs/contants';
 import { useMergeState } from '~/hook/useMergeState';
 import { requestApi } from '~/lib/axios';
 import { RoomListViewRef } from '~/page/room/component/RoomListView';
-import { ComboOption, Room } from '~/types/shared';
-import { HOUSE_COMBO_API } from '../house/api/house.api';
+import { House } from '~/types/shared';
+import NotifyUtil from '~/util/NotifyUtil';
+import { HOUSE_DELETE_API, HOUSE_INDEX_API } from '../house/api/house.api';
 import HomeForm from '../house/components/HomeForm';
 
 const RoomListView = React.lazy(() => import('~/page/room/component/RoomListView'));
@@ -21,7 +25,7 @@ const RoomListView = React.lazy(() => import('~/page/room/component/RoomListView
 interface State {
     loading: boolean;
     fetchHouse: boolean;
-    house: ComboOption[];
+    house: House[];
 }
 const RoomPage: React.FC = () => {
     const location = useLocation();
@@ -35,7 +39,7 @@ const RoomPage: React.FC = () => {
         house: [],
     });
 
-    const currTab = state.house[0]?.value;
+    const currTab = _.first(state.house)?.id;
 
     const { tab = currTab } = qs.parse(location.search, { ignoreQueryPrefix: true });
 
@@ -55,18 +59,57 @@ const RoomPage: React.FC = () => {
         );
     };
 
-    const fetchComBoPermission = async () => {
-        const res = await requestApi('get', HOUSE_COMBO_API);
+    const updateHouse = async () => {
+        modalRef.current?.onOpen(
+            <HomeForm
+                onSubmitSuccessfully={() => {
+                    modalRef.current?.onClose();
+                    setState({ fetchHouse: !state.fetchHouse });
+                }}
+                onClose={modalRef.current?.onClose}
+                initialValues={state.house.find(item => item.id === currentTab)}
+            />,
+            'Cập nhật nhà',
+            '50%',
+            icon(faEdit),
+        );
+    };
+
+    const fetchHouseData = async () => {
+        setState({
+            loading: true,
+        });
+        const res = await requestApi('get', HOUSE_INDEX_API);
         if (res.data?.success) {
             setState({
                 loading: false,
-                house: res.data?.result,
+                house: res.data?.result.items,
             });
         }
     };
 
+    const onDeleteHouse = async () => {
+        const currentHouse = state.house.find(item => item.id === (currentTab || currTab));
+        const confirm = await NotifyUtil.confirmDialog(
+            'Xóa nhà ' + currentHouse?.name,
+            'Bạn có chắc chắn muốn xóa nhà này?',
+        );
+        if (confirm.isConfirmed) {
+            const res = await requestApi('delete', `${HOUSE_DELETE_API}/${currentTab}`);
+            if (res.data?.success) {
+                NotifyUtil.success(NotificationConstant.TITLE, NotificationConstant.DESCRIPTION_DELETE_SUCCESS);
+                setState({ fetchHouse: !state.fetchHouse });
+                pushDomain({ search: qs.stringify({ tab: _.first(state.house)?.id }) });
+                return;
+            } else {
+                NotifyUtil.error(NotificationConstant.TITLE, res.data?.message ?? 'Có lỗi xảy ra');
+                return;
+            }
+        }
+    };
+
     useEffect(() => {
-        fetchComBoPermission();
+        fetchHouseData();
         setState({ fetchHouse: false });
     }, [state.fetchHouse]);
 
@@ -77,6 +120,30 @@ const RoomPage: React.FC = () => {
 
     return (
         <AppContainer className="body-page h-full overflow-auto">
+            <div className="flex-1 flex items-center justify-end mb-2">
+                <ButtonBase
+                    variant={'primary'}
+                    title={'Khách thuê'}
+                    startIcon={faUserGroup}
+                    size="md"
+                    onClick={() => roomListViewRef.current?.refreshData()}
+                />
+                <ButtonBase
+                    variant={'primary'}
+                    title={'Phòng'}
+                    startIcon={faList}
+                    size="md"
+                    onClick={() => roomListViewRef.current?.refreshData()}
+                />
+                <ButtonBase
+                    onClick={onCreate}
+                    className={'btn-create'}
+                    variant={'success'}
+                    title={'Thêm nhà'}
+                    startIcon={faHouse}
+                    size="md"
+                />
+            </div>
             <Fieldset title="Bộ lọc tìm kiếm">
                 <BaseForm
                     ref={formRef}
@@ -109,6 +176,7 @@ const RoomPage: React.FC = () => {
                     ]}
                     labelAlign="left"
                     labelCol={4}
+                    isDisplayGrid={true}
                 />
                 <div className="flex justify-center">
                     <ButtonBase
@@ -129,27 +197,29 @@ const RoomPage: React.FC = () => {
                 type="card"
                 tabBarExtraContent={{
                     right: (
-                        <div className="flex-1 flex items-center justify-end">
+                        <div className="flex-1 flex items-center justify-end mb-2">
                             <ButtonBase
-                                variant={'primary'}
-                                title={'Khách thuê'}
-                                startIcon={faUserGroup}
-                                size="md"
-                                onClick={() => roomListViewRef.current?.refreshData()}
-                            />
-                            <ButtonBase
-                                variant={'primary'}
-                                title={'Phòng'}
-                                startIcon={faList}
-                                size="md"
-                                onClick={() => roomListViewRef.current?.refreshData()}
-                            />
-                            <ButtonBase
-                                onClick={onCreate}
+                                onClick={() => roomListViewRef.current?.onCreate()}
                                 className={'btn-create'}
                                 variant={'success'}
-                                title={'Thêm nhà'}
-                                startIcon={faHouse}
+                                title={'Thêm phòng'}
+                                startIcon={faBed}
+                                size="md"
+                            />
+                            <ButtonBase
+                                onClick={updateHouse}
+                                className={'btn-create'}
+                                variant={'primary'}
+                                title={'Cập nhật nhà'}
+                                startIcon={faEdit}
+                                size="md"
+                            />
+                            <ButtonBase
+                                onClick={onDeleteHouse}
+                                className={'btn-delete'}
+                                variant={'danger'}
+                                title={'Xóa nhà'}
+                                startIcon={faTrash}
                                 size="md"
                             />
                         </div>
@@ -157,8 +227,8 @@ const RoomPage: React.FC = () => {
                 }}
             >
                 {state.house.map(item => (
-                    <Tabs.TabPane tab={item.label} key={item.value}>
-                        <RoomListView ref={roomListViewRef} houseId={item.value} />
+                    <Tabs.TabPane tab={item.name} key={item.id}>
+                        <RoomListView ref={roomListViewRef} houseId={item.id} />
                     </Tabs.TabPane>
                 ))}
             </Tabs>

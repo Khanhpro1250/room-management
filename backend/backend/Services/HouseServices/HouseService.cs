@@ -26,13 +26,25 @@ public class HouseService : IHouseService
         return _mapper.Map<House, HouseDto>(result);
     }
 
+    public async Task<HouseDto> UpdateHouse(CreateUpdateHouseDto houseDto, string id)
+    {
+        var house = _mapper.Map<CreateUpdateHouseDto, House>(houseDto);
+        var result = await _houseRepository.UpdateHouse(house, id);
+
+        return _mapper.Map<House, HouseDto>(result);
+    }
+
+    public async Task DeleteHouse(string id)
+    {
+        await _houseRepository.DeleteHouse(id);
+    }
+
     public async Task<PaginatedList<HouseDto>> GetListHouse()
     {
         var queryable = _houseRepository.GetQueryable();
         var listHouse = await queryable.Find(x => true).ToListAsync();
         var totalCount = listHouse.Count;
-        return new PaginatedList<HouseDto>(_mapper.Map<List<House>, List<HouseDto>>(listHouse),totalCount,0,10);
-
+        return new PaginatedList<HouseDto>(_mapper.Map<List<House>, List<HouseDto>>(listHouse), totalCount, 0, 10);
     }
 
     public async Task<List<ComboOptionDto>> GetComboHouse()

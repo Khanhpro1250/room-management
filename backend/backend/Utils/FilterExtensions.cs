@@ -1,21 +1,19 @@
 ﻿using MongoDB.Driver;
-using System;
 using System.Linq.Expressions;
 namespace backend.Utils;
 
 public static class FilterExtensions
 {
     public static FilterDefinition<TDocument> WhereIf<TDocument>(
-        this FilterDefinition<TDocument> filter,
+        this FilterDefinitionBuilder<TDocument> builder,
         bool condition,
-        Expression<Func<TDocument, bool>> predicate
-    )
+        Expression<Func<TDocument, bool>> predicate)
     {
         if (condition)
         {
-            var innerFilter = Builders<TDocument>.Filter.Where(predicate);
-            return filter & innerFilter;
+            return builder.Where(predicate);
         }
-        return filter;
+
+        return Builders<TDocument>.Filter.Empty;
     }
 }

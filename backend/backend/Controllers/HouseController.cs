@@ -41,11 +41,26 @@ public class HouseController : ControllerBase
         return ApiResponse<HouseDto>.Ok(result);
     }
 
+    [HttpPut("update/{id}")]
+    public async Task<ApiResponse<HouseDto>> UpdateAction([FromBody] CreateUpdateHouseDto houseDto,
+        [FromRoute] string id)
+    {
+        var result = await _houseService.UpdateHouse(houseDto, id);
+        return ApiResponse<HouseDto>.Ok(result);
+    }
+
     [HttpGet("combo")]
     public async Task<ApiResponse<List<ComboOptionDto>>> GetComboAction()
     {
         var result = await _houseService.GetComboHouse();
         return ApiResponse<List<ComboOptionDto>>.Ok(result);
+    }
+
+    [HttpDelete("delete/{id}")]
+    public async Task<ApiResponse> DeleteAction([FromRoute] string id)
+    {
+        await _houseService.DeleteHouse(id);
+        return ApiResponse.Ok();
     }
 
     // [HttpGet("test-export")]
@@ -61,6 +76,4 @@ public class HouseController : ControllerBase
     //         fileName = fileName.Replace("docx", "pdf");
     //     return WorkbookUtil.DocumentToFileStream(document, fileName);
     // }
-
-    
 }

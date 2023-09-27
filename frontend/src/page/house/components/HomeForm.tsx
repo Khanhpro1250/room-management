@@ -87,8 +87,16 @@ const HomeForm: React.FC<Props> = props => {
                 renderBtnBottom={() => {
                     return (
                         <div className="flex items-center justify-center w-full">
-                            {!props.readonly && <ButtonBase title="Lưu" startIcon={faSave} onClick={onSubmit} />}
-                            <ButtonBase title="Đóng" startIcon={faClose} variant="danger" onClick={props.onClose} />
+                            {!props.readonly && (
+                                <ButtonBase title="Lưu" size="md" startIcon={faSave} onClick={onSubmit} />
+                            )}
+                            <ButtonBase
+                                title="Đóng"
+                                startIcon={faClose}
+                                size="md"
+                                variant="danger"
+                                onClick={props.onClose}
+                            />
                         </div>
                     );
                 }}
