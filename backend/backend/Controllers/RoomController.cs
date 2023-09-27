@@ -48,9 +48,9 @@ namespace backend.Controllers
             return new OkResult();
         }
         [HttpGet("index")]
-        public async Task<ApiResponse<PaginatedList<RoomDto>>> GetListRoom([FromQuery] string houseId)
+        public async Task<ApiResponse<PaginatedList<RoomDto>>> GetListRoom([FromQuery] RoomFilterDto filterDto)
         {
-            var result = await _roomService.GetListRoom(houseId);
+            var result = await _roomService.GetListRoom(filterDto);
             return ApiResponse<PaginatedList<RoomDto>>.Ok(result);
         }
 

@@ -5,7 +5,7 @@ namespace backend.Services.RoomServices
 {
     public interface IRoomService
     {
-        Task<PaginatedList<RoomDto>> GetListRoom(string houseId);
+        Task<PaginatedList<RoomDto>> GetListRoom(RoomFilterDto filterDto);
         Task<RoomDto> GetRoomById(string roomId);
         Task<RoomDto> CreateRoom(CreateUpdateRoomDto room);
         Task<RoomDto> UpdateRoom(CreateUpdateRoomDto room, string id);

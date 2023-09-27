@@ -13,7 +13,7 @@ import RoomForm from './RoomForm';
 import { Room } from '~/types/shared';
 
 export interface RoomListViewRef {
-    onFilterChange: (formValues: any) => void;
+    onFilter: (formValues: any) => void;
     refreshData: () => void;
 }
 
@@ -61,7 +61,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
     useImperativeHandle(
         ref,
         () => ({
-            onFilterChange: (formValues: any) => onFilterChange(formValues),
+            onFilter: (formValues: any) => onFilter(formValues),
             refreshData: () => gridController?.reloadData(),
         }),
         [],
@@ -82,8 +82,8 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         );
     };
 
-    const onFilterChange = (formValues: any) => {
-        gridController?.setParams(formValues);
+    const onFilter = (formValues: any) => {
+        gridController?.setParams({ houseId: props.houseId, ...formValues });
         gridController?.reloadData();
     };
 
@@ -97,8 +97,8 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                         columnDefs={colDefs}
                         data={gridController?.data}
                         ref={gridRef}
-                        numberRows={false}
-                        pagination={false}
+                        numberRows={true}
+                        pagination={true}
                         actionRowsList={{
                             hasEditBtn: true,
                             hasDeleteBtn: true,

@@ -1,10 +1,12 @@
-import { faHouse, faList, faSync, faUserGear, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faList, faSearch, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import { Input, Tabs } from 'antd';
 import qs from 'qs';
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
+import { Fieldset } from '~/component/Elements/FieldSet/FieldSet';
 import Loading from '~/component/Elements/loading/Loading';
+import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
 import { AppContainer } from '~/component/Layout/AppContainer';
 import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
 import { useMergeState } from '~/hook/useMergeState';
@@ -13,9 +15,6 @@ import { RoomListViewRef } from '~/page/room/component/RoomListView';
 import { ComboOption, Room } from '~/types/shared';
 import { HOUSE_COMBO_API } from '../house/api/house.api';
 import HomeForm from '../house/components/HomeForm';
-import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
-import NotificationConstant from '~/configs/contants';
-import TextArea from 'antd/lib/input/TextArea';
 
 const RoomListView = React.lazy(() => import('~/page/room/component/RoomListView'));
 
@@ -70,46 +69,57 @@ const RoomPage: React.FC = () => {
         fetchComBoPermission();
         setState({ fetchHouse: false });
     }, [state.fetchHouse]);
+
+    const onFiler = () => {
+        roomListViewRef.current?.onFilter(formRef.current?.getFieldsValue());
+    };
     if (state.loading) return <Loading />;
 
     return (
         <AppContainer className="body-page h-full overflow-auto">
-            <BaseForm
-                ref={formRef}
-                className="mb-2"
-                baseFormItem={[
-                    {
-                        label: 'Mã phòng',
-                        name: nameof.full<Room>(x => x.roomCode),
-                        children: <Input className="col-6" placeholder="Nhập mã phòng ..." />,
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
-                        className: 'col-span-6',
-                    },
-                    {
-                        label: 'Mã phòng',
-                        name: nameof.full<Room>(x => x.roomCode),
-                        children: <Input placeholder="Nhập mã phòng ..." />,
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
-                        className: 'col-span-6',
-                    },
-                    {
-                        label: 'Mã phòng',
-                        name: nameof.full<Room>(x => x.roomCode),
-                        children: <Input className="col-6" placeholder="Nhập mã phòng ..." />,
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
-                        className: 'col-span-6',
-                    },
-                    {
-                        label: 'Trạng thái',
-                        name: nameof.full<Room>(x => x.roomCode),
-                        children: <Input placeholder="Nhập mã phòng ..." />,
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
-                        className: 'col-span-6',
-                    },
-                ]}
-                labelAlign="left"
-                isHasFieldSet
-            />
+            <Fieldset title="Bộ lọc tìm kiếm">
+                <BaseForm
+                    ref={formRef}
+                    className="mb-2 w-full"
+                    baseFormItem={[
+                        {
+                            label: 'Mã phòng',
+                            name: 'roomCode',
+                            children: <Input placeholder="Nhập mã phòng ..." />,
+                            className: 'col-span-6',
+                        },
+                        {
+                            label: 'Khách thuê',
+                            name: 'customerName',
+                            children: <Input placeholder="Nhập tên khách thuê ..." />,
+                            className: 'col-span-6',
+                        },
+                        {
+                            label: 'Số hợp đồng',
+                            name: 'contractNo',
+                            children: <Input placeholder="Nhập số hợp đồng ..." />,
+                            className: 'col-span-6',
+                        },
+                        {
+                            label: 'Trạng thái',
+                            name: 'status',
+                            children: <Input placeholder="Nhập mã phòng ..." />,
+                            className: 'col-span-6',
+                        },
+                    ]}
+                    labelAlign="left"
+                    labelCol={4}
+                />
+                <div className="flex justify-center">
+                    <ButtonBase
+                        variant={'primary'}
+                        title={'Tìm kiếm'}
+                        startIcon={faSearch}
+                        size="md"
+                        onClick={onFiler}
+                    />
+                </div>
+            </Fieldset>
             <Tabs
                 onChange={key => {
                     pushDomain({ search: qs.stringify({ tab: key }) });

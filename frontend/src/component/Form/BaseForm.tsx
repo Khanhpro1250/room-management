@@ -14,7 +14,7 @@ export interface BaseFormProps {
     baseFormItem?: BaseFormItem[];
     className?: string;
     width?: number | string;
-    isHasFieldSet?: boolean;
+    // isHasFieldSet?: boolean;
     renderBtnBottom?: () => JSX.Element;
     renderExtras?: () => JSX.Element;
 }
@@ -64,54 +64,27 @@ const BaseForm = React.forwardRef<BaseFormRef, BaseFormProps>((props, ref) => {
 
     return (
         <div className={clsx('w-full h-full base-form', props.className)}>
-            {props.isHasFieldSet ? (
-                <Fieldset title="Bộ lọc dữ liệu">
-                    <Form
-                        labelCol={{ span: props.labelCol ?? 6 }}
-                        wrapperCol={{ span: 24 - Number(props.labelCol ?? 6) }}
-                        initialValues={props.initialValues}
-                        autoComplete="off"
-                        ref={formRef}
-                        labelAlign={props.labelAlign}
-                        layout={props.layout}
-                        disabled={props.disabled}
-                        className="grid grid-cols-12 gap-4" // Remove the redundant "gird" typo
-                    >
-                        {props.baseFormItem?.map(item => {
-                            return (
-                                <Form.Item key={item.name} className={item.className} {...item}>
-                                    {item.children}
-                                </Form.Item>
-                            );
-                        })}
-                    </Form>
-                    {props.renderExtras?.()}
-                    {props.renderBtnBottom?.()}
-                </Fieldset>
-            ) : (
-                <>
-                    <Form
-                        labelCol={{ span: props.labelCol ?? 6 }}
-                        wrapperCol={{ span: 24 - Number(props.labelCol ?? 6) }}
-                        initialValues={props.initialValues}
-                        autoComplete="off"
-                        ref={formRef}
-                        labelAlign={props.labelAlign}
-                        layout={props.layout}
-                        disabled={props.disabled}
-                    >
-                        {props.baseFormItem?.map(item => {
-                            return (
-                                <Form.Item key={item.name} className={item.className} {...item}>
-                                    {item.children}
-                                </Form.Item>
-                            );
-                        })}
-                    </Form>
-                    {props.renderExtras?.()}
-                    {props.renderBtnBottom?.()}
-                </>
-            )}
+            <Form
+                labelCol={{ span: props.labelCol ?? 6 }}
+                wrapperCol={{ span: 24 - Number(props.labelCol ?? 6) }}
+                initialValues={props.initialValues}
+                autoComplete="off"
+                ref={formRef}
+                labelAlign={props.labelAlign}
+                layout={props.layout}
+                disabled={props.disabled}
+                className={props.labelAlign === 'left' ? 'grid grid-cols-12 gap-4' : ''} // Remove the redundant "gird" typo
+            >
+                {props.baseFormItem?.map(item => {
+                    return (
+                        <Form.Item key={item.name} className={item.className} {...item}>
+                            {item.children}
+                        </Form.Item>
+                    );
+                })}
+            </Form>
+            {props.renderExtras?.()}
+            {props.renderBtnBottom?.()}
         </div>
     );
 });
