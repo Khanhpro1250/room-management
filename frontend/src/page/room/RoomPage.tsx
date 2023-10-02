@@ -89,7 +89,7 @@ const RoomPage: React.FC = () => {
     };
 
     const onDeleteHouse = async () => {
-        const currentHouse = state.house.find(item => item.id === (currentTab || currTab));
+        const currentHouse = state.house.find(item => item.id === currentTab);
         const confirm = await NotifyUtil.confirmDialog(
             'Xóa nhà ' + currentHouse?.name,
             'Bạn có chắc chắn muốn xóa nhà này?',
@@ -99,6 +99,7 @@ const RoomPage: React.FC = () => {
             if (res.data?.success) {
                 NotifyUtil.success(NotificationConstant.TITLE, NotificationConstant.DESCRIPTION_DELETE_SUCCESS);
                 setState({ fetchHouse: !state.fetchHouse });
+                setCurrentTab(_.first(state.house)?.id);
                 pushDomain({ search: qs.stringify({ tab: _.first(state.house)?.id }) });
                 return;
             } else {

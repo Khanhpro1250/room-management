@@ -23,6 +23,7 @@ using backend.Services.RoomServices;
 using backend.Services.SendMailServices;
 using backend.Services.ServiceServices;
 using backend.Services.UserServices;
+using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -85,23 +86,15 @@ public class Startup
         // Add Swagger
         services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo() { Title = "My API", Version = "v1" }); });
 
-        // Add CORS
-
-
+        
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>
             {
-                options.Cookie.Name = "CookieAuth"; // Set your cookie name
-                // Configure other options as needed
+                options.Cookie.Name = "CookieAuth";
+
             });
 
-        // services.AddAuthentication("CookieAuth")
-        //     .AddCookie("CookieAuth", options =>
-        //     {
-        //         options.LoginPath = "/api/identity/login"; // Set the login endpoint
-        //         options.AccessDeniedPath = "/api/identity/accessdenied"; // Set the access denied endpoint
-        //     });
-        //
+        
         services.AddSingleton<IRoleRepository>(_ =>
         {
             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
@@ -158,27 +151,7 @@ public class Startup
             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
             return new HouseRepository(mongoClient, "room_manager");
         });
-        // AddAuthentication
-        //  services.AddAuthentication(options =>
-        //  {
-        //      options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        //      options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        //  })
-        // .AddJwtBearer(options =>
-        //  {
-        //      options.RequireHttpsMetadata = false;
-        //      options.SaveToken = true;
-        //      options.TokenValidationParameters = new TokenValidationParameters
-        //      {
-        //          ValidateIssuerSigningKey = true,
-        //          IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["Jwt:Key"])),
-        //          ValidateIssuer = false, 
-        //          ValidateAudience = false
-        //      };
-        //  });
-
-        // AddAuthorization
-        // services.AddAuthorization(options => { options.AddPolicy("Admin", policy => policy.RequireRole("Admin")); });
+        
 
         // AddScoped adService
         services.AddScoped<IUserService, UserService>();
@@ -192,6 +165,16 @@ public class Startup
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IServiceService, ServiceService>();
         services.AddScoped<IRoleService, RoleService>();
+        
+        // Add cloundinary
+        Account account = new Account(
+            "khanh15032001",
+            "164546612591237",
+            "Bn4-zcYmhmWyKF1dw1id_ziMXEs");
+
+        Cloudinary cloudinary = new Cloudinary(account);
+        services.AddSingleton(cloudinary);
+        
 
         //Sendmail
         services.AddScoped<ISendMailService, SendMailService>();
