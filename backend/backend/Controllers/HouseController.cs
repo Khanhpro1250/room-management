@@ -62,7 +62,7 @@ public class HouseController : ControllerBase
         await _houseService.DeleteHouse(id);
         return ApiResponse.Ok();
     }
-
+    //
     // [HttpGet("test-export")]
     // public async Task<FileStreamResult> Export([FromQuery] bool isPdf, [FromQuery] string fileName)
     // {
@@ -70,7 +70,7 @@ public class HouseController : ControllerBase
     //     {
     //         FirstName = "Khanh",
     //         LastName = "Huynh"
-    //     }, "template.docx");
+    //     }, null,"https://res.cloudinary.com/khanh15032001/raw/upload/v1696238911/documents/e5f51be8-9315-4eae-94dc-62e054b8520d.docx");
     //     fileName = $"{fileName}.docx";
     //     if (isPdf)
     //         fileName = fileName.Replace("docx", "pdf");

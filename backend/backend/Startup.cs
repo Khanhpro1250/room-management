@@ -10,6 +10,7 @@ using backend.Models.Repositorties.RoomRepositories;
 using backend.Models.Repositorties.ServiceRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
 using backend.Models.Repositorties.UserAccountRepositories.RoleRepositories;
+using backend.Services.CloudinaryServices;
 using backend.Services.ContractServices;
 using backend.Services.CustomerServices;
 using backend.Services.DepositServices;
@@ -165,6 +166,7 @@ public class Startup
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IServiceService, ServiceService>();
         services.AddScoped<IRoleService, RoleService>();
+        services.AddScoped<ICloudinaryService, CloudinaryService>();
         
         // Add cloundinary
         Account account = new Account(

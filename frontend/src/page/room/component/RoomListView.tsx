@@ -5,7 +5,7 @@ import { useBaseGrid } from '~/hook/useBaseGrid';
 import { House } from '~/types/shared/House';
 
 import { icon } from '@fortawesome/fontawesome-svg-core';
-import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
 import Loading from '~/component/Elements/loading/Loading';
 import { Room } from '~/types/shared';
@@ -14,6 +14,7 @@ import RoomForm from './RoomForm';
 import NotifyUtil from '~/util/NotifyUtil';
 import NotificationConstant from '~/configs/contants';
 import { requestApi } from '~/lib/axios';
+import CustomerForm from '~/page/customers/components/CustomerForm';
 
 export interface RoomListViewRef {
     onFilter: (formValues: any) => void;
@@ -112,6 +113,25 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         );
     };
 
+    const onDetail = (data: Room) => {
+        modalRef.current?.onOpen(
+            <RoomForm
+                onSubmitSuccessfully={() => {
+                    modalRef.current?.onClose();
+                    gridController?.reloadData();
+                    console.log(123123);
+                }}
+                onClose={modalRef.current?.onClose}
+                parentId={props.houseId}
+                initialValues={data}
+                readonly={true}
+            />,
+            'Tạo mới nhà',
+            '50%',
+            icon(faEdit),
+        );
+    };
+
     const onFilter = (formValues: any) => {
         gridController?.setParams({ houseId: props.houseId, ...formValues });
         gridController?.reloadData();
@@ -129,6 +149,24 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         }
     };
 
+    const onAddCustomer = (data: Room) => {
+        modalRef.current?.onOpen(
+            <CustomerForm
+                onSubmitSuccessfully={() => {
+                    modalRef.current?.onClose();
+                    gridController?.reloadData();
+                }}
+                onClose={modalRef.current?.onClose}
+                parentId={data.id}
+                initialValues={data}
+                readonly={true}
+            />,
+            `Thêm khách thuê ( phòng ${data.roomCode} )`,
+            '50%',
+            icon(faUserGroup),
+        );
+    };
+
     return (
         <>
             {gridController?.loading ? (
@@ -142,10 +180,12 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                         numberRows={true}
                         pagination={true}
                         actionRowsList={{
+                            hasDetailBtn: true,
                             hasEditBtn: true,
                             hasDeleteBtn: true,
-                            hasCreateChildBtn: true,
-                            // onClickCreateChildBtn: onCreateChild,
+                            hasAddUserBtn: true,
+                            onClickAddUserBtn: onAddCustomer,
+                            onClickDetailBtn: onDetail,
                             onClickEditBtn: onUpdate,
                             onClickDeleteBtn: onDelete,
                         }}

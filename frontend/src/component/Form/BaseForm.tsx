@@ -8,6 +8,7 @@ import { Fieldset } from '../Elements/FieldSet/FieldSet';
 export interface BaseFormProps {
     initialValues?: Record<string, any>;
     labelCol?: number;
+    labelWidth?: number;
     layout?: 'horizontal' | 'inline' | 'vertical';
     labelAlign?: 'left' | 'right';
     disabled?: boolean;
@@ -65,7 +66,7 @@ const BaseForm = React.forwardRef<BaseFormRef, BaseFormProps>((props, ref) => {
     return (
         <div className={clsx('w-full h-full base-form', props.className)}>
             <Form
-                labelCol={{ span: props.labelCol ?? 6 }}
+                labelCol={{ span: props.labelCol ?? 24 }}
                 wrapperCol={{ span: 24 - Number(props.labelCol ?? 6) }}
                 initialValues={props.initialValues}
                 autoComplete="off"
@@ -73,11 +74,17 @@ const BaseForm = React.forwardRef<BaseFormRef, BaseFormProps>((props, ref) => {
                 labelAlign={props.labelAlign}
                 layout={props.layout}
                 disabled={props.disabled}
-                className={props.isDisplayGrid ? 'grid grid-cols-12 gap-4' : ''} // Remove the redundant "gird" typo
+                className={props.isDisplayGrid ? 'grid grid-cols-12 gap-4 w-full' : 'w-full'}
             >
                 {props.baseFormItem?.map(item => {
                     return (
-                        <Form.Item key={item.name} className={item.className} {...item}>
+                        <Form.Item
+                            key={item.name}
+                            className={item.className}
+                            {...item}
+                            //@ts-ignore
+                            labelPosition="top"
+                        >
                             {item.children}
                         </Form.Item>
                     );

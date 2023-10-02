@@ -10,3 +10,6 @@ export const API_LAYOUT = APP_API_PATH + '/menu/layout';
 
 // Register api
 export const REGISTER_API = APP_API_PATH + '/identity/register';
+
+export const UPLOAD_FILE_API = APP_API_PATH + '/file/upload';
+export const UPLOAD_MULTI_FILE_API = APP_API_PATH + '/file/upload-multi';

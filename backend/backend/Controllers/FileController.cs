@@ -1,4 +1,5 @@
-﻿using CloudinaryDotNet;
+﻿using backend.Controllers.Dtos;
+using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +17,7 @@ public class FileController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<IActionResult> UploadFile(IFormFile file, [FromQuery] string type)
+    public async Task<IActionResult> UploadFile(IFormFile file, [FromQuery] UploadType type = UploadType.Imgage)
     {
         if (file == null || file.Length == 0)
             return BadRequest("File is empty");
@@ -26,7 +27,7 @@ public class FileController : ControllerBase
             using (var stream = file.OpenReadStream())
             {
                 string fileUrl = "";
-                if (type == "img")
+                if (type == UploadType.Imgage)
                 {
                     var imgUploadResult = await _cloudinary.UploadAsync(new ImageUploadParams
                     {
@@ -55,4 +56,30 @@ public class FileController : ControllerBase
             return StatusCode(500, $"Error uploading file: {ex.Message}");
         }
     }
+
+    [HttpPost("upload-multi")]
+    public async Task<IActionResult> UploadFileMulti(List<IFormFile> files)
+    {
+  
+        var listUrl = new  List<string>();
+
+        foreach (var file in files)
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                var uploadParams = new RawUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    PublicId = Guid.NewGuid().ToString(), 
+                    Folder = "documents/",
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                listUrl.Add(uploadResult.Url.ToString());
+            }
+        }
+
+        return Ok(new { FileUrls = listUrl });
+    }
+    
 }

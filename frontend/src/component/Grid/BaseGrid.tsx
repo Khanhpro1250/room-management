@@ -111,7 +111,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                                 onClick={() => {
                                     actionRowsList.onClickAddUserBtn?.(data);
                                 }}
-                                tooltip="Thay đổi người dùng"
+                                tooltip="Thêm khách thuê"
                             />
                         )}
                         {actionRowsList?.hasEditBtn && (
