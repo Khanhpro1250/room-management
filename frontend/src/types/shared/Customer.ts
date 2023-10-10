@@ -1,19 +1,23 @@
 export interface Customer {
     id: string;
+    gender: number;
     fullName: string;
-    idNumber: string;
-    issuanceDate: Date;
-    issuedBy: string;
-    phoneNumber: string;
-    emailAddress: string;
+    identityNo: string;
+    issueDate: Date;
+    phoneNumber1: string;
+    phoneNumber2: string;
+    issuePlace: string;
+    email: string;
     permanentAddress: string;
-    dateOfBirth: Date;
-    placeOfBirth: string;
-    roomId: string;
-    roomCode: string;
+    birthday: Date;
+    birthPlace: string;
+    rentalStartTime: Date;
     roomCharge: number;
-    roomDeposit: number;
-    licensePlate: string;
+    deposit: number;
+    vehicleNumber: string;
+    paymentPeriod: string;
+    paymentOneTime: number;
     note: string;
-    images: string[];
+    roomId: string;
+    fileUrls: string[];
 }
