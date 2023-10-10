@@ -96,6 +96,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
     };
 
     const onUpdate = (data: Room) => {
+        console.log(data)
         modalRef.current?.onOpen(
             <RoomForm
                 onSubmitSuccessfully={() => {
@@ -107,7 +108,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                 parentId={props.houseId}
                 initialValues={data}
             />,
-            'Tạo mới nhà',
+            'Tạo mới phòng',
             '50%',
             icon(faEdit),
         );

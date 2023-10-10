@@ -1,7 +1,7 @@
 import { faClose, faImage, faSave } from '@fortawesome/free-solid-svg-icons';
 import { Input, Upload, UploadFile, UploadProps } from 'antd';
 import { Method } from 'axios';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
 import { AppModalContainer } from '~/component/Layout/AppModalContainer';
@@ -28,16 +28,60 @@ interface Props {
     onSubmitSuccessfully?: () => void;
 }
 
+
 type State = {
-    fileUrl: string;
+    imageList: UploadFile[];
+    fileUrls: string[]
 };
 const RoomForm: React.FC<Props> = props => {
     const formRef = useRef<BaseFormRef>(null);
     const overlayRef = useRef<OverlayRef>(null);
     const modalRef = useRef<ModalRef>(null);
     const [state, setState] = useMergeState<State>({
-        fileUrl: props.initialValues?.fileUrl ?? '',
+        imageList:
+            props.initialValues?.fileUrls?.map(
+                url =>
+                ({
+                    uid: url,
+                    name: url,
+                    url: url,
+                    status: 'done',
+                    thumbUrl: url,
+                } as UploadFile),
+            ) ?? [],
+        fileUrls: props.initialValues?.fileUrls ?? [],
     });
+
+    const handleChange: UploadProps['onChange'] = ({ fileList, file }) => {
+        if (file.status === 'done') {
+            const result = _.get(file.response, 'result');
+            setState({
+                fileUrls: [...state.fileUrls, result.fileUrl],
+                // imageList: fileList
+            });
+        }
+        setState({ imageList: fileList });
+    };
+
+
+
+
+
+    const handlePreview = async (file: UploadFile) => {
+        if (!file.url && !file.preview) {
+            file.preview = await FileUtil.getBase64(file.originFileObj as RcFile);
+        }
+
+        modalRef?.current?.onOpen(
+            <img alt="example" style={{ width: '100%' }} src={file.url || (file.preview as string)} />,
+            'Xem trước',
+            '50%',
+            faImage,
+        );
+    };
+
+    const handleCancel = () => modalRef.current?.onClose();
+
     const onSubmit = async () => {
         const isValidForm = await formRef.current?.isFieldsValidate();
 
@@ -71,7 +115,9 @@ const RoomForm: React.FC<Props> = props => {
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
             houseId: props.parentId,
+            fileUrls: state.fileUrls
         });
+
 
         if (response.data?.success) {
             NotifyUtil.success(NotificationConstant.TITLE, urlParam.message);
@@ -87,32 +133,11 @@ const RoomForm: React.FC<Props> = props => {
         }
     };
 
-    const handleChange: UploadProps['onChange'] = ({ fileList, file }) => {
-        console.log(file);
-        if (file.status === 'done') {
-            setState({ fileUrl: _.get(file.response, 'fileUrl') });
-        }
-    };
 
-    const handleCancel = () => modalRef.current?.onClose();
-
-    const onRemove = (file: UploadFile) => {
-        const fileUrl = file.url ? file.url : _.get(file.response, 'fileUrl');
-        setState({ fileUrl: fileUrl });
-    };
-
-    const handlePreview = async (file: UploadFile) => {
-        if (!file.url && !file.preview) {
-            file.preview = await FileUtil.getBase64(file.originFileObj as RcFile);
-        }
-
-        modalRef?.current?.onOpen(
-            <img alt="example" style={{ width: '100%' }} src={file.url || (file.preview as string)} />,
-            'Xem trước',
-            '50%',
-            faImage,
-        );
-    };
+    // const onRemove = (file: UploadFile) => {
+    //     const fileUrl = file.url ? file.url : _.get(file.response, 'fileUrl');
+    //     setState({ fileUrl: fileUrl });
+    // };
 
     const uploadButton = (
         <div>
@@ -170,24 +195,20 @@ const RoomForm: React.FC<Props> = props => {
                     },
                     {
                         label: 'Hình ảnh',
-                        name: nameof.full<Room>(x => x.fileUrl),
+                        name: nameof.full<Room>(x => x.fileUrls),
                         children: (
                             <>
                                 <Upload
-                                    name="file"
-                                    action={UPLOAD_MULTI_FILE_API}
-                                    accept="image/*"
-                                    listType="picture-card"
-                                    showUploadList={true}
-                                    multiple={true}
-                                    // fileList={state.imageList}
-                                    onPreview={handlePreview}
                                     onChange={handleChange}
-                                    onRemove={onRemove}
+                                    fileList={state.imageList}
+                                    action={UPLOAD_FILE_API}
+                                    accept="image/*"
+                                    name='file'
+                                    showUploadList={true}
+                                    onPreview={handlePreview}
                                     method="post"
-                                >
-                                    {/* {state.imageList.length >= 8 ? null : uploadButton} */}
-                                    {state.fileUrl ? <img src={state.fileUrl} /> : uploadButton}
+                                    listType='picture-card'>
+                                    {state.imageList.length >= 8 ? null : uploadButton}
                                 </Upload>
                                 <ModalBase
                                     ref={modalRef}

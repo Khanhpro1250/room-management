@@ -1,4 +1,6 @@
-﻿namespace backend.DTOs.RoomDtos
+﻿using Newtonsoft.Json;
+
+namespace backend.DTOs.RoomDtos
 {
     public class RoomDto
     {
@@ -15,7 +17,8 @@
         public int MaxNumberOfPeople { get; set; }
         public float Price { get; set; }
         public string Description { get; set; }
-        public string ImgLink { get; set; }
+        [JsonProperty("fileUrls")] 
+        public List<string> FileUrls { get; set; }
         public string Status { get; set; }
         public float Deposit { get; set; }
         public string InteriorIds { get; set; }

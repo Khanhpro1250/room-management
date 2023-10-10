@@ -29,7 +29,7 @@ const LoginView: React.FC = () => {
     };
 
     if (!!isAuthenticated) {
-        return <Navigate to={'/'} />;
+        return <Navigate to={'/room-manage'} />;
     }
 
     return (

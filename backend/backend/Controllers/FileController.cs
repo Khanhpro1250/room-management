@@ -17,10 +17,10 @@ public class FileController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<IActionResult> UploadFile(IFormFile file, [FromQuery] UploadType type = UploadType.Imgage)
+    public async Task<ApiResponse<object>> UploadFile(IFormFile file, [FromQuery] UploadType type = UploadType.Imgage)
     {
         if (file == null || file.Length == 0)
-            return BadRequest("File is empty");
+            return ApiResponse<object>.Fail("File is empty");
 
         try
         {
@@ -48,12 +48,12 @@ public class FileController : ControllerBase
                     fileUrl = imgUploadResult.Url.ToString();
                 }
                 
-                return Ok(new { FileUrl = fileUrl });
+                return ApiResponse<object>.Ok(new { FileUrl = fileUrl });
             }
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"Error uploading file: {ex.Message}");
+            return ApiResponse<object>.Fail($"Error uploading file: {ex.Message}");
         }
     }
 

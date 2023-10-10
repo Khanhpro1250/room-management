@@ -8,5 +8,6 @@ export interface Room {
     maxNumberOfPeople: number;
     deposit: number;
     description: string;
-    fileUrl: string;
+    fileUrls: string[] | null;
+    file: string[] | null;
 }

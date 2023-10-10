@@ -24,6 +24,10 @@ const routeList = [
         element: <LayoutPage />,
         children: [
             {
+                path: '/',
+                element:  <RoomPage />,
+            },
+            {
                 path: 'system',
                 children: [
                     {

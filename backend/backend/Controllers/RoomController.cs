@@ -21,10 +21,10 @@ namespace backend.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<ActionResult> CreateRoom([FromBody] CreateUpdateRoomDto room)
+        public async Task<ApiResponse<RoomDto>> CreateRoom([FromBody] CreateUpdateRoomDto room)
         {
-            await _roomService.CreateRoom(room);
-            return new ObjectResult(room);
+            var result = await _roomService.CreateRoom(room);
+            return ApiResponse<RoomDto>.Ok(result);
         }
 
         [HttpGet("detail/{roomId}")]
