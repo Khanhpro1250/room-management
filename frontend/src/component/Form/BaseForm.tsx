@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import React, { useImperativeHandle, useRef } from 'react';
 import './styles/BaseForm.scss';
 import { Fieldset } from '../Elements/FieldSet/FieldSet';
+import { unset } from 'lodash';
 
 export interface BaseFormProps {
     initialValues?: Record<string, any>;
@@ -66,15 +67,18 @@ const BaseForm = React.forwardRef<BaseFormRef, BaseFormProps>((props, ref) => {
     return (
         <div className={clsx('w-full h-full base-form', props.className)}>
             <Form
-                // labelCol={{ span: props.labelCol ?? 24 }}
-                // wrapperCol={{ span: 24 - Number(props.labelCol ?? 6) }}
+                wrapperCol={{ span: 24 - Number(props.labelCol ?? 6) }}
                 initialValues={props.initialValues}
                 autoComplete="off"
                 ref={formRef}
                 labelAlign={props.labelAlign}
                 layout={props.layout}
                 disabled={props.disabled}
-                className={props.isDisplayGrid ? `grid grid-cols-12 gap-4 w-full label-col-${props.labelWidth ?? 150}` : 'w-full'}
+                className={
+                    props.isDisplayGrid
+                        ? `grid grid-cols-12 gap-4 w-full label-col-${props.labelWidth ?? 150}`
+                        : `w-full label-col-${props.labelWidth ?? 150}`
+                }
             >
                 {props.baseFormItem?.map(item => {
                     return (

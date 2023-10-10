@@ -28,10 +28,9 @@ interface Props {
     onSubmitSuccessfully?: () => void;
 }
 
-
 type State = {
     imageList: UploadFile[];
-    fileUrls: string[]
+    fileUrls: string[];
 };
 const RoomForm: React.FC<Props> = props => {
     const formRef = useRef<BaseFormRef>(null);
@@ -41,13 +40,13 @@ const RoomForm: React.FC<Props> = props => {
         imageList:
             props.initialValues?.fileUrls?.map(
                 url =>
-                ({
-                    uid: url,
-                    name: url,
-                    url: url,
-                    status: 'done',
-                    thumbUrl: url,
-                } as UploadFile),
+                    ({
+                        uid: url,
+                        name: url,
+                        url: url,
+                        status: 'done',
+                        thumbUrl: url,
+                    } as UploadFile),
             ) ?? [],
         fileUrls: props.initialValues?.fileUrls ?? [],
     });
@@ -62,10 +61,6 @@ const RoomForm: React.FC<Props> = props => {
         }
         setState({ imageList: fileList });
     };
-
-
-
-
 
     const handlePreview = async (file: UploadFile) => {
         if (!file.url && !file.preview) {
@@ -115,9 +110,8 @@ const RoomForm: React.FC<Props> = props => {
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
             houseId: props.parentId,
-            fileUrls: state.fileUrls
+            fileUrls: state.fileUrls,
         });
-
 
         if (response.data?.success) {
             NotifyUtil.success(NotificationConstant.TITLE, urlParam.message);
@@ -132,7 +126,6 @@ const RoomForm: React.FC<Props> = props => {
             return;
         }
     };
-
 
     // const onRemove = (file: UploadFile) => {
     //     const fileUrl = file.url ? file.url : _.get(file.response, 'fileUrl');
@@ -203,11 +196,12 @@ const RoomForm: React.FC<Props> = props => {
                                     fileList={state.imageList}
                                     action={UPLOAD_FILE_API}
                                     accept="image/*"
-                                    name='file'
+                                    name="file"
                                     showUploadList={true}
                                     onPreview={handlePreview}
                                     method="post"
-                                    listType='picture-card'>
+                                    listType="picture-card"
+                                >
                                     {state.imageList.length >= 8 ? null : uploadButton}
                                 </Upload>
                                 <ModalBase
@@ -228,7 +222,7 @@ const RoomForm: React.FC<Props> = props => {
                     },
                 ]}
                 labelAlign="left"
-                labelCol={4}
+                labelWidth={150}
                 renderBtnBottom={() => {
                     return (
                         <div className="flex items-center justify-center w-full">

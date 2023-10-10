@@ -15,6 +15,7 @@ import NotifyUtil from '~/util/NotifyUtil';
 import NotificationConstant from '~/configs/contants';
 import { requestApi } from '~/lib/axios';
 import CustomerForm from '~/page/customers/components/CustomerForm';
+import { useNavigate } from 'react-router-dom';
 
 export interface RoomListViewRef {
     onFilter: (formValues: any) => void;
@@ -29,6 +30,7 @@ interface Props {
 const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.Element => {
     const gridRef = useRef<BaseGridRef>(null);
     const modalRef = useRef<ModalRef>(null);
+    const navigate = useNavigate();
     const gridController = useBaseGrid<House>({
         url: ROOM_INDEX_API,
         gridRef: gridRef,
@@ -96,7 +98,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
     };
 
     const onUpdate = (data: Room) => {
-        console.log(data)
+        console.log(data);
         modalRef.current?.onOpen(
             <RoomForm
                 onSubmitSuccessfully={() => {
@@ -185,12 +187,14 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                             hasEditBtn: true,
                             hasDeleteBtn: true,
                             hasAddUserBtn: true,
-                            onClickAddUserBtn: onAddCustomer,
+                            onClickAddUserBtn: () => {
+                                navigate('/customer/create');
+                            },
                             onClickDetailBtn: onDetail,
                             onClickEditBtn: onUpdate,
                             onClickDeleteBtn: onDelete,
                         }}
-                        actionRowsWidth={120}
+                        actionRowsWidth={200}
                         // autoGroupColumnDef={autoGroupColumnDef}
                         // getDataPath={getDataPath}
                         groupDefaultExpanded={-1}
