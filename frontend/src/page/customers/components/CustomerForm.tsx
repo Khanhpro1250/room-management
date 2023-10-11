@@ -1,5 +1,5 @@
-import { faClose, faSave } from '@fortawesome/free-solid-svg-icons';
-import { DatePicker, Input, Radio, Select } from 'antd';
+import { faClose, faImage, faSave } from '@fortawesome/free-solid-svg-icons';
+import { DatePicker, Input, Radio, Select, Upload, UploadFile, UploadProps } from 'antd';
 import { Method } from 'axios';
 import { useRef } from 'react';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
@@ -14,6 +14,13 @@ import TextArea from 'antd/lib/input/TextArea';
 import Overlay, { OverlayRef } from '~/component/Elements/loading/Overlay';
 import { CUSTOMER_CREATE_API, CUSTOMER_UPDATE_API } from '../api/customer.api';
 import { Customer } from '~/types/shared/Customer';
+import { UPLOAD_FILE_API } from '~/configs';
+import { useMergeState } from '~/hook/useMergeState';
+import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
+import FileUtil from '~/util/FileUtil';
+import { RcFile } from 'antd/lib/upload';
+import { UploadOutlined } from '@ant-design/icons';
+import _ from 'lodash';
 interface Props {
     parentId?: string;
     readonly?: boolean;
@@ -21,9 +28,30 @@ interface Props {
     onClose?: () => void;
     onSubmitSuccessfully?: () => void;
 }
+
+type State = {
+    imageList: UploadFile[];
+    fileUrls: string[];
+};
 const CustomerForm: React.FC<Props> = props => {
     const formRef = useRef<BaseFormRef>(null);
     const overlayRef = useRef<OverlayRef>(null);
+    const modalRef = useRef<ModalRef>(null);
+    const [state, setState] = useMergeState<State>({
+        imageList:
+            props.initialValues?.fileUrls?.map(
+                url =>
+                ({
+                    uid: url,
+                    name: url,
+                    url: url,
+                    status: 'done',
+                    thumbUrl: url,
+                } as UploadFile),
+            ) ?? [],
+        fileUrls: props.initialValues?.fileUrls ?? [],
+    });
+
     const onSubmit = async () => {
         const urlParams: Record<
             string,
@@ -65,6 +93,39 @@ const CustomerForm: React.FC<Props> = props => {
             return;
         }
     };
+
+    const handleChange: UploadProps['onChange'] = ({ fileList, file }) => {
+        if (file.status === 'done') {
+            const result = _.get(file.response, 'result');
+            setState({
+                fileUrls: [...state.fileUrls, result.fileUrl],
+                // imageList: fileList
+            });
+        }
+        setState({ imageList: fileList });
+    };
+
+    const handlePreview = async (file: UploadFile) => {
+        if (!file.url && !file.preview) {
+            file.preview = await FileUtil.getBase64(file.originFileObj as RcFile);
+        }
+
+        modalRef?.current?.onOpen(
+            <img alt="example" style={{ width: '100%' }} src={file.url || (file.preview as string)} />,
+            'Xem trước',
+            '50%',
+            faImage,
+        );
+    };
+
+    const uploadButton = (
+        <div>
+            <UploadOutlined />
+            <div style={{ marginTop: 8 }}>Tải ảnh</div>
+        </div>
+    );
+
+    const handleCancel = () => modalRef.current?.onClose();
     return (
         <AppModalContainer>
             <BaseForm
@@ -233,7 +294,7 @@ const CustomerForm: React.FC<Props> = props => {
                                         { value: 12, label: '12 Tháng' },
                                     ]}
                                 />
-                                <div className="w-[57px] h-[32px] border-[1px] border-gray-300 bg-gray-50 text-center items-center pt-1">
+                                <div className="w-[64px] h-[32px] border-[1px] border-gray-300 bg-gray-50 text-center items-center pt-1">
                                     Tháng
                                 </div>
                             </div>
@@ -254,27 +315,59 @@ const CustomerForm: React.FC<Props> = props => {
                         children: <TextArea disabled={props.readonly} placeholder="Nhập ghi chú" />,
                         className: 'col-span-6',
                     },
+                    {
+                        label: 'Hình ảnh',
+                        name: nameof.full<Customer>(x => x.fileUrls),
+                        children: (
+                            <>
+                                <Upload
+                                    onChange={handleChange}
+                                    fileList={state.imageList}
+                                    action={UPLOAD_FILE_API}
+                                    accept="image/*"
+                                    name="file"
+                                    showUploadList={true}
+                                    onPreview={handlePreview}
+                                    method="post"
+                                    listType="picture-card"
+                                >
+                                    {state.imageList.length >= 8 ? null : uploadButton}
+                                </Upload>
+                                <ModalBase
+                                    ref={modalRef}
+                                    footer={[
+                                        <div key="close" className="w-full flex items-center justify-center">
+                                            <ButtonBase
+                                                title="Đóng"
+                                                startIcon={faClose}
+                                                variant="danger"
+                                                onClick={handleCancel}
+                                            />
+                                        </div>,
+                                    ]}
+                                />
+                            </>
+                        ),
+                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
+                        className: 'col-span-6',
+                    },
                 ]}
                 labelAlign="left"
                 isDisplayGrid={true}
                 labelWidth={150}
-                renderBtnBottom={() => {
-                    return (
-                        <div className="flex items-center justify-center w-full">
-                            {!props.readonly && (
-                                <ButtonBase title="Lưu" size="md" startIcon={faSave} onClick={onSubmit} />
-                            )}
-                            <ButtonBase
-                                title="Đóng"
-                                size="md"
-                                startIcon={faClose}
-                                variant="danger"
-                                onClick={props.onClose}
-                            />
-                        </div>
-                    );
-                }}
             />
+            <div>
+                <div>
+                    <span className='font-bold'>Lưu ý:</span> <br/>
+                    - Kỳ thanh toán tùy thuộc vào từng khu nhà trọ, nếu khu trọ bạn thu tiền 1 lần vào cuối tháng thì bạn chọn là kỳ 30. Trường hợp khu nhà trọ bạn có số lượng phòng nhiều, chia làm 2 đợt thu, bạn dựa vào ngày vào của khách để gán kỳ cho phù hợp, ví dụ: vào từ ngày 1 đến 15 của tháng thì gán kỳ 15; nếu vào từ ngày 16 đến 31 của tháng thì gán kỳ 30. Khi tính tiền phòng bạn sẽ tính tiền theo kỳ. <br/>
+                    - Tiền đặt cọc sẽ không tính vào doanh thu ở các báo cáo và thống kê doanh thu. Nếu bạn muốn tính vào doanh thu bạn ghi nhận vào trong phần thu/chi khác (phát sinh). Tiền đặt cọc sẽ được trừ ra khi tính tiền trả phòng.<br/>
+                    - Các thông tin có giá trị là ngày nhập đủ ngày tháng năm và đúng định dạng dd/MM/yyyy (ví dụ: 01/12/2020)<br/>
+                    - Thanh toán mỗi lần: Nhập 1,2,3 ; là số tháng được tính trên mỗi hóa đơn.<br/>
+                </div>
+                <div>
+                    <span className='text-red-500 font-bold'>(*): Thông tin bắt buộc</span>
+                </div>
+            </div>
             <Overlay ref={overlayRef} />
         </AppModalContainer>
     );
