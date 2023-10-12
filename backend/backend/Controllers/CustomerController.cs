@@ -26,6 +26,14 @@ namespace backend.Controllers
             var result = await _customerService.GetListCustomer();
             return ApiResponse<PaginatedList<CustomerDto>>.Ok(result);
         }
+        
+        
+        [HttpGet("detail-by-room/{roomId}")]
+        public async Task<ApiResponse<CustomerDto>> GetDetailByRoomId([FromRoute] string roomId)
+        {
+            var result = await _customerService.GetCustomerByRoomId(roomId);
+            return ApiResponse<CustomerDto>.Ok(result);
+        }
 
 
         [HttpGet("detail/{id}")]

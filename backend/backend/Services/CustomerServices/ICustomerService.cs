@@ -8,6 +8,7 @@ namespace backend.Services.CustomerServices
     {
         Task<PaginatedList<CustomerDto>> GetListCustomer();
         Task<CustomerDto> GetCustomerById(string customerId);
+        Task<CustomerDto> GetCustomerByRoomId(string roomId);
         Task<CustomerDto> CreateCustomer(CreateUpdateCustomerDto customer);
         Task<CustomerDto> UpdateCustomer(CreateUpdateCustomerDto customer, string id);
         Task DeleteCustomer(string id);

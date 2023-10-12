@@ -17,7 +17,7 @@ public class FileController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<ApiResponse<object>> UploadFile(IFormFile file, [FromQuery] UploadType type = UploadType.Imgage)
+    public async Task<ApiResponse<object>> UploadFile(IFormFile file)
     {
         if (file == null || file.Length == 0)
             return ApiResponse<object>.Fail("File is empty");
@@ -27,27 +27,14 @@ public class FileController : ControllerBase
             using (var stream = file.OpenReadStream())
             {
                 string fileUrl = "";
-                if (type == UploadType.Imgage)
+                var imgUploadResult = await _cloudinary.UploadAsync(new RawUploadParams
                 {
-                    var imgUploadResult = await _cloudinary.UploadAsync(new ImageUploadParams
-                    {
-                        File = new FileDescription(file.FileName, stream),
-                        PublicId = Guid.NewGuid().ToString(), // Optional: set a unique identifier
-                        Folder = "images/"
-                    });
-                    fileUrl = imgUploadResult.Url.ToString();
-                }
-                else
-                {
-                    var imgUploadResult = await _cloudinary.UploadAsync(new RawUploadParams
-                    {
-                        File = new FileDescription(file.FileName, stream),
-                        PublicId = Guid.NewGuid().ToString(), 
-                        Folder = "documents/",
-                    });
-                    fileUrl = imgUploadResult.Url.ToString();
-                }
-                
+                    File = new FileDescription(file.FileName, stream),
+                    PublicId = Guid.NewGuid().ToString(),
+                    Folder = "documents/",
+                });
+                fileUrl = imgUploadResult.Url.ToString();
+
                 return ApiResponse<object>.Ok(new { FileUrl = fileUrl });
             }
         }
@@ -60,8 +47,7 @@ public class FileController : ControllerBase
     [HttpPost("upload-multi")]
     public async Task<IActionResult> UploadFileMulti(List<IFormFile> files)
     {
-  
-        var listUrl = new  List<string>();
+        var listUrl = new List<string>();
 
         foreach (var file in files)
         {
@@ -70,7 +56,7 @@ public class FileController : ControllerBase
                 var uploadParams = new RawUploadParams
                 {
                     File = new FileDescription(file.FileName, stream),
-                    PublicId = Guid.NewGuid().ToString(), 
+                    PublicId = Guid.NewGuid().ToString(),
                     Folder = "documents/",
                 };
 
@@ -81,5 +67,4 @@ public class FileController : ControllerBase
 
         return Ok(new { FileUrls = listUrl });
     }
-    
 }

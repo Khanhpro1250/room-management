@@ -6,6 +6,7 @@ using backend.Models.Entities.Customers;
 using backend.Models.Entities.Rooms;
 using backend.Models.Repositorties.CustomerRepositories;
 using backend.Models.Repositorties.RoomRepositories;
+using MongoDB.Driver;
 
 namespace backend.Services.CustomerServices
 {
@@ -19,6 +20,15 @@ namespace backend.Services.CustomerServices
             _customerRepository = customerRepository;
             _mapper = mapper;
         }
+
+        public async Task<CustomerDto> GetCustomerByRoomId(string roomId)
+        {
+            var queryable = _customerRepository.GetQueryable();
+            var customer = await queryable.Find(x => x.RoomId.Contains(roomId)).FirstOrDefaultAsync();
+            var result = _mapper.Map<Customer, CustomerDto>(customer);
+            return result;
+        }
+
         public async Task<CustomerDto> CreateCustomer(CreateUpdateCustomerDto customer)
         {
             var customerEntity = _mapper.Map<CreateUpdateCustomerDto, Customer>(customer);
@@ -35,7 +45,7 @@ namespace backend.Services.CustomerServices
         {
             var listCustomer = await _customerRepository.GetListCustomer();
             var result = _mapper.Map<List<Customer>, List<CustomerDto>>(listCustomer);
-            return new PaginatedList<CustomerDto>(result, result.Count, 0 , 10);
+            return new PaginatedList<CustomerDto>(result, result.Count, 0, 10);
         }
 
         public async Task<CustomerDto> GetCustomerById(string customerId)
@@ -47,7 +57,6 @@ namespace backend.Services.CustomerServices
 
         public async Task<CustomerDto> UpdateCustomer(CreateUpdateCustomerDto customer, string id)
         {
-
             var customerEntity = _mapper.Map<CreateUpdateCustomerDto, Customer>(customer);
             var result = await _customerRepository.UpdateCustomer(customerEntity, id);
             return _mapper.Map<Customer, CustomerDto>(result);

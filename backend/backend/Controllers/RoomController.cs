@@ -56,5 +56,11 @@ namespace backend.Controllers
             var result = await _roomService.GetListRoom(filterDto);
             return ApiResponse<PaginatedList<RoomDto>>.Ok(result);
         }
+
+        [HttpGet("get-data-with-room/{roomId}")]
+        public async Task<ApiResponse<DataWithRoomDto>> GetDataWithRoom([FromQuery] string roomId)
+        {
+            var result = _roomService.
+        }
     }
 }

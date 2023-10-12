@@ -126,11 +126,10 @@ const RoomForm: React.FC<Props> = props => {
             return;
         }
     };
-
-    // const onRemove = (file: UploadFile) => {
-    //     const fileUrl = file.url ? file.url : _.get(file.response, 'fileUrl');
-    //     setState({ fileUrl: fileUrl });
-    // };
+    const onRemove = (file: UploadFile) => {
+        const fileUrl = file.url ? file.url : _.get(file.response, 'fileUrl');
+        setState({ fileUrls: state.fileUrls.filter(url => url !== fileUrl) });
+    };
 
     const uploadButton = (
         <div>
@@ -193,6 +192,7 @@ const RoomForm: React.FC<Props> = props => {
                             <>
                                 <Upload
                                     onChange={handleChange}
+                                    onRemove={onRemove}
                                     fileList={state.imageList}
                                     action={UPLOAD_FILE_API}
                                     accept="image/*"

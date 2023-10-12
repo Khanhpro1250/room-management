@@ -1,3 +1,4 @@
+import React, { useImperativeHandle } from 'react';
 import { faClose, faImage, faSave } from '@fortawesome/free-solid-svg-icons';
 import { DatePicker, Input, Radio, Select, Upload, UploadFile, UploadProps } from 'antd';
 import { Method } from 'axios';
@@ -22,7 +23,7 @@ import { RcFile } from 'antd/lib/upload';
 import { UploadOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 interface Props {
-    parentId?: string;
+    parentId?: string | null;
     readonly?: boolean;
     initialValues?: Partial<Room>;
     onClose?: () => void;
@@ -33,7 +34,11 @@ type State = {
     imageList: UploadFile[];
     fileUrls: string[];
 };
-const CustomerForm: React.FC<Props> = props => {
+
+export interface CustomerFormRef {
+    onSave: () => void;
+}
+const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.Element => {
     const formRef = useRef<BaseFormRef>(null);
     const overlayRef = useRef<OverlayRef>(null);
     const modalRef = useRef<ModalRef>(null);
@@ -77,7 +82,8 @@ const CustomerForm: React.FC<Props> = props => {
         overlayRef.current?.open();
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
-            houseId: props.parentId,
+            roomId: props?.parentId,
+            fileUrls: state.fileUrls,
         });
 
         if (response.data?.success) {
@@ -118,11 +124,24 @@ const CustomerForm: React.FC<Props> = props => {
         );
     };
 
+    const onRemove = (file: UploadFile) => {
+        const fileUrl = file.url ? file.url : _.get(file.response, 'fileUrl');
+        setState({ fileUrls: state.fileUrls.filter(url => url !== fileUrl) });
+    };
+
     const uploadButton = (
         <div>
             <UploadOutlined />
             <div style={{ marginTop: 8 }}>Tải ảnh</div>
         </div>
+    );
+
+    useImperativeHandle(
+        ref,
+        () => ({
+            onSave: onSubmit,
+        }),
+        [],
     );
 
     const handleCancel = () => modalRef.current?.onClose();
@@ -323,6 +342,7 @@ const CustomerForm: React.FC<Props> = props => {
                                 <Upload
                                     onChange={handleChange}
                                     fileList={state.imageList}
+                                    onRemove={onRemove}
                                     action={UPLOAD_FILE_API}
                                     accept="image/*"
                                     name="file"
@@ -358,11 +378,11 @@ const CustomerForm: React.FC<Props> = props => {
             />
             <div>
                 <div>
-                    <span className='font-bold'>Lưu ý:</span> <br/>
-                    - Kỳ thanh toán tùy thuộc vào từng khu nhà trọ, nếu khu trọ bạn thu tiền 1 lần vào cuối tháng thì bạn chọn là kỳ 30. Trường hợp khu nhà trọ bạn có số lượng phòng nhiều, chia làm 2 đợt thu, bạn dựa vào ngày vào của khách để gán kỳ cho phù hợp, ví dụ: vào từ ngày 1 đến 15 của tháng thì gán kỳ 15; nếu vào từ ngày 16 đến 31 của tháng thì gán kỳ 30. Khi tính tiền phòng bạn sẽ tính tiền theo kỳ. <br/>
-                    - Tiền đặt cọc sẽ không tính vào doanh thu ở các báo cáo và thống kê doanh thu. Nếu bạn muốn tính vào doanh thu bạn ghi nhận vào trong phần thu/chi khác (phát sinh). Tiền đặt cọc sẽ được trừ ra khi tính tiền trả phòng.<br/>
-                    - Các thông tin có giá trị là ngày nhập đủ ngày tháng năm và đúng định dạng dd/MM/yyyy (ví dụ: 01/12/2020)<br/>
-                    - Thanh toán mỗi lần: Nhập 1,2,3 ; là số tháng được tính trên mỗi hóa đơn.<br/>
+                    <span className='font-bold'>Lưu ý:</span> <br />
+                    - Kỳ thanh toán tùy thuộc vào từng khu nhà trọ, nếu khu trọ bạn thu tiền 1 lần vào cuối tháng thì bạn chọn là kỳ 30. Trường hợp khu nhà trọ bạn có số lượng phòng nhiều, chia làm 2 đợt thu, bạn dựa vào ngày vào của khách để gán kỳ cho phù hợp, ví dụ: vào từ ngày 1 đến 15 của tháng thì gán kỳ 15; nếu vào từ ngày 16 đến 31 của tháng thì gán kỳ 30. Khi tính tiền phòng bạn sẽ tính tiền theo kỳ. <br />
+                    - Tiền đặt cọc sẽ không tính vào doanh thu ở các báo cáo và thống kê doanh thu. Nếu bạn muốn tính vào doanh thu bạn ghi nhận vào trong phần thu/chi khác (phát sinh). Tiền đặt cọc sẽ được trừ ra khi tính tiền trả phòng.<br />
+                    - Các thông tin có giá trị là ngày nhập đủ ngày tháng năm và đúng định dạng dd/MM/yyyy (ví dụ: 01/12/2020)<br />
+                    - Thanh toán mỗi lần: Nhập 1,2,3 ; là số tháng được tính trên mỗi hóa đơn.<br />
                 </div>
                 <div>
                     <span className='text-red-500 font-bold'>(*): Thông tin bắt buộc</span>
@@ -371,6 +391,6 @@ const CustomerForm: React.FC<Props> = props => {
             <Overlay ref={overlayRef} />
         </AppModalContainer>
     );
-};
+});
 
 export default CustomerForm;

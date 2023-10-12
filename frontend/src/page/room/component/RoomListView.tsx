@@ -187,8 +187,8 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                             hasEditBtn: true,
                             hasDeleteBtn: true,
                             hasAddUserBtn: true,
-                            onClickAddUserBtn: () => {
-                                navigate('/customer/create');
+                            onClickAddUserBtn: (data: Room) => {
+                                navigate(`/customer/create?roomId=${data.id}`);
                             },
                             onClickDetailBtn: onDetail,
                             onClickEditBtn: onUpdate,
