@@ -9,6 +9,7 @@ import { Breadcrumb } from '../Elements/Breadcrumb/WrapBreadcrumb';
 import Footer from './Footer';
 import Header from './Header';
 import MenuSide from './MenuSide';
+import Loading from '../Elements/loading/Loading';
 
 const { Sider, Content } = Layout;
 
@@ -16,7 +17,8 @@ const LayoutPage: React.FC = () => {
     const [collapsed, setCollapsed] = useState<boolean>(false);
     const location = useLocation();
     const dispatch = useDispatch();
-    const { menus } = useSelector((state: RootState) => state.layout);
+    const { menus, loading } = useSelector((state: RootState) => state.layout);
+
 
     useEffect(() => {
         dispatch(fetchAuthLayoutAsync());
@@ -34,6 +36,8 @@ const LayoutPage: React.FC = () => {
                 text: value,
             };
         }) || [];
+
+    if (loading) return <Loading />
 
     return (
         <div className="flex w-screen h-screen text-[13px]">
