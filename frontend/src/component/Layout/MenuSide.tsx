@@ -42,17 +42,18 @@ const MenuSide: React.FC<MenuProps> = ({ menuList, collapsed }) => {
 
     const openCurrentKeys = useMemo(() => {
         const computeKeys = () => {
-            // const currentMenu = menus.where(x => x.route === selectKeys[0]).first();
             const currentMenu = menus.find(x => x.route === selectKeys[0]);
-            const menuKeys = currentMenu?.path.split('.');
-            // const mapMenu = menuKeys?.map(m => menus.firstOrDefault(x => x.key === m)?.route);
+            const menuKeys = currentMenu?.path?.split('.');
             const mapMenu = menuKeys?.map(m => menus.find(x => x.key === m)?.route);
-            return mapMenu?.filter(x => x != null);
+            return mapMenu?.filter(x => x != null) || [];
         };
-        // @ts-ignore
-        if (selectKeys.length > 0 && !hasOpen) return [...computeKeys(), selectKeys[0]];
+
+        if (selectKeys.length > 0 && !hasOpen) {
+            return [...computeKeys(), selectKeys[0]];
+        }
+
         return openKeys;
-    }, [selectKeys, openKeys]);
+    }, [selectKeys, openKeys, hasOpen, menus]);
 
     const renderMenu = (menus: MenuLayout[], start: number) => {
         return menus.map((menu, index) => {

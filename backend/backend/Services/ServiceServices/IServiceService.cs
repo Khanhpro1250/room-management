@@ -10,5 +10,7 @@ namespace backend.Services.ServiceServices
         Task<ServiceDto> CreateService(CreateUpdateServiceDto service);
         Task<ServiceDto> UpdateService(CreateUpdateServiceDto service, string id);
         Task DeleteService(string id);
+
+        Task<List<ServiceDto>> GetListServiceRegister();
     }
 }

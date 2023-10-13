@@ -28,6 +28,13 @@ namespace backend.Services.ServiceServices
             await _serviceRopository.DeleteService(id);
         }
 
+        public async Task<List<ServiceDto>> GetListServiceRegister()
+        {
+            var listService = await _serviceRopository.GetListService();
+            var result = _mapper.Map<List<Service>, List<ServiceDto>>(listService);
+            return result;
+        }
+
         public async Task<PaginatedList<ServiceDto>> GetListService()
         {
             var listService = await _serviceRopository.GetListService();
@@ -44,7 +51,6 @@ namespace backend.Services.ServiceServices
 
         public async Task<ServiceDto> UpdateService(CreateUpdateServiceDto service, string id)
         {
-
             var serviceEntity = _mapper.Map<CreateUpdateServiceDto, Service>(service);
             var result = await _serviceRopository.UpdateService(serviceEntity, id);
             return _mapper.Map<Service, ServiceDto>(result);

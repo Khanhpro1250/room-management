@@ -6,6 +6,8 @@ namespace backend.DTOs.CustomerDtos
     {
         public string Id { get; set; }
         public string FullName { get; set; }
+        
+        public int Gender { get; set; }
 
         public string IdentityNo { get; set; }
 

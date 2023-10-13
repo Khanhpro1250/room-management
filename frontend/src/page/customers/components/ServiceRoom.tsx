@@ -36,10 +36,10 @@ type State = {
     fileUrls: string[];
 };
 
-export interface CustomerFormRef {
+export interface ServiceRoomRef {
     onSave: () => void;
 }
-const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.Element => {
+const ServiceRoom = React.forwardRef<ServiceRoomRef, Props>((props, ref): JSX.Element => {
     const formRef = useRef<BaseFormRef>(null);
     const overlayRef = useRef<OverlayRef>(null);
     const modalRef = useRef<ModalRef>(null);
@@ -408,4 +408,4 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
     );
 });
 
-export default CustomerForm;
+export default ServiceRoom;

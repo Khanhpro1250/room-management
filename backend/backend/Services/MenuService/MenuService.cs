@@ -87,15 +87,15 @@ public class MenuService :IMenuService
 
     private List<string> BuildTreeGroup(string path, List<Menu> menus)
     {
-        var arrPath = path?.Split(".").ToList();
+        // var arrPath = path?.Split(".").ToList();
         var groupResponse = new List<string>();
 
-        if (arrPath != null)
-            foreach (var id in arrPath)
-            {
-                var menu = menus.FirstOrDefault(x => x.Id == id)?.Name ?? "";
-                groupResponse.Add(menu);
-            }
+        // if (arrPath != null)
+        //     foreach (var id in arrPath)
+        //     {
+        //         var menu = menus.FirstOrDefault(x => x.Id == id)?.Name ?? "";
+        //         groupResponse.Add(menu);
+        //     }
 
         return groupResponse;
     }

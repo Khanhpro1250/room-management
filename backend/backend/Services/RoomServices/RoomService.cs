@@ -83,8 +83,15 @@ public class RoomService : IRoomService
     }
 
 
-    public Task<DataWithRoomDto> GetDataWithRoom(string roomId)
+    public async Task<DataWithRoomDto> GetDataWithRoom(string roomId)
     {
-        throw new NotImplementedException();
+        var customer = await _customerService.GetCustomerByRoomId(roomId);
+        var services = await _serviceService.GetListServiceRegister();
+        return new DataWithRoomDto()
+        {
+            Customer = customer,
+            Services = services
+            
+        };
     }
 }

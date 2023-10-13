@@ -15,6 +15,7 @@ const UserListView = React.lazy(() => import('~/page/system/user/UserListView'))
 const HouseListView = React.lazy(() => import('~/page/house/HouseListView'));
 const RoomPage = React.lazy(() => import('~/page/room/RoomPage'));
 const CustomerPage = React.lazy(() => import('~/page/customers/CustomerPage'));
+const ServicesListView = React.lazy(() => import('~/page/services/ServicesListView'));
 
 //home
 
@@ -25,7 +26,7 @@ const routeList = [
         children: [
             {
                 path: '/',
-                element:  <RoomPage />,
+                element: <RoomPage />,
             },
             {
                 path: 'system',
@@ -61,8 +62,12 @@ const routeList = [
                 element: <RoomPage />,
             },
             {
-                path: 'customer/create',
+                path: 'customer',
                 element: <CustomerPage />,
+            },
+            {
+                path: 'service',
+                element: <ServicesListView />,
             },
         ],
     },

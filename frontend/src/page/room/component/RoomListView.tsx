@@ -152,24 +152,6 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         }
     };
 
-    const onAddCustomer = (data: Room) => {
-        modalRef.current?.onOpen(
-            <CustomerForm
-                onSubmitSuccessfully={() => {
-                    modalRef.current?.onClose();
-                    gridController?.reloadData();
-                }}
-                onClose={modalRef.current?.onClose}
-                parentId={data.id}
-                initialValues={data}
-                readonly={true}
-            />,
-            `Thêm khách thuê ( phòng ${data.roomCode} )`,
-            '50%',
-            icon(faUserGroup),
-        );
-    };
-
     return (
         <>
             {gridController?.loading ? (
@@ -188,7 +170,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                             hasDeleteBtn: true,
                             hasAddUserBtn: true,
                             onClickAddUserBtn: (data: Room) => {
-                                navigate(`/customer/create?roomId=${data.id}`);
+                                navigate(`/customer?roomId=${data.id}`);
                             },
                             onClickDetailBtn: onDetail,
                             onClickEditBtn: onUpdate,

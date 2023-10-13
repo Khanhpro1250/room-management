@@ -17,7 +17,8 @@ const sizes = {
     xs: 'py-1 px-2 text-xs',
     sm: 'py-1 px-2 text-sm',
     md: 'py-1 px-4 text-md',
-    lg: 'py-2 px-6 text-lg',
+    lg: 'py-1.5 px-5 text-[16px]',
+    xl: 'py-2 px-6 text-lg',
 };
 
 type IconProps = {
