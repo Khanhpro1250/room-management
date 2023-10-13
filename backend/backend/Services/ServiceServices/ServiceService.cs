@@ -16,6 +16,7 @@ namespace backend.Services.ServiceServices
             _serviceRopository = serviceRepository;
             _mapper = mapper;
         }
+
         public async Task<ServiceDto> CreateService(CreateUpdateServiceDto service)
         {
             var serviceEntity = _mapper.Map<CreateUpdateServiceDto, Service>(service);
@@ -39,6 +40,17 @@ namespace backend.Services.ServiceServices
         {
             var listService = await _serviceRopository.GetListService();
             var result = _mapper.Map<List<Service>, List<ServiceDto>>(listService);
+            foreach (var item in result)
+            {
+                item.Type = item.Type switch
+                {
+                    "DIEN" => "Điện",
+                    "NUOC" => "Nước",
+                    "KHAC" => "Khác",
+                    _ => "Khác"
+                };
+            }
+
             return new PaginatedList<ServiceDto>(result, result.Count, 0, 10);
         }
 

@@ -1,4 +1,7 @@
-﻿namespace backend.DTOs.ServiceDtos
+﻿using Aspose.Words.Lists;
+using Newtonsoft.Json;
+
+namespace backend.DTOs.ServiceDtos
 {
     public class CreateUpdateServiceDto
     {
@@ -11,7 +14,8 @@
         public string Name { get; set; }
         public string Code { get; set; }
         public float Price { get; set; }
-        public string Unit { get; set; }
+        [JsonProperty("unit")] 
+        public List<string> Unit { get; set; }
         public bool Status { get; set; }
     }
 }

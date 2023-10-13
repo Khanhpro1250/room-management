@@ -98,13 +98,11 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
     };
 
     const onUpdate = (data: Room) => {
-        console.log(data);
         modalRef.current?.onOpen(
             <RoomForm
                 onSubmitSuccessfully={() => {
                     modalRef.current?.onClose();
                     gridController?.reloadData();
-                    console.log(123123);
                 }}
                 onClose={modalRef.current?.onClose}
                 parentId={props.houseId}
@@ -122,7 +120,6 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                 onSubmitSuccessfully={() => {
                     modalRef.current?.onClose();
                     gridController?.reloadData();
-                    console.log(123123);
                 }}
                 onClose={modalRef.current?.onClose}
                 parentId={props.houseId}

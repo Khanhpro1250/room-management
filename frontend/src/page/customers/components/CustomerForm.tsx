@@ -146,7 +146,6 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
     );
 
     const handleCancel = () => modalRef.current?.onClose();
-    console.log(props.initialValues);
     return (
         <AppModalContainer>
             <BaseForm

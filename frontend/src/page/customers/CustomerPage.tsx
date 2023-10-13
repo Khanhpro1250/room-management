@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Tabs } from 'antd';
 import TabPane from 'antd/lib/tabs/TabPane';
 import qs from 'qs';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 import { AppContainer } from '~/component/Layout/AppContainer';
@@ -11,14 +11,17 @@ import { useMergeState } from '~/hook/useMergeState';
 import { requestApi } from '~/lib/axios';
 import { Customer } from '~/types/shared/Customer';
 import { DATA_WITH_ROOM_API } from '../room/api/room.api';
-import CustomerForm, { CustomerFormRef } from './components/CustomerForm';
+import { CustomerFormRef } from './components/CustomerForm';
 import Loading from '~/component/Elements/loading/Loading';
+import { Service } from '~/types/shared/Service';
+const CustomerForm = React.lazy(() => import('~/page/customers/components/CustomerForm'));
+const ServiceRoom = React.lazy(() => import('~/page/customers/components/ServiceRoom'));
 
 interface State {
     loading: boolean;
     initData: {
         customer: Customer;
-        services: any[];
+        services: Service[];
     };
 }
 
@@ -125,7 +128,7 @@ const CustomerPage: React.FC = () => {
                     <CustomerForm ref={customerFormRef} parentId={roomId} initialValues={state.initData.customer} />
                 </TabPane>
                 <TabPane tab={<div className="text-[16px]">Dịch vụ</div>} key="service">
-                    <>123123</>
+                    <ServiceRoom initialValues={state.initData.services}/>
                 </TabPane>
                 <TabPane tab={<div className="text-[16px]">Thành viên</div>} key="member">
                     <>123123</>

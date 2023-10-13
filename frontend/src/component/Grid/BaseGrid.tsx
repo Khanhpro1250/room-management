@@ -21,6 +21,8 @@ export interface BaseGridProps {
     defaultColDef?: BaseGridColDef;
     gridConfig?: GridConfig;
     numberRows?: boolean;
+    rowSelection?: 'single' | 'multiple';
+    isRowSelectable?: (rowNode: any) => boolean;
     actionRows?: boolean;
     actionRowsList?: {
         hasEditBtn?: boolean;
@@ -160,9 +162,11 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                         onGridReady={params => params.api.sizeColumnsToFit()}
                         treeData={props.treeData}
                         animateRows
+                        rowSelection={props.rowSelection}
                         getDataPath={props.getDataPath}
                         groupDefaultExpanded={props.groupDefaultExpanded}
                         detailCellRenderer
+                        isRowSelectable={props?.isRowSelectable}
                         {...props.gridConfig}
                     />
                 )}

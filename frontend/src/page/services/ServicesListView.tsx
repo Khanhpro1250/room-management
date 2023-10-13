@@ -7,7 +7,13 @@ import { AppContainer } from '~/component/Layout/AppContainer';
 import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
 import { useBaseGrid } from '~/hook/useBaseGrid';
 import { Service } from '~/types/shared/Service';
-import { SERVICE_INDEX_API } from './api/services.api';
+import { SERVICE_DELETE_API, SERVICE_INDEX_API } from './api/services.api';
+import ServicesForm from './components/ServicesForm';
+import { icon } from '@fortawesome/fontawesome-svg-core';
+import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import { baseDeleteApi, requestApi } from '~/lib/axios';
+import NotificationConstant from '~/configs/contants';
+import NotifyUtil from '~/util/NotifyUtil';
 
 const ServicesListView: React.FC = () => {
     const gridRef = useRef<BaseGridRef>(null);
@@ -18,45 +24,46 @@ const ServicesListView: React.FC = () => {
     });
 
     const onCreate = () => {
-        // modalRef.current?.onOpen(
-        //     <MenuForm
-        //         onSubmitSuccessfully={() => {
-        //             modalRef.current?.onClose();
-        //             gridController?.reloadData();
-        //         }}
-        //         // initialValues={{
-        //         //     icon: 'list-ul',
-        //         // }}
-        //         onClose={modalRef.current?.onClose}
-        //     />,
-        //     'Tạo mới Menu',
-        //     '50%',
-        // );
+        modalRef.current?.onOpen(
+            <ServicesForm
+                onSubmitSuccessfully={() => {
+                    modalRef.current?.onClose();
+                    gridController?.reloadData();
+                }}
+                onClose={modalRef.current?.onClose}
+            />,
+            'Tạo mới dịch vụ',
+            '50%',
+        );
     };
 
-    // const onUpdate = (data: Menu) => {
-    //     modalRef.current?.onOpen(<></>, 'Cập nhật Menu', '50%');
-    // };
+    const onUpdate = (data: Service) => {
+        modalRef.current?.onOpen(
+            <ServicesForm
+                onSubmitSuccessfully={() => {
+                    modalRef.current?.onClose();
+                    gridController?.reloadData();
+                }}
+                onClose={modalRef.current?.onClose}
+                initialValues={data}
+            />,
+            'Cập nhật dịch vụ',
+            '50%',
+            icon(faEdit)
+        );
+    };
 
-    // const onDelete = (data: Menu) => {
-    //     baseDeleteApi(MENU_DELETE_API, data.id);
-    //     gridController?.reloadData();
-    // };
-
-    // const onCreateChild = (data: Menu) => {
-    // modalRef.current?.onOpen(
-    //     <MenuForm
-    //         parentId={_.get(data, 'id')}
-    //         onSubmitSuccessfully={() => {
-    //             modalRef.current?.onClose();
-    //             gridController?.reloadData();
-    //         }}
-    //         onClose={modalRef.current?.onClose}
-    //     />,
-    //     `Thêm Menu con cho Menu - ${data.name}`,
-    //     '50%',
-    // );
-    // };
+    const onDelete = async (data: Service) => {
+        const res = await requestApi('delete', `${SERVICE_DELETE_API}/${data.id}`);
+        if (res.data?.success) {
+            NotifyUtil.success(NotificationConstant.TITLE, NotificationConstant.DESCRIPTION_DELETE_SUCCESS);
+            gridController?.reloadData();
+            return;
+        } else {
+            NotifyUtil.error(NotificationConstant.TITLE, res.data?.message ?? 'Có lỗi xảy ra');
+            return;
+        }
+    };
 
     const ServiceColDefs: BaseGridColDef[] = [
         {
@@ -73,6 +80,10 @@ const ServicesListView: React.FC = () => {
             headerName: 'Đơn giá',
             field: nameof.full<Service>(x => x.price),
             width: 120,
+            cellStyle: { textAlign: 'right' },
+            cellRenderer: (val: any) => {
+                return Number(val.value ?? 0).toLocaleString('vi', { maximumSignificantDigits: 2 });
+            },
         },
         {
             headerName: 'Đơn vị tính',
@@ -83,8 +94,11 @@ const ServicesListView: React.FC = () => {
             headerName: 'Trạng thái',
             field: nameof.full<Service>(x => x.status),
             width: 120,
+            cellStyle: { textAlign: 'center' },
             cellRenderer: (params: any) => {
-                <Checkbox disabled checked={params.value} />;
+                return (
+                    <Checkbox disabled checked={params.value}/>
+                )
             },
         },
     ];
@@ -97,8 +111,8 @@ const ServicesListView: React.FC = () => {
                 <>
                     <BaseGrid
                         columnDefs={ServiceColDefs}
-                        data={[]}
-                        // ref={gridRef}
+                        data={gridController?.data || []}
+                        ref={gridRef}
                         numberRows={false}
                         pagination={false}
                         actionRowsList={{
@@ -106,20 +120,16 @@ const ServicesListView: React.FC = () => {
                             hasDeleteBtn: true,
                             hasCreateChildBtn: true,
                             // onClickCreateChildBtn: onCreateChild,
-                            // onClickEditBtn: onUpdate,
-                            // onClickDeleteBtn: onDelete,
+                            onClickEditBtn: onUpdate,
+                            onClickDeleteBtn: onDelete,
                         }}
-                        // treeData
                         actionRowsWidth={120}
-                        // autoGroupColumnDef={autoGroupColumnDef}
-                        // getDataPath={getDataPath}
-                        // groupDefaultExpanded={-1}
                     >
                         <GridToolbar
                             hasCreateButton
                             hasRefreshButton
                             onClickCreateButton={onCreate}
-                            // onClickRefreshButton={() => gridController?.reloadData()}
+                        // onClickRefreshButton={() => gridController?.reloadData()}
                         />
                     </BaseGrid>
                     <ModalBase ref={modalRef} />
