@@ -10,6 +10,7 @@ import _ from 'lodash';
 import React, { ReactChild } from 'react';
 import { ButtonBase } from '../Elements/Button/ButtonBase';
 import './styles/BaseGrid.scss';
+import { RowSelectedEvent } from 'ag-grid';
 
 export interface BaseGridColDef extends ColDef, Partial<ColGroupDef> {}
 
@@ -22,6 +23,7 @@ export interface BaseGridProps {
     gridConfig?: GridConfig;
     numberRows?: boolean;
     rowSelection?: 'single' | 'multiple';
+    onRowSelected?: (event: RowSelectedEvent) => void;
     isRowSelectable?: (rowNode: any) => boolean;
     actionRows?: boolean;
     actionRowsList?: {
@@ -162,11 +164,14 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                         onGridReady={params => params.api.sizeColumnsToFit()}
                         treeData={props.treeData}
                         animateRows
-                        rowSelection={props.rowSelection}
                         getDataPath={props.getDataPath}
                         groupDefaultExpanded={props.groupDefaultExpanded}
                         detailCellRenderer
-                        isRowSelectable={props?.isRowSelectable}
+                        suppressRowClickSelection={true}
+                        onRowSelected={(event: any) => {
+                            return props?.onRowSelected?.(event);
+                        }}
+                        rowSelection={'multiple'}
                         {...props.gridConfig}
                     />
                 )}

@@ -14,6 +14,7 @@ import { DATA_WITH_ROOM_API } from '../room/api/room.api';
 import { CustomerFormRef } from './components/CustomerForm';
 import Loading from '~/component/Elements/loading/Loading';
 import { Service } from '~/types/shared/Service';
+import { ServiceRoomRef } from '~/page/customers/components/ServiceRoom';
 const CustomerForm = React.lazy(() => import('~/page/customers/components/CustomerForm'));
 const ServiceRoom = React.lazy(() => import('~/page/customers/components/ServiceRoom'));
 
@@ -41,6 +42,7 @@ const CustomerPage: React.FC = () => {
         },
     });
     const customerFormRef = useRef<CustomerFormRef>(null);
+    const serviceRoomRef = useRef<ServiceRoomRef>(null);
 
     const title = () => {
         switch (currentTab) {
@@ -110,7 +112,14 @@ const CustomerPage: React.FC = () => {
                         title="Lưu"
                         size="lg"
                         startIcon={faSave}
-                        onClick={() => customerFormRef.current?.onSave()}
+                        onClick={() => {
+                            if (currentTab === 'customer') {
+                                customerFormRef.current?.onSave();
+                            }
+                            if (currentTab === 'service') {
+                                serviceRoomRef.current?.onSave();
+                            }
+                        }}
                     />
                 </div>
             </div>
@@ -128,7 +137,7 @@ const CustomerPage: React.FC = () => {
                     <CustomerForm ref={customerFormRef} parentId={roomId} initialValues={state.initData.customer} />
                 </TabPane>
                 <TabPane tab={<div className="text-[16px]">Dịch vụ</div>} key="service">
-                    <ServiceRoom initialValues={state.initData.services}/>
+                    <ServiceRoom ref={serviceRoomRef} initialValues={state.initData.services} />
                 </TabPane>
                 <TabPane tab={<div className="text-[16px]">Thành viên</div>} key="member">
                     <>123123</>

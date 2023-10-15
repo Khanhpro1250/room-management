@@ -49,7 +49,7 @@ const ServicesListView: React.FC = () => {
             />,
             'Cập nhật dịch vụ',
             '50%',
-            icon(faEdit)
+            icon(faEdit),
         );
     };
 
@@ -70,6 +70,7 @@ const ServicesListView: React.FC = () => {
             headerName: 'Tên',
             field: nameof.full<Service>(x => x.name),
             minWidth: 500,
+            flex: 1,
         },
         {
             headerName: 'Loại dịch vụ',
@@ -96,9 +97,7 @@ const ServicesListView: React.FC = () => {
             width: 120,
             cellStyle: { textAlign: 'center' },
             cellRenderer: (params: any) => {
-                return (
-                    <Checkbox disabled checked={params.value}/>
-                )
+                return <Checkbox value={params.value} disabled checked={params.value} />;
             },
         },
     ];
@@ -129,7 +128,7 @@ const ServicesListView: React.FC = () => {
                             hasCreateButton
                             hasRefreshButton
                             onClickCreateButton={onCreate}
-                        // onClickRefreshButton={() => gridController?.reloadData()}
+                            // onClickRefreshButton={() => gridController?.reloadData()}
                         />
                     </BaseGrid>
                     <ModalBase ref={modalRef} />

@@ -12,8 +12,6 @@ import { Role } from '~/types/ums/Role';
 import NotifyUtil from '~/util/NotifyUtil';
 import { SERVICE_CREATE_API, SERVICE_UPDATE_API } from '../api/services.api';
 
-
-
 interface Props {
     initialValues?: Partial<Role>;
     onClose?: () => void;
@@ -22,7 +20,7 @@ interface Props {
 
 const ServicesForm: React.FC<Props> = props => {
     const formRef = useRef<BaseFormRef>(null);
-        
+
     const onSubmit = async () => {
         const isValidForm = await formRef.current?.isFieldsValidate();
 
@@ -94,7 +92,6 @@ const ServicesForm: React.FC<Props> = props => {
                                     { value: 'DIEN', label: 'Điện' },
                                     { value: 'NUOC', label: 'Nước' },
                                     { value: 'KHAC', label: 'Khác' },
-
                                 ]}
                                 placeholder="Chọn loại dịch vụ ..."
                             />
@@ -111,11 +108,11 @@ const ServicesForm: React.FC<Props> = props => {
                                     { value: 'cm3', label: 'Khối' },
                                 ]}
                                 placeholder="Chọn đơn vị tính ..."
-                                optionLabelProp='label'
-                                mode='tags'
+                                optionLabelProp="label"
+                                mode="tags"
                                 onChange={(value: any[]) => {
                                     if (value.length > 1) {
-                                        value.shift()
+                                        value.shift();
                                     }
                                 }}
                             />
@@ -131,6 +128,7 @@ const ServicesForm: React.FC<Props> = props => {
                     {
                         label: 'Trạng thái',
                         name: nameof.full<Service>(x => x.status),
+                        valuePropName: 'checked',
                         children: <Switch defaultChecked />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                     },
