@@ -2,7 +2,7 @@
 import { faPlus, faSync } from '@fortawesome/free-solid-svg-icons';
 import * as React from 'react';
 import { CSSProperties } from 'react';
-import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
+import { ButtonBase, sizes } from '~/component/Elements/Button/ButtonBase';
 
 type ToolbarType = {
     rightToolbarStyle?: CSSProperties;
@@ -10,6 +10,8 @@ type ToolbarType = {
 };
 
 export type GridToolbarProps = {
+    justIcon?: boolean;
+    size?: keyof typeof sizes;
     buttonNameCreate?: string;
     buttonNameRefresh?: string;
     hasCreateButton?: boolean;
@@ -29,21 +31,23 @@ const basicToolbar = (props: GridToolbarProps) => {
                 {props.renderAdditionRightToolBar?.()}
                 {hasCreateButton && (
                     <ButtonBase
+                        size={props.size ?? 'sm'}
                         onClick={() => props.onClickCreateButton?.()}
                         className={'btn-create'}
                         variant={'success'}
-                        title={props.buttonNameCreate ?? 'Tạo mới'}
+                        title={props.justIcon ? undefined : props.buttonNameCreate ?? 'Tạo mới'}
                         startIcon={faPlus}
                     />
                 )}
-                {hasRefreshButton && (
+                {/* {hasRefreshButton && (
                     <ButtonBase
                         variant={'primary'}
-                        title={props.buttonNameRefresh ?? 'Làm mới'}
+                        size={props.size ?? 'sm'}
+                        title={props.justIcon ? undefined : props.buttonNameRefresh ?? 'Làm mới'}
                         startIcon={faSync}
                         onClick={() => props.onClickRefreshButton?.()}
                     />
-                )}
+                )} */}
             </div>
         </div>
     );

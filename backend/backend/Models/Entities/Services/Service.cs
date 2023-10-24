@@ -12,4 +12,11 @@ namespace backend.Models.Entities.Services
         public List<string> Unit { get; set; }
         public bool Status { get; set; }
     }
+
+    public class ServiceCustomer
+    {
+        public string ServiceId { get; set; }
+        public float Quantity { get; set; }
+        public float Price { get; set; }
+    }
 }

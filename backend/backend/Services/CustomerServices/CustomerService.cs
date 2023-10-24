@@ -2,8 +2,10 @@
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.CustomerDtos;
 using backend.DTOs.RoomDtos;
+using backend.DTOs.ServiceDtos;
 using backend.Models.Entities.Customers;
 using backend.Models.Entities.Rooms;
+using backend.Models.Entities.Services;
 using backend.Models.Repositorties.CustomerRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using MongoDB.Driver;
@@ -33,6 +35,14 @@ namespace backend.Services.CustomerServices
         {
             var customerEntity = _mapper.Map<CreateUpdateCustomerDto, Customer>(customer);
             var result = await _customerRepository.CreateCustomer(customerEntity);
+            return _mapper.Map<Customer, CustomerDto>(result);
+        }
+
+        public async Task<CustomerDto> UpdateServiceCustomer(UpdateServicesCustomerDto updateServicesCustomerDto, string id)
+        {
+            var customer = await _customerRepository.GetCustomerById(id);
+            customer.Services = _mapper.Map<List<ServiceCustomerDto>, List<ServiceCustomer>>(updateServicesCustomerDto.Services);
+            var result = await _customerRepository.UpdateCustomer(customer, id);
             return _mapper.Map<Customer, CustomerDto>(result);
         }
 

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using backend.DTOs.ServiceDtos;
+using Newtonsoft.Json;
 
 namespace backend.DTOs.CustomerDtos
 {
@@ -42,7 +43,26 @@ namespace backend.DTOs.CustomerDtos
 
         public string Note { get; set; }
         public string RoomId { get; set; }
-
-        [JsonProperty("fileUrls")] public List<string> FileUrls { get; set; }
+        
+        [JsonProperty("members")] 
+        public List<MemberDto> Members { get; set; }
+        [JsonProperty("fileUrls")] 
+        public List<string> FileUrls { get; set; }
+        [JsonProperty("services")]
+        public List<ServiceCustomerDto> Services { get; set; }
     }
+}
+
+public class MemberDto
+{
+    public string Name { get; set; }
+    public DateTime DateOfBirth { get; set; }
+    public string IdentityNo { get; set; }
+    public string PermanentAddress { get; set; }
+    public string PhoneNumber { get; set; }
+    public string VehicleNumber { get; set; }
+    /// <summary>
+    /// Ngày đăng kí thường trú
+    /// </summary>
+    public DateTime? TemporarilyDate { get; set; }
 }

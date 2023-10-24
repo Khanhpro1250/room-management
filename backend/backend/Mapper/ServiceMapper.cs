@@ -12,6 +12,8 @@ namespace backend.Mapper
         {
             CreateMap<Service, ServiceDto>();
             CreateMap<CreateUpdateServiceDto, Service>();
+            CreateMap<ServiceCustomerDto, ServiceCustomer>();
+            CreateMap<ServiceCustomer, ServiceCustomerDto>();
         }
     }
 }
