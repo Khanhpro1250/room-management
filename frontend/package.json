@@ -32,6 +32,7 @@
         "react-error-boundary": "^3.1.4",
         "react-loading": "^2.0.3",
         "react-query": "^3.38.1",
+        "react-quill": "^2.0.0",
         "react-redux": "7.2.5",
         "react-router-dom": "^6.4.1",
         "react-scripts": "5.0.1",

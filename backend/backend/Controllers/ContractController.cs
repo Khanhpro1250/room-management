@@ -1,10 +1,8 @@
-﻿using backend.Controllers.Dtos.Responese;
-using backend.Controllers.Dtos;
-using backend.DTOs.CustomerDtos;
-using backend.Services.CustomerServices;
-using Microsoft.AspNetCore.Mvc;
-using backend.Services.ContractServices;
+﻿using backend.Controllers.Dtos;
+using backend.Controllers.Dtos.Responese;
 using backend.DTOs.ContractDtos;
+using backend.Services.ContractServices;
+using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
 {

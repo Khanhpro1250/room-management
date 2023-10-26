@@ -15,6 +15,7 @@ import { CustomerFormRef } from './components/CustomerForm';
 import Loading from '~/component/Elements/loading/Loading';
 import { Service } from '~/types/shared/Service';
 import { ServiceRoomRef } from '~/page/customers/components/ServiceRoom';
+import ContractForm from './components/ContractForm';
 const CustomerForm = React.lazy(() => import('~/page/customers/components/CustomerForm'));
 const ServiceRoom = React.lazy(() => import('~/page/customers/components/ServiceRoom'));
 
@@ -106,7 +107,7 @@ const CustomerPage: React.FC = () => {
                         size="lg"
                         startIcon={faArrowRotateBack}
                         variant="danger"
-                        // onClick={props.onClose}
+                    // onClick={props.onClose}
                     />
                     <ButtonBase
                         title="Lưu"
@@ -143,7 +144,7 @@ const CustomerPage: React.FC = () => {
                     <>123123</>
                 </TabPane>
                 <TabPane tab={<div className="text-[16px]">Hợp đồng</div>} key="contract">
-                    <>123123</>
+                    <ContractForm />
                 </TabPane>
             </Tabs>
         </AppContainer>

@@ -2,8 +2,8 @@
 {
     public class Contract : AuditedEntity
     {
-        public string ContractNumber {  get; set; }
-        public string RoomID { get; set; }
+        public string ContractNumber { get; set; }
+        public string RoomId { get; set; }
         public string CustomerId { get; set; }
         public int Month { get; set; }
         public DateTime SignedDate { get; set; }
