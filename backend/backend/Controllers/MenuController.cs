@@ -26,7 +26,7 @@ public class MenuController : ControllerBase
     }
 
     [HttpGet("layout")]
-    public async Task<ApiResponse<List<MenuLayoutDto>>> GetMenulayout()
+    public async Task<ApiResponse<List<MenuLayoutDto>>> GetMenuLayout()
     {
         var result = await _menuService.GetMenuLayout();
         return ApiResponse<List<MenuLayoutDto>>.Ok(result);

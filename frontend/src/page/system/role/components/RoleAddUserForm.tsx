@@ -82,16 +82,16 @@ const RoleAddUserForm: React.FC<Props> = props => {
                         children: (
                             <Transfer
                                 dataSource={state.users}
-                                showSearch
+                                showSearch                                
                                 targetKeys={state.choseKey}
                                 onChange={handleChange}
-                                render={item => item.label}
+                                render={item => item.title ?? ''}
                             />
                         ),
                     },
                 ]}
                 labelAlign="left"
-                labelCol={0}
+                labelCol={0}               
                 renderBtnBottom={() => {
                     return (
                         <div className="flex items-center justify-center w-full">
