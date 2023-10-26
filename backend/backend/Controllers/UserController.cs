@@ -18,10 +18,10 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("combo-user")]
-    public async Task<ApiResponse<List<ComboOptionDto>>> GetComboUser()
+    public async Task<ApiResponse<List<ComboOptionKeyTitleDto>>> GetComboUser()
     {
         var result = await _userService.GetComboUser();
-        return ApiResponse<List<ComboOptionDto>>.Ok(result);
+        return ApiResponse<List<ComboOptionKeyTitleDto>>.Ok(result);
     }
     
     [HttpGet("index")]

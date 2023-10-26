@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
 using backend.Models.Repositorties.ContractRepositories;
 using backend.Models.Repositorties.CustomerRepositories;
 using backend.Models.Repositorties.DepositRepositories;
@@ -27,9 +28,11 @@ using backend.Services.UserServices;
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
+using Moq;
 
 namespace backend;
 
@@ -167,6 +170,11 @@ public class Startup
         services.AddScoped<IServiceService, ServiceService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<ICloudinaryService, CloudinaryService>();
+        services.AddScoped<ICurrentUser, CurrentUser>();
+        services.AddScoped<ClaimsPrincipal>(provider => provider.GetService<IHttpContextAccessor>()?.HttpContext?.User);
+        services.AddScoped<backend.Models.Entities.UserAccount.User>();
+
+
         
         // Add cloundinary
         Account account = new Account(
@@ -193,5 +201,7 @@ public class Startup
                     ;
             });
         });
+        
+        services.AddHttpContextAccessor();
     }
 }

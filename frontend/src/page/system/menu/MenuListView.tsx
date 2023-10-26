@@ -84,6 +84,7 @@ const MenuListView: React.FC = () => {
             headerName: 'Route',
             field: nameof.full<Menu>(x => x.route),
             minWidth: 500,
+            flex: 1,
         },
         {
             headerName: 'Biểu tượng',
