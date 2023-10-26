@@ -9,6 +9,9 @@
         public DateTime SignedDate { get; set; }
         public DateTime EffectDate { get; set; }
         public DateTime ExpiredDate { get; set; }
+
+        public bool IsCurrent { get; set; }
+
         public string CreatedBy { get; set; }
         public DateTime? CreatedTime { get; set; }
         public string LastModifiedBy { get; set; }

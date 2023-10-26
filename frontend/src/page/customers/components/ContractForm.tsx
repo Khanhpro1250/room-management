@@ -2,7 +2,7 @@ import { faClose, faSave } from '@fortawesome/free-solid-svg-icons';
 import { DatePicker, Input } from 'antd';
 import { Method } from 'axios';
 import moment from 'moment';
-import React, { useRef } from 'react';
+import React, { useImperativeHandle, useRef } from 'react';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
 import { AppModalContainer } from '~/component/Layout/AppModalContainer';
@@ -14,6 +14,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 import NotifyUtil from '~/util/NotifyUtil';
+import { CREATE_CONTACT_API, UPDATE_CONTACT_API } from '../api/customer.api';
 
 
 
@@ -22,55 +23,69 @@ interface Props {
     onClose?: () => void;
     onSubmitSuccessfully?: () => void;
     customer?: Customer;
-    roomId?: string;
+    roomId?: string | null;
 }
 
-const ContractForm: React.FC<Props> = props => {
+export interface ContractFormRef {
+    onSave: () => void;
+}
+
+const ContractForm= React.forwardRef<ContractFormRef, Props>((props, ref): JSX.Element => {
     const formRef = useRef<BaseFormRef>(null);
 
     const onSubmit = async () => {
-        // const isValidForm = await formRef.current?.isFieldsValidate();
+        const isValidForm = await formRef.current?.isFieldsValidate();
 
-        // if (!isValidForm) {
-        //     NotifyUtil.error(NotificationConstant.TITLE, NotificationConstant.ERROR_MESSAGE_UTIL);
-        //     return;
-        // }
+        if (!isValidForm) {
+            NotifyUtil.error(NotificationConstant.TITLE, NotificationConstant.ERROR_MESSAGE_UTIL);
+            return;
+        }
 
-        // const formValues = formRef.current?.getFieldsValue();
+        const formValues = formRef.current?.getFieldsValue();
 
-        // const urlParams: Record<
-        //     string,
-        //     {
-        //         url: string;
-        //         method: Method;
-        //         message: string;
-        //     }
-        // > = {
-        //     create: {
-        //         url: Contract_CREATE_API,
-        //         method: 'post',
-        //         message: NotificationConstant.DESCRIPTION_CREATE_SUCCESS,
-        //     },
-        //     update: {
-        //         url: `${Contract_UPDATE_API}/${props.initialValues?.id}`,
-        //         method: 'put',
-        //         message: NotificationConstant.DESCRIPTION_UPDATE_SUCCESS,
-        //     },
-        // };
+        const urlParams: Record<
+            string,
+            {
+                url: string;
+                method: Method;
+                message: string;
+            }
+        > = {
+            create: {
+                url: CREATE_CONTACT_API,
+                method: 'post',
+                message: NotificationConstant.DESCRIPTION_CREATE_SUCCESS,
+            },
+            update: {
+                url: `${UPDATE_CONTACT_API}/${props.initialValues?.id}`,
+                method: 'put',
+                message: NotificationConstant.DESCRIPTION_UPDATE_SUCCESS,
+            },
+        };
 
-        // const urlParam = props.initialValues ? urlParams.update : urlParams.create;
+        const urlParam = props.initialValues ? urlParams.update : urlParams.create;
 
-        // const response = await requestApi(urlParam.method, urlParam.url, {
-        //     ...formValues,
-        // });
+        const response = await requestApi(urlParam.method, urlParam.url, {
+            ...formValues,
+            roomId: props.roomId,
+            customerId: props.customer?.id,
+        });
 
-        // if (response.data?.success) {
-        //     NotifyUtil.success(NotificationConstant.TITLE, urlParam.message);
-        //     props?.onSubmitSuccessfully?.();
-        //     props.onClose?.();
-        //     return;
-        // }
+        if (response.data?.success) {
+            NotifyUtil.success(NotificationConstant.TITLE, urlParam.message);
+            props?.onSubmitSuccessfully?.();
+            props.onClose?.();
+            return;
+        }
     };
+
+    useImperativeHandle(
+        ref,
+        () => ({
+            onSave: onSubmit,
+        }),
+        [],
+    );
 
     return (
         <AppModalContainer>
@@ -135,20 +150,7 @@ const ContractForm: React.FC<Props> = props => {
                         ),
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }], 
                         className: 'col-span-6',
-
-                    },
-                    {
-                        label: 'Ngày kết thúc hợp đồng',
-                        name: '',
-                        children: (
-                            <ReactQuill theme="snow"onChange={(value:string,delta)=> {
-                                console.log(delta,value)
-                            }} />
-                        ),
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }], 
-                        className: 'col-span-6',
-
-                    },
+                    },                   
                 ]}
                 labelAlign="left"
                 labelCol={4}
@@ -157,6 +159,6 @@ const ContractForm: React.FC<Props> = props => {
             />
         </AppModalContainer>
     );
-};
+});
 
 export default ContractForm;

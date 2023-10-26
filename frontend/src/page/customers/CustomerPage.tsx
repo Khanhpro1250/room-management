@@ -15,7 +15,8 @@ import { CustomerFormRef } from './components/CustomerForm';
 import Loading from '~/component/Elements/loading/Loading';
 import { Service } from '~/types/shared/Service';
 import { ServiceRoomRef } from '~/page/customers/components/ServiceRoom';
-import ContractForm from './components/ContractForm';
+import ContractForm, { ContractFormRef } from './components/ContractForm';
+import { Contract } from '~/types/shared/Contract';
 const CustomerForm = React.lazy(() => import('~/page/customers/components/CustomerForm'));
 const ServiceRoom = React.lazy(() => import('~/page/customers/components/ServiceRoom'));
 
@@ -24,6 +25,7 @@ interface State {
     initData: {
         customer: Customer;
         services: Service[];
+        contract: Contract;
     };
 }
 
@@ -40,10 +42,12 @@ const CustomerPage: React.FC = () => {
         initData: {
             customer: {} as Customer,
             services: [],
+            contract: {} as Contract,
         },
     });
     const customerFormRef = useRef<CustomerFormRef>(null);
     const serviceRoomRef = useRef<ServiceRoomRef>(null);
+    const contractFormRef = useRef<ContractFormRef>(null);
 
     const title = () => {
         switch (currentTab) {
@@ -86,6 +90,7 @@ const CustomerPage: React.FC = () => {
                 initData: {
                     customer: data?.customer,
                     services: data?.services,
+                    contract: data?.contract,
                 },
             });
         }
@@ -120,6 +125,9 @@ const CustomerPage: React.FC = () => {
                             if (currentTab === 'service') {
                                 serviceRoomRef.current?.onSave();
                             }
+                            if (currentTab === 'contract') {
+                                contractFormRef.current?.onSave();
+                            }
                         }}
                     />
                 </div>
@@ -144,7 +152,7 @@ const CustomerPage: React.FC = () => {
                     <>123123</>
                 </TabPane>
                 <TabPane tab={<div className="text-[16px]">Hợp đồng</div>} key="contract">
-                    <ContractForm />
+                    <ContractForm ref={contractFormRef} roomId={roomId} customer={state.initData.customer} initialValues={state.initData.contract} />
                 </TabPane>
             </Tabs>
         </AppContainer>
