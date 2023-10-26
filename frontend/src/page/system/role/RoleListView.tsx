@@ -67,7 +67,7 @@ const RoleListView: React.FC<Props> = props => {
                 }}
                 onClose={modalRef.current?.onClose}
             />,
-            'Cập nhật Menu',
+            'Thêm người dùng',
             '50%',
         );
     };

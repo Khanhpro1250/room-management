@@ -10,7 +10,10 @@ namespace backend.Services.RoleServices
         Task<RoleDto> GetRoleById(string roleId);
         Task<RoleDto> CreateRole(CreateUpdateRoleDto role);
         Task<RoleDto> UpdateRole(CreateUpdateRoleDto role, string id);
+        Task<RoleDto> UpdateRoleUser(UpdateUserRoleDto userRoleDto);
         Task<List<ComboOptionDto>> GetComboRole();
         Task DeleteRole(string id);
+
+        Task<List<string>> GetPermissionWithCurrentUser();
     }
 }

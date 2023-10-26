@@ -76,14 +76,14 @@ public class UserService : IUserService
     
 
 
-    public async Task<List<ComboOptionDto>> GetComboUser()
+    public async Task<List<ComboOptionKeyTitleDto>> GetComboUser()
     {
         var queryable = _userAccountRepository.GetQueryable();
         var listUser = await queryable.Find(x => true).ToListAsync();
-        var result = listUser.Select(x => new ComboOptionDto()
+        var result = listUser.Select(x => new ComboOptionKeyTitleDto()
         {
-            Value = x.Id,
-            Label = $"{x.UserCode} - {x.FullName}"
+            Key = x.Id,
+            Title = $"{x.UserCode} - {x.FullName}"
         }).ToList();
         return result;
     }

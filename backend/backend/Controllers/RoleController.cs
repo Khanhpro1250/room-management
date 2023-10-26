@@ -47,7 +47,7 @@ namespace backend.Controllers
             return ApiResponse<RoleDto>.Ok(result);
         }
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("delete/{id}")] 
         public async Task<ApiResponse> DeleteAction([FromRoute] string id)
         {
             await _roleService.DeleteRole(id);
@@ -57,8 +57,16 @@ namespace backend.Controllers
         [HttpGet("combo")]
         public async Task<ApiResponse<List<ComboOptionDto>>> GetComboRole()
         {
-            var result = await _roleService.GetComboRole();
+            var result = await _roleService.GetComboRole(); 
             return ApiResponse<List<ComboOptionDto>>.Ok(result);
         }
+        
+        [HttpPut("update-user-role")]
+        public async Task<ApiResponse<RoleDto>> UpdateRoleUser([FromBody] UpdateUserRoleDto userRoleDto)
+        {
+            var result = await _roleService.UpdateRoleUser(userRoleDto);
+            return ApiResponse<RoleDto>.Ok(result);
+        }
+        
     }
 }

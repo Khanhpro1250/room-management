@@ -3,6 +3,8 @@ using backend.Controllers.Dtos.Responese;
 using backend.DTOs.MenuDtos;
 using backend.Models.Entities.Menus;
 using backend.Models.Repositorties.MenuRepositories;
+using backend.Services.RoleServices;
+using backend.Services.UserServices;
 using MongoDB.Driver;
 
 namespace backend.Services.MenuService;
@@ -11,31 +13,35 @@ public class MenuService : IMenuService
 {
     private readonly IMenuRepository _menuRepository;
     private readonly IMapper _mapper;
+    private readonly IRoleService _roleService;
+    private readonly ICurrentUser _currentUser;
 
-    public MenuService(IMenuRepository menuRepository, IMapper mapper)
+    public MenuService(IMenuRepository menuRepository, IMapper mapper, IRoleService roleService,
+        ICurrentUser currentUser)
     {
         _menuRepository = menuRepository;
         _mapper = mapper;
+        _roleService = roleService;
+        _currentUser = currentUser;
     }
 
     public async Task<PaginatedList<MenuDto>> GetListMenus()
     {
-        // var menuList = await _menuRepository.GetListMenu();
-        // var result = _mapper.Map<List<Menu>, List<MenuDto>>(menuList);
         var queryable = _menuRepository.GetQueryable();
         var listMenu = await queryable
             .Find(x => true)
             .ToListAsync();
-
         return new PaginatedList<MenuDto>(_mapper.Map<List<Menu>, List<MenuDto>>(listMenu), listMenu.Count, 0, 10);
-
-
-        // return new PaginatedList<MenuDto>();
     }
 
     public async Task<List<MenuLayoutDto>> GetMenuLayout()
     {
-        var menuList = await _menuRepository.GetListMenu();
+        var isAdmin = _currentUser.IsAdmin;
+        var roles = await _roleService.GetPermissionWithCurrentUser();
+        var queryable = _menuRepository.GetQueryable();
+
+        var menuList = await queryable.Find(x => isAdmin || roles.Contains(x.Permissions)).ToListAsync();
+
         var listMenuLayout = new List<MenuLayoutDto>();
         foreach (var menu in menuList)
         {
@@ -51,7 +57,7 @@ public class MenuService : IMenuService
                 Path = menu.Path,
                 BreadCrumbs = BuildTreeGroup(menu.Path, menuList),
                 Permissions = menu.Permissions,
-                HasPermissionToAccess = true
+                HasPermissionToAccess = isAdmin || roles.Contains(menu.Permissions)
             });
         }
 
@@ -96,6 +102,7 @@ public class MenuService : IMenuService
         {
             menuDto.Path = menuDto.Id;
         }
+
         var updateMenu = _mapper.Map<CreateUpdateMenuDto, Menu>(menuDto);
         var result = await _menuRepository.UpdateMenu(updateMenu, id);
         return _mapper.Map<Menu, MenuDto>(result);

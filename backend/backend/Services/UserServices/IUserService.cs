@@ -16,5 +16,5 @@ public interface IUserService
 
     Task<bool> IsValidUserRegister(CreateUpdateUserDtos userDtos);
 
-    Task<List<ComboOptionDto>> GetComboUser();
+    Task<List<ComboOptionKeyTitleDto>> GetComboUser();
 }
