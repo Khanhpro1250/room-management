@@ -10,9 +10,9 @@ import React from "react";
 import { ChevronLeftIcon } from "react-native-heroicons/outline";
 import InputText from "../components/InputText";
 import ButtonPrimary from "../components/ButtonPrimary";
-import {Colors} from "../utils/Colors";
+import { Colors } from "../utils/Colors";
 
-export default function OTPVerificationScreen() {
+export default function OTPVerificationScreen({ navigation }) {
   return (
     <SafeAreaView
       style={{
@@ -24,6 +24,9 @@ export default function OTPVerificationScreen() {
       <View style={{ flex: 1, marginHorizontal: 22 }}>
         {/* button back */}
         <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
+          }}
           style={{
             borderRadius: 12,
             borderWidth: 1,
