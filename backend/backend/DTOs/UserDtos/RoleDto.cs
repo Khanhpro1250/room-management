@@ -1,4 +1,6 @@
-﻿namespace backend.DTOs.UserDtos
+﻿using Newtonsoft.Json;
+
+namespace backend.DTOs.UserDtos
 {
     public class RoleDto
     {
@@ -9,5 +11,7 @@
         public DateTime? LastModifiedTime { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }
+        [JsonProperty("userIds")]
+        public List<string> UserIds { get; set; }
     }
 }
