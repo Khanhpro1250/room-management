@@ -1,8 +1,9 @@
 import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
-import { ColDef, ColGroupDef, GetDataPath, ModuleRegistry } from '@ag-grid-community/core';
+import { ColDef, ColGroupDef, FirstDataRenderedEvent, GetDataPath, ModuleRegistry } from '@ag-grid-community/core';
 import { AgGridReact } from '@ag-grid-community/react';
 import { RowGroupingModule } from '@ag-grid-enterprise/row-grouping';
 import { faEdit, faFile, faPlus, faTrash, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { GridReadyEvent, RowNode, RowSelectedEvent } from 'ag-grid';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { Popconfirm } from 'antd';
@@ -10,21 +11,23 @@ import _ from 'lodash';
 import React, { ReactChild } from 'react';
 import { ButtonBase } from '../Elements/Button/ButtonBase';
 import './styles/BaseGrid.scss';
-import { RowSelectedEvent } from 'ag-grid';
 
-export interface BaseGridColDef extends ColDef, Partial<ColGroupDef> {}
+export interface BaseGridColDef extends ColDef, Partial<ColGroupDef> { }
 
 ModuleRegistry.registerModules([ClientSideRowModelModule, RowGroupingModule]);
 
 export interface BaseGridProps {
     columnDefs: BaseGridColDef[];
+    gridOptions?: GridConfig | undefined;
     data: any[] | undefined;
     defaultColDef?: BaseGridColDef;
     gridConfig?: GridConfig;
     numberRows?: boolean;
     rowSelection?: 'single' | 'multiple';
     onRowSelected?: (event: RowSelectedEvent) => void;
+    onFirstDataRendered?: (params: FirstDataRenderedEvent) => void;
     isRowSelectable?: (rowNode: any) => boolean;
+    onGridReady?: (event: GridReadyEvent) => void;
     actionRows?: boolean;
     actionRowsList?: {
         hasEditBtn?: boolean;
@@ -32,13 +35,14 @@ export interface BaseGridProps {
         hasDetailBtn?: boolean;
         hasCreateChildBtn?: boolean;
         hasAddUserBtn?: boolean;
-        onClickEditBtn?: (data: any) => void;
-        onClickDeleteBtn?: (data: any) => void;
-        onClickDetailBtn?: (data: any) => void;
-        onClickCreateChildBtn?: (data: any) => void;
-        onClickAddUserBtn?: (data: any) => void;
+        onClickEditBtn?: (data: any, rowNode?: RowNode) => void;
+        onClickDeleteBtn?: (data: any, rowNode?: RowNode) => void;
+        onClickDetailBtn?: (data: any, rowNode?: RowNode) => void;
+        onClickCreateChildBtn?: (data: any, rowNode?: RowNode) => void;
+        onClickAddUserBtn?: (data: any, rowNode?: RowNode) => void;
     };
     actionRowsWidth?: number;
+
     treeData?: boolean;
     getDataPath?: GetDataPath;
     groupDefaultExpanded?: number;
@@ -47,9 +51,9 @@ export interface BaseGridProps {
     children?: ReactChild; // grid tool bar
 }
 
-interface GridConfig {}
+interface GridConfig { }
 
-export interface BaseGridRef extends AgGridReact {}
+export interface BaseGridRef extends AgGridReact { }
 
 const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
     const { numberRows = true, actionRows = true, actionRowsList, pagination = true } = props;
@@ -57,20 +61,20 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
     const customColDefs = (
         numberRows
             ? [
-                  {
-                      field: 'stt',
-                      headerName: 'STT',
-                      width: 60,
-                      cellStyle: {
-                          textAlign: 'center',
-                      },
-                      valueGetter: params => {
-                          const rowIndex = _.get(params, 'node.rowIndex');
+                {
+                    field: 'stt',
+                    headerName: 'STT',
+                    width: 60,
+                    cellStyle: {
+                        textAlign: 'center',
+                    },
+                    valueGetter: params => {
+                        const rowIndex = _.get(params, 'node.rowIndex');
 
-                          return Number(rowIndex) + 1;
-                      },
-                  },
-              ]
+                        return Number(rowIndex) + 1;
+                    },
+                },
+            ]
             : []
     ) as BaseGridColDef[];
 
@@ -86,6 +90,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
             },
             cellRenderer: (params: any) => {
                 const data = _.get(params, 'data');
+                const rowNode = _.get(params, 'node');
                 return (
                     <div className="w-full h-full flex items-center justify-center">
                         {actionRowsList?.hasDetailBtn && (
@@ -93,7 +98,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                                 startIcon={faFile}
                                 variant={'primary'}
                                 onClick={() => {
-                                    actionRowsList.onClickDetailBtn?.(data);
+                                    actionRowsList.onClickDetailBtn?.(data, rowNode);
                                 }}
                                 tooltip="Chi tiết"
                             />
@@ -103,7 +108,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                                 startIcon={faPlus}
                                 variant={'primary'}
                                 onClick={() => {
-                                    actionRowsList.onClickCreateChildBtn?.(data);
+                                    actionRowsList.onClickCreateChildBtn?.(data, rowNode);
                                 }}
                                 tooltip="Thêm dữ liệu con"
                             />
@@ -113,7 +118,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                                 startIcon={faUserPlus}
                                 variant={'primary'}
                                 onClick={() => {
-                                    actionRowsList.onClickAddUserBtn?.(data);
+                                    actionRowsList.onClickAddUserBtn?.(data, rowNode);
                                 }}
                                 tooltip="Thêm khách thuê"
                             />
@@ -123,7 +128,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                                 startIcon={faEdit}
                                 variant={'success'}
                                 onClick={() => {
-                                    actionRowsList.onClickEditBtn?.(data);
+                                    actionRowsList.onClickEditBtn?.(data, rowNode);
                                 }}
                                 tooltip="Cập nhật"
                             />
@@ -132,7 +137,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                             <Popconfirm
                                 placement="topRight"
                                 title={'Bạn có chắc muốn xóa ?'}
-                                onConfirm={e => actionRowsList.onClickDeleteBtn?.(data)}
+                                onConfirm={e => actionRowsList.onClickDeleteBtn?.(data, rowNode)}
                                 okText="Đồng ý"
                                 cancelText="Đóng"
                             >
@@ -161,17 +166,23 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                         }}
                         suppressAutoSize
                         pagination={pagination}
-                        onGridReady={params => params.api.sizeColumnsToFit()}
+                        onGridReady={(params: any) => {
+                            return props?.onGridReady?.(params);
+                        }}
                         treeData={props.treeData}
                         animateRows
                         getDataPath={props.getDataPath}
                         groupDefaultExpanded={props.groupDefaultExpanded}
                         detailCellRenderer
+                        onFirstDataRendered={(params: any) => {
+                            return props?.onFirstDataRendered?.(params);
+                        }}
                         suppressRowClickSelection={true}
                         onRowSelected={(event: any) => {
                             return props?.onRowSelected?.(event);
                         }}
-                        rowSelection={'multiple'}
+                        rowSelection={'multiple'}                            
+                        gridOptions={props.gridOptions}
                         {...props.gridConfig}
                     />
                 )}

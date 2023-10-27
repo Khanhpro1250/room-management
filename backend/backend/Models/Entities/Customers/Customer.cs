@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using backend.Models.Entities.Services;
+using Newtonsoft.Json;
 
 namespace backend.Models.Entities.Customers
 {
@@ -80,5 +81,26 @@ namespace backend.Models.Entities.Customers
         /// </summary>
         [JsonProperty("fileUrls")] 
         public List<string> FileUrls { get; set; }
+        
+        [JsonProperty("members")] 
+        public List<Member> Members { get; set; }
+        
+        [JsonProperty("services")] 
+        public List<ServiceCustomer> Services { get; set; }
+    }
+    
+    public class Member : Entity
+    {
+        public string Name { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public string IdentityNo { get; set; }
+        public string PermanentAddress { get; set; }
+        public string PhoneNumber { get; set; }
+        public string VehicleNumber { get; set; }
+        /// <summary>
+        /// Ngày đăng kí thường trú
+        /// </summary>
+        public DateTime? TemporarilyDate { get; set; }
     }
 }
+

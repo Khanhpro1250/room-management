@@ -23,3 +23,14 @@ export interface Customer extends AuditedEntity {
     roomId: string;
     fileUrls: string[];
 }
+
+export interface Member {
+    id: string;
+    name: string;
+    dateOfBirth: Date;
+    identityNo: string;
+    permanentAddress: string;
+    phoneNumber: string;
+    vehicleNumber: string;
+    temporarilyAbsentDate: Date;
+}

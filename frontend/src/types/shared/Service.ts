@@ -7,3 +7,8 @@ export interface Service {
     unit: string;
     status: boolean;
 }
+export interface ServiceCustomer {
+    serviceId: string;
+    price: number;
+    quantity: number;
+}

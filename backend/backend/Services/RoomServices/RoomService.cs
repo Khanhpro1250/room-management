@@ -96,11 +96,12 @@ public class RoomService : IRoomService
     public async Task<DataWithRoomDto> GetDataWithRoom(string roomId)
     {
         var customer = await _customerService.GetCustomerByRoomId(roomId);
-        var services = await _serviceService.GetListServiceRegister();
+        var listServices = await _serviceService.GetListServiceRegister();
         return new DataWithRoomDto()
         {
             Customer = customer,
-            Services = services
+            ListServices = listServices,
+            Services = customer.Services
             
         };
     }

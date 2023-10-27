@@ -1,21 +1,20 @@
-import { Method } from 'axios';
 import React, { useImperativeHandle, useRef } from 'react';
-import { BaseFormRef } from '~/component/Form/BaseForm';
 import NotificationConstant from '~/configs/contants';
 
-import { Input, InputNumber } from 'antd';
+import { InputNumber } from 'antd';
+import _ from 'lodash';
 import { OverlayRef } from '~/component/Elements/loading/Overlay';
 import BaseGrid, { BaseGridColDef, BaseGridRef } from '~/component/Grid/BaseGrid';
-import { ModalRef } from '~/component/Modal/ModalBase';
 import { requestApi } from '~/lib/axios';
-import { Service } from '~/types/shared/Service';
+import { Service, ServiceCustomer } from '~/types/shared/Service';
 import NotifyUtil from '~/util/NotifyUtil';
-import { CUSTOMER_CREATE_API, CUSTOMER_UPDATE_API } from '../api/customer.api';
-import _, { debounce } from 'lodash';
+import { CUSTOMER_UPDATE_SERVICE_CUSTOMER_API } from '../api/customer.api';
+import '../styles/index.scss'
 interface Props {
-    parentId?: string | null;
+    customerId?: string | null;
     readonly?: boolean;
-    initialValues?: Service[];
+    initialValues?: ServiceCustomer[];
+    listServices?: Service[];
     onClose?: () => void;
     onSubmitSuccessfully?: () => void;
 }
@@ -23,64 +22,54 @@ interface Props {
 export interface ServiceRoomRef {
     onSave: () => void;
 }
-const ServiceRoom = React.forwardRef<ServiceRoomRef, Props>((props, ref): JSX.Element => {
-    const formRef = useRef<BaseFormRef>(null);
-    const overlayRef = useRef<OverlayRef>(null);
-    const modalRef = useRef<ModalRef>(null);
-    const gridRef = useRef<BaseGridRef>(null);
+const ServiceRoom = React.memo(React.forwardRef<ServiceRoomRef, Props>((props, ref): JSX.Element => {
 
-    const initData = (props.initialValues || []).map((item: Service) => {
+    const overlayRef = useRef<OverlayRef>(null);
+    const gridRef = useRef<BaseGridRef>(null);
+    const { readonly = false } = props;
+
+    const listServices = (props.listServices || []).map((item: Service) => {
+        const service = (props.initialValues || []).find((x: ServiceCustomer) => x.serviceId === item.id);
         return {
             serviceId: item.id,
             name: item.name,
-            price: item.price,
+            price: service?.price ?? item.price,
             unit: item.unit,
-            quantity: 1,
+            quantity: service?.quantity ?? 1,
+            selected: !_.isUndefined(service),
         };
     });
+
     const onSubmit = async () => {
-        console.log('onSubmit', initData);
-        // const urlParams: Record<
-        //     string,
-        //     {
-        //         url: string;
-        //         method: Method;
-        //         message: string;
-        //     }
-        // > = {
-        //     create: {
-        //         url: CUSTOMER_CREATE_API,
-        //         method: 'post',
-        //         message: NotificationConstant.DESCRIPTION_CREATE_SUCCESS,
-        //     },
-        //     update: {
-        //         url: `${CUSTOMER_UPDATE_API}/${props.initialValues?.id}`,
-        //         method: 'put',
-        //         message: NotificationConstant.DESCRIPTION_UPDATE_SUCCESS,
-        //     },
-        // };
-        // const formValues = formRef.current?.getFieldsValue();
-        // const urlParam = props.initialValues ? urlParams.update : urlParams.create;
-        // overlayRef.current?.open();
-        // const response = await requestApi(urlParam.method, urlParam.url, {
-        //     ...formValues,
-        // });
-        // if (response.data?.success) {
-        //     NotifyUtil.success(NotificationConstant.TITLE, urlParam.message);
-        //     props?.onSubmitSuccessfully?.();
-        //     props.onClose?.();
-        //     overlayRef.current?.close();
-        //     return;
-        // } else {
-        //     NotifyUtil.error(NotificationConstant.TITLE, response?.data?.message ?? 'Có lỗi xảy ra');
-        //     props.onClose?.();
-        //     overlayRef.current?.close();
-        //     return;
-        // }
+        const serviceValuesSelected = gridRef.current?.api.getSelectedRows() as any[];
+        const listServices = serviceValuesSelected.map(row => {
+            return {
+                price: row.price,
+                quantity: row.quantity,
+                serviceId: row.serviceId,
+            } as ServiceCustomer;
+        });
+
+        overlayRef.current?.open();
+        const response = await requestApi('PUT', `${CUSTOMER_UPDATE_SERVICE_CUSTOMER_API}/${props.customerId}`, {
+            services: listServices,
+        });
+        if (response.data?.success) {
+            NotifyUtil.success(NotificationConstant.TITLE, 'Successfully');
+            props?.onSubmitSuccessfully?.();
+            props.onClose?.();
+            overlayRef.current?.close();
+            return;
+        } else {
+            NotifyUtil.error(NotificationConstant.TITLE, response?.data?.message ?? 'Có lỗi xảy ra');
+            props.onClose?.();
+            overlayRef.current?.close();
+            return;
+        }
     };
 
     const onInputChange = (data: any) => {
-        initData.forEach((item: any) => {
+        listServices.forEach((item: any) => {
             if (item.serviceId === data.serviceId) {
                 item = data;
             }
@@ -92,6 +81,9 @@ const ServiceRoom = React.forwardRef<ServiceRoomRef, Props>((props, ref): JSX.El
             headerName: 'Dich vụ sử dụng',
             field: nameof.full<Service>(x => x.name),
             minWidth: 300,
+            headerCheckboxSelection: !readonly,
+            headerCheckboxSelectionFilteredOnly: !readonly,
+            checkboxSelection: true,
             flex: 1,
         },
         {
@@ -99,9 +91,14 @@ const ServiceRoom = React.forwardRef<ServiceRoomRef, Props>((props, ref): JSX.El
             field: nameof.full<Service>(x => x.price),
             minWidth: 200,
             cellStyle: { textAlign: 'right' },
+            // editable: !readonly,            
+            // valueFormatter: (params: any) => {
+            //     return params.value.toLocaleString('vi', { maximumFractionDigits: 2 });
+            // }
             cellRenderer: (params: any) => {
-                return (
+                return !readonly ? (
                     <InputNumber
+                        type='number'
                         onChange={e => {
                             params.setValue(`${e}`);
                             onInputChange({ ...params.data, params: e });
@@ -109,6 +106,8 @@ const ServiceRoom = React.forwardRef<ServiceRoomRef, Props>((props, ref): JSX.El
                         style={{ textAlign: 'right', width: '100%' }}
                         value={params.value}
                     />
+                ) : (
+                    <div style={{ textAlign: 'right', width: '100%' }}>{params.value.toLocaleString('vi', { maximumFractionDigits: 2 })}</div>
                 );
             },
         },
@@ -121,18 +120,24 @@ const ServiceRoom = React.forwardRef<ServiceRoomRef, Props>((props, ref): JSX.El
             headerName: 'Số lượng',
             field: 'quantity',
             width: 150,
-            cellStyle: { textAlign: 'center' },
-            type: 'number',
+            cellStyle: { textAlign: 'right' },
+            // editable: !readonly,
+            // valueFormatter: (params: any) => {
+            //     return params.value.toLocaleString('vi', { maximumFractionDigits: 2 });
+            // },
             cellRenderer: (params: any) => {
-                return (
+                return !readonly ? (
                     <InputNumber
                         style={{ textAlign: 'right', width: '100%' }}
                         value={params.value}
+                        type='number'
                         onChange={e => {
                             params.setValue(`${e}`);
                             onInputChange({ ...params.data, quantity: e });
                         }}
                     />
+                ) : (
+                    <div style={{ textAlign: 'right', width: '100%' }}>{params.value.toLocaleString('vi', { maximumFractionDigits: 2 })}</div>
                 );
             },
         },
@@ -146,19 +151,35 @@ const ServiceRoom = React.forwardRef<ServiceRoomRef, Props>((props, ref): JSX.El
         [],
     );
 
-    const handleCancel = () => modalRef.current?.onClose();
-
     return (
         <BaseGrid
+            ref={gridRef}
+            onGridReady={(params) => {
+                const gridApi = params.api;
+                gridApi.forEachNode((node) => {
+                    if (node.data.selected) {
+                        node.setSelected(true);
+                    }
+                });
+            }}
+            key={props.customerId}
             columnDefs={ServiceColDefs}
-            data={initData}
+            data={listServices}
             numberRows={false}
             pagination={false}
             actionRows={false}
             actionRowsWidth={120}
-            ref={gridRef}
+            gridOptions={{
+                rowClassRules: {
+                    'ag-row-selected': (params: any) => {
+                        console.log(params.node.selected === true && readonly)
+                        return readonly;
+                    },
+                },
+            }}
         />
     );
-});
+})
+);
 
 export default ServiceRoom;

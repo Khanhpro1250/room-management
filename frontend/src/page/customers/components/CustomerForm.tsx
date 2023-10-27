@@ -29,6 +29,7 @@ interface Props {
     initialValues?: Partial<Customer>;
     onClose?: () => void;
     onSubmitSuccessfully?: () => void;
+  
 }
 
 type State = {
@@ -38,9 +39,11 @@ type State = {
 
 export interface CustomerFormRef {
     onSave: () => void;
+    isValid: ()=> void;
 }
 const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.Element => {
     const formRef = useRef<BaseFormRef>(null);
+   
     const overlayRef = useRef<OverlayRef>(null);
     const modalRef = useRef<ModalRef>(null);
     const [state, setState] = useMergeState<State>({
@@ -78,6 +81,9 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                 message: NotificationConstant.DESCRIPTION_UPDATE_SUCCESS,
             },
         };
+        if (!formRef.current?.isFieldsValidate()){
+            return;
+        }
         const formValues = formRef.current?.getFieldsValue();
         const urlParam = props.initialValues ? urlParams.update : urlParams.create;
         overlayRef.current?.open();
@@ -141,6 +147,9 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
         ref,
         () => ({
             onSave: onSubmit,
+            isValid() {
+                return formRef.current?.isFieldsValidate();
+            },
         }),
         [],
     );
@@ -189,7 +198,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                         label: 'Ngày cấp',
                         name: nameof.full<Customer>(x => x.issueDate),
                         children: (
-                            <DatePicker
+                            <DatePicker                            
                                 className="w-full"
                                 disabled={props.readonly}
                                 placeholder="Ngày cấp"

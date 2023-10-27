@@ -7,6 +7,7 @@ namespace backend.DTOs.RoomDtos;
 public class DataWithRoomDto
 {
     public CustomerDto Customer { get; set; }
-    public List<ServiceDto> Services { get; set; }
+    public List<ServiceDto> ListServices { get; set; }
+    public List<ServiceCustomerDto> Services { get; set; }
     public ContractDto Contract { get; set; }
 }

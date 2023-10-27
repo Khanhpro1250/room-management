@@ -5,6 +5,7 @@ using backend.Services.MenuService;
 using Microsoft.AspNetCore.Mvc;
 using backend.Services.CustomerServices;
 using backend.DTOs.CustomerDtos;
+using backend.DTOs.ServiceDtos;
 
 namespace backend.Controllers
 {
@@ -56,6 +57,13 @@ namespace backend.Controllers
             var result = await _customerService.UpdateCustomer(customerDto, id);
             return ApiResponse<CustomerDto>.Ok(result);
         }
+        
+        [HttpPut("update-service-customer/{id}")]
+        public async Task<ApiResponse<CustomerDto>> UpdateServiceCustomerAction([FromBody] UpdateServicesCustomerDto updateServicesCustomerDto, [FromRoute] string id)
+        {
+            var result = await _customerService.UpdateServiceCustomer(updateServicesCustomerDto, id);
+            return ApiResponse<CustomerDto>.Ok(result);
+        }
 
         [HttpDelete("delete/{id}")]
         public async Task<ApiResponse> DeleteAction([FromRoute] string id)
@@ -63,5 +71,7 @@ namespace backend.Controllers
             await _customerService.DeleteCustomer(id);
             return ApiResponse.Ok();
         }
+        
+        
     }
 }
