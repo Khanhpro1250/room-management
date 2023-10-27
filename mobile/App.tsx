@@ -42,13 +42,6 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        {!loading && (
-          <Stack.Screen
-            name="Welcome"
-            component={WelcomScreen}
-            options={{ headerShown: false }}
-          />
-        )}
         <Stack.Screen
           name="HomeUINavigation"
           component={HomeUINavigation}
@@ -59,6 +52,14 @@ export default function App() {
           component={ForgotPasswordScreen}
           options={{ headerShown: false }}
         />
+        {!loading && (
+          <Stack.Screen
+            name="Welcome"
+            component={WelcomScreen}
+            options={{ headerShown: false }}
+          />
+        )}
+
         <Stack.Screen
           name="AddRequest"
           component={CreateRequestScreen}
