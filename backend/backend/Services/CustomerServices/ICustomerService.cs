@@ -1,6 +1,7 @@
 ﻿using backend.Controllers.Dtos.Responese;
 using backend.DTOs.CustomerDtos;
 using backend.DTOs.RoomDtos;
+using backend.DTOs.ServiceDtos;
 
 namespace backend.Services.CustomerServices
 {
@@ -11,6 +12,7 @@ namespace backend.Services.CustomerServices
         Task<CustomerDto> GetCustomerByRoomId(string roomId);
         Task<CustomerDto> CreateCustomer(CreateUpdateCustomerDto customer);
         Task<CustomerDto> UpdateCustomer(CreateUpdateCustomerDto customer, string id);
+        Task<CustomerDto> UpdateServiceCustomer(UpdateServicesCustomerDto updateServicesCustomerDto, string id);
         Task DeleteCustomer(string id);
     }
 }

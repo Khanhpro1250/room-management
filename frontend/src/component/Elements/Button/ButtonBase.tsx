@@ -13,7 +13,7 @@ const variants = {
     success: 'bg-emerald-800 text-white hover:bg-white hover:text-green-600 hover:border-green-500',
 };
 
-const sizes = {
+export const sizes = {
     xs: 'py-1 px-2 text-xs',
     sm: 'py-1 px-2 text-sm',
     md: 'py-1 px-4 text-md',
