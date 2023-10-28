@@ -1,4 +1,6 @@
-export interface Customer {
+import { AuditedEntity } from './AuditedEntity';
+
+export interface Customer extends AuditedEntity {
     id: string;
     gender: number;
     fullName: string;

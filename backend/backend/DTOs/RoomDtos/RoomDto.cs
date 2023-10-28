@@ -11,7 +11,7 @@ namespace backend.DTOs.RoomDtos
         public DateTime? LastModifiedTime { get; set; }
         public string RoomTypeId { get; set; }
         public string RoomCode { get; set; }
-        public string HouseID { get; set; }
+        public string HouseId { get; set; }
         public int Number { get; set; }
         public string Acreage { get; set; }
         public int MaxNumberOfPeople { get; set; }
@@ -22,5 +22,6 @@ namespace backend.DTOs.RoomDtos
         public string Status { get; set; }
         public float Deposit { get; set; }
         public string InteriorIds { get; set; }
+        public string StatusName { get; set; }
     }
 }

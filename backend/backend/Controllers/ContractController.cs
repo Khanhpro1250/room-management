@@ -1,10 +1,8 @@
-﻿using backend.Controllers.Dtos.Responese;
-using backend.Controllers.Dtos;
-using backend.DTOs.CustomerDtos;
-using backend.Services.CustomerServices;
-using Microsoft.AspNetCore.Mvc;
-using backend.Services.ContractServices;
+﻿using backend.Controllers.Dtos;
+using backend.Controllers.Dtos.Responese;
 using backend.DTOs.ContractDtos;
+using backend.Services.ContractServices;
+using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
 {
@@ -38,13 +36,16 @@ namespace backend.Controllers
         [HttpPost("create")]
         public async Task<ApiResponse<ContractDto>> CreateAction([FromBody] CreateUpdateContractDto contractDto)
         {
+            await _contractService.ValidateContract(contractDto, null);
             var result = await _contractService.CreateContract(contractDto);
             return ApiResponse<ContractDto>.Ok(result);
         }
 
         [HttpPut("update/{id}")]
-        public async Task<ApiResponse<ContractDto>> UpdateAction([FromBody] CreateUpdateContractDto contractDto, [FromRoute] string id)
+        public async Task<ApiResponse<ContractDto>> UpdateAction([FromBody] CreateUpdateContractDto contractDto,
+            [FromRoute] string id)
         {
+            await _contractService.ValidateContract(contractDto, id);
             var result = await _contractService.UpdateContract(contractDto, id);
             return ApiResponse<ContractDto>.Ok(result);
         }

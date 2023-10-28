@@ -16,6 +16,7 @@ import NotificationConstant from '~/configs/contants';
 import { requestApi } from '~/lib/axios';
 import CustomerForm from '~/page/customers/components/CustomerForm';
 import { useNavigate } from 'react-router-dom';
+import { Status } from '~/component/Grid/Components/Status';
 
 export interface RoomListViewRef {
     onFilter: (formValues: any) => void;
@@ -68,6 +69,19 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
             cellStyle: { textAlign: 'right' },
             cellRenderer: (val: any) => {
                 return Number(val.value ?? 0).toLocaleString('vi', { maximumSignificantDigits: 2 });
+            },
+        },
+        {
+            headerName: 'Trạng thái',
+            field: nameof.full<Room>(x => x.status),
+            minWidth: 120,
+            cellStyle: { textAlign: 'center' },
+            cellRenderer: (params: any) => {
+                return (
+                    <div>
+                        <Status status={params.value} statusName={params.data.statusName}  />
+                    </div>
+                );
             },
         },
     ];
@@ -161,6 +175,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                         data={gridController?.data}
                         ref={gridRef}
                         numberRows={true}
+                        rowHeight={40}
                         pagination={true}
                         actionRowsList={{
                             hasDetailBtn: true,

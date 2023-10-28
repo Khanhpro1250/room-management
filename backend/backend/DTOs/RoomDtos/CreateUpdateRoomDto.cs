@@ -12,7 +12,7 @@ namespace backend.DTOs.RoomDtos
         public DateTime? LastModifiedTime { get; set; }
         public string RoomTypeId { get; set; }
         public string RoomCode { get; set; }
-        public string HouseID { get; set; }
+        public string HouseId { get; set; }
         public int Number { get; set; }
         public string Acreage { get; set; }
         public int MaxNumberOfPeople { get; set; }

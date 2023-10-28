@@ -8,6 +8,7 @@ using backend.Models.Entities.Rooms;
 using backend.Models.Entities.Services;
 using backend.Models.Repositorties.CustomerRepositories;
 using backend.Models.Repositorties.RoomRepositories;
+using backend.Services.UserServices;
 using MongoDB.Driver;
 
 namespace backend.Services.CustomerServices
@@ -16,11 +17,13 @@ namespace backend.Services.CustomerServices
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IMapper _mapper;
+        private ICurrentUser _currentUser;
 
-        public CustomerService(ICustomerRepository customerRepository, IMapper mapper)
+        public CustomerService(ICustomerRepository customerRepository, IMapper mapper, ICurrentUser currentUser)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
+            _currentUser = currentUser;
         }
 
         public async Task<CustomerDto> GetCustomerByRoomId(string roomId)
@@ -31,9 +34,19 @@ namespace backend.Services.CustomerServices
             return result;
         }
 
+        public async Task<List<CustomerDto>> GetCustomerByRoomIds(List<string> roomIds)
+        {
+            var queryable = _customerRepository.GetQueryable();
+            var customers= await queryable.Find(x => roomIds.Contains(x.RoomId)).ToListAsync();
+            var result = _mapper.Map<List<Customer>, List<CustomerDto>>(customers);
+            return result;
+        }
+
         public async Task<CustomerDto> CreateCustomer(CreateUpdateCustomerDto customer)
         {
             var customerEntity = _mapper.Map<CreateUpdateCustomerDto, Customer>(customer);
+            customerEntity.CreatedBy = _currentUser.Id;
+            customerEntity.CreatedTime = DateTime.Now;
             var result = await _customerRepository.CreateCustomer(customerEntity);
             return _mapper.Map<Customer, CustomerDto>(result);
         }
@@ -50,6 +63,8 @@ namespace backend.Services.CustomerServices
         {
             await _customerRepository.DeleteCustomer(id);
         }
+
+        
 
         public async Task<PaginatedList<CustomerDto>> GetListCustomer()
         {
@@ -68,6 +83,9 @@ namespace backend.Services.CustomerServices
         public async Task<CustomerDto> UpdateCustomer(CreateUpdateCustomerDto customer, string id)
         {
             var customerEntity = _mapper.Map<CreateUpdateCustomerDto, Customer>(customer);
+            customerEntity.LastModifiedBy = _currentUser.Id;
+            customerEntity.LastModifiedTime = DateTime.Now;
+
             var result = await _customerRepository.UpdateCustomer(customerEntity, id);
             return _mapper.Map<Customer, CustomerDto>(result);
         }

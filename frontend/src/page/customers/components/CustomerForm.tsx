@@ -34,8 +34,12 @@ interface Props {
 
 type State = {
     imageList: UploadFile[];
-    fileUrls: string[];
+    // fileUrls: string[];
 };
+
+type ImageListRef = {
+    fileUrls: string[];
+}
 
 export interface CustomerFormRef {
     onSave: () => void;
@@ -43,7 +47,9 @@ export interface CustomerFormRef {
 }
 const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.Element => {
     const formRef = useRef<BaseFormRef>(null);
-   
+    const imageListRef = useRef<ImageListRef>({
+        fileUrls: props.initialValues?.fileUrls ?? []
+    });
     const overlayRef = useRef<OverlayRef>(null);
     const modalRef = useRef<ModalRef>(null);
     const [state, setState] = useMergeState<State>({
@@ -58,7 +64,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                         thumbUrl: url,
                     } as UploadFile),
             ) ?? [],
-        fileUrls: props.initialValues?.fileUrls ?? [],
+        // fileUrls: props.initialValues?.fileUrls ?? [],
     });
 
     const onSubmit = async () => {
@@ -90,7 +96,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
             roomId: props?.parentId,
-            fileUrls: state.fileUrls,
+            fileUrls: imageListRef.current.fileUrls,
         });
 
         if (response.data?.success) {
@@ -107,13 +113,15 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
         }
     };
 
-    const handleChange: UploadProps['onChange'] = ({ fileList, file }) => {
-        if (file.status === 'done') {
+    const handleChange: UploadProps['onChange'] = async ({ fileList, file }) => {
+        if ( await file.status === 'done') {
+            
             const result = _.get(file.response, 'result');
-            setState({
-                fileUrls: [...state.fileUrls, result.fileUrl],
-                // imageList: fileList
-            });
+            // setState({
+            //     fileUrls: [...state.fileUrls, result.fileUrl],
+            //     // imageList: fileList
+            // });
+            imageListRef.current.fileUrls = [...imageListRef.current.fileUrls, result.fileUrl];
         }
         setState({ imageList: fileList });
     };
@@ -133,7 +141,8 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
 
     const onRemove = (file: UploadFile) => {
         const fileUrl = file.url ? file.url : _.get(file.response, 'fileUrl');
-        setState({ fileUrls: state.fileUrls.filter(url => url !== fileUrl) });
+        imageListRef.current.fileUrls = imageListRef.current.fileUrls.filter(url => url !== fileUrl);
+        // setState({ fileUrls: state.fileUrls.filter(url => url !== fileUrl) });
     };
 
     const uploadButton = (
@@ -382,7 +391,6 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                                 />
                             </>
                         ),
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                         className: 'col-span-6',
                     },
                 ]}

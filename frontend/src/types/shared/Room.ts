@@ -10,4 +10,6 @@ export interface Room {
     description: string;
     fileUrls: string[] | null;
     file: string[] | null;
+    status: string;
+    statusName: string;
 }

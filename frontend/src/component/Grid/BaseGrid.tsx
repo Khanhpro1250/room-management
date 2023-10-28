@@ -23,6 +23,7 @@ export interface BaseGridProps {
     defaultColDef?: BaseGridColDef;
     gridConfig?: GridConfig;
     numberRows?: boolean;
+    rowHeight?: number;
     rowSelection?: 'single' | 'multiple';
     onRowSelected?: (event: RowSelectedEvent) => void;
     onFirstDataRendered?: (params: FirstDataRenderedEvent) => void;
@@ -159,11 +160,11 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                         rowData={props.data}
                         autoGroupColumnDef={props.autoGroupColumnDef}
                         columnDefs={customColDefs}
-                        defaultColDef={{
-                            resizable: true,
-                            floatingFilter: false,
-                            ...props.defaultColDef,
-                        }}
+                        // defaultColDef={{
+                        //     resizable: true,
+                        //     floatingFilter: false,
+                        //     ...props.defaultColDef,
+                        // }}
                         suppressAutoSize
                         pagination={pagination}
                         onGridReady={(params: any) => {
@@ -173,7 +174,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                         animateRows
                         getDataPath={props.getDataPath}
                         groupDefaultExpanded={props.groupDefaultExpanded}
-                        detailCellRenderer
+                        // detailCellRenderer
                         onFirstDataRendered={(params: any) => {
                             return props?.onFirstDataRendered?.(params);
                         }}
@@ -183,6 +184,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                         }}
                         rowSelection={'multiple'}                            
                         gridOptions={props.gridOptions}
+                        rowHeight={props.rowHeight ?? 40}
                         {...props.gridConfig}
                     />
                 )}
