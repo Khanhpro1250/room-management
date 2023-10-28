@@ -34,6 +34,14 @@ namespace backend.Services.CustomerServices
             return result;
         }
 
+        public async Task<List<CustomerDto>> GetCustomerByRoomIds(List<string> roomIds)
+        {
+            var queryable = _customerRepository.GetQueryable();
+            var customers= await queryable.Find(x => roomIds.Contains(x.RoomId)).ToListAsync();
+            var result = _mapper.Map<List<Customer>, List<CustomerDto>>(customers);
+            return result;
+        }
+
         public async Task<CustomerDto> CreateCustomer(CreateUpdateCustomerDto customer)
         {
             var customerEntity = _mapper.Map<CreateUpdateCustomerDto, Customer>(customer);
@@ -55,6 +63,8 @@ namespace backend.Services.CustomerServices
         {
             await _customerRepository.DeleteCustomer(id);
         }
+
+        
 
         public async Task<PaginatedList<CustomerDto>> GetListCustomer()
         {

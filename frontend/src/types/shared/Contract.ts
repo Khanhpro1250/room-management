@@ -4,7 +4,7 @@ export interface Contract {
     roomId: string;
     customerId: string;
     month: string;
-    signedDate: Date | null;
-    effectDate: Date | null;
-    expiredDate: Date | null;
+    signedDate?: Date | null;
+    effectDate?: Date | null;
+    expiredDate?: Date | null;
 }

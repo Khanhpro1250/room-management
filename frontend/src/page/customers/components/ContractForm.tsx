@@ -30,8 +30,14 @@ export interface ContractFormRef {
     onSave: () => void;
 }
 
-const ContractForm= React.forwardRef<ContractFormRef, Props>((props, ref): JSX.Element => {
+const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.Element => {
     const formRef = useRef<BaseFormRef>(null);
+    const initialValues = {
+        ...props.initialValues, 
+        effectDate: props.initialValues?.effectDate ? moment(props.initialValues?.effectDate) : undefined,
+        expiredDate: props.initialValues?.expiredDate ? moment(props.initialValues?.expiredDate) : undefined,
+        signedDate: props.initialValues?.signedDate ? moment(props.initialValues?.signedDate) : undefined,
+    } as Contract;
 
     const onSubmit = async () => {
         const isValidForm = await formRef.current?.isFieldsValidate();
@@ -90,7 +96,7 @@ const ContractForm= React.forwardRef<ContractFormRef, Props>((props, ref): JSX.E
     return (
         <AppModalContainer>
             <BaseForm
-                initialValues={props.initialValues}
+                initialValues={initialValues}
                 ref={formRef}
                 baseFormItem={[
                     {
@@ -107,7 +113,6 @@ const ContractForm= React.forwardRef<ContractFormRef, Props>((props, ref): JSX.E
                             <DatePicker
                                 className="w-full"
                                 // disabled={props.readonly}
-                                value={props.customer?.createdTime ? moment(props.customer?.createdTime) : null}
                                 placeholder='Ngày ký hợp đồng'
                                 format={'DD/MM/YYYY'}
                             />
@@ -122,7 +127,6 @@ const ContractForm= React.forwardRef<ContractFormRef, Props>((props, ref): JSX.E
                             <DatePicker
                                 className="w-full"
                                 // disabled={props.readonly}
-                                value={props.customer?.createdTime ? moment(props.customer?.createdTime) : null}
                                 placeholder='Ngày hiệu lực'
                                 format={'DD/MM/YYYY'}
                             />
@@ -133,7 +137,16 @@ const ContractForm= React.forwardRef<ContractFormRef, Props>((props, ref): JSX.E
                     {
                         label: 'Số tháng',
                         name: nameof.full<Contract>(x => x.month),
-                        children: <Input />,
+                        children: <Input
+                            onChange={(e => {
+                                const val = Number(e.target.value);
+                                const formValue = formRef.current?.getFieldsValue() as Contract;
+                                if (formValue.effectDate) {
+                                    const expiredDate = moment(formValue.effectDate).add(val, 'months');
+                                    formRef.current?.setFieldsValue({ expiredDate: expiredDate })
+                                }
+                            })}
+                        />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                         className: 'col-span-6',
                     },
@@ -145,12 +158,18 @@ const ContractForm= React.forwardRef<ContractFormRef, Props>((props, ref): JSX.E
                                 className="w-full"
                                 // disabled={props.readonly}
                                 placeholder='Ngày kết thúc hợp đồng'
+                                onChange={(e) => {
+                                    const formValue = formRef.current?.getFieldsValue() as Contract;
+                                    const month = moment(e).diff(formValue.effectDate, 'months');
+                                    formRef.current?.setFieldsValue({ month: month })
+
+                                }}
                                 format={'DD/MM/YYYY'}
                             />
                         ),
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }], 
+                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                         className: 'col-span-6',
-                    },                   
+                    },
                 ]}
                 labelAlign="left"
                 labelCol={4}

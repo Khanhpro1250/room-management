@@ -2,6 +2,7 @@
 {
     public class CreateUpdateContractDto
     {
+        public string? Id { get; set; }
         public string ContractNumber { get; set; }
         public string RoomId { get; set; }
         public string CustomerId { get; set; }

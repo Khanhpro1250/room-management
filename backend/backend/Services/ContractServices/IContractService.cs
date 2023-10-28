@@ -1,6 +1,5 @@
 ﻿using backend.Controllers.Dtos.Responese;
 using backend.DTOs.ContractDtos;
-using backend.DTOs.CustomerDtos;
 
 namespace backend.Services.ContractServices
 {
@@ -11,5 +10,9 @@ namespace backend.Services.ContractServices
         Task<ContractDto> CreateContract(CreateUpdateContractDto contract);
         Task<ContractDto> UpdateContract(CreateUpdateContractDto contract, string id);
         Task DeleteContract(string id);
+
+        Task<ContractDto> GetCurrentContractRoomId(string roomId, string? customerId = null);
+
+        Task<bool> ValidateContract(CreateUpdateContractDto contractDto, string id);
     }
 }

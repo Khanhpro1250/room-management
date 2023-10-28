@@ -3,25 +3,21 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Tabs } from 'antd';
 import TabPane from 'antd/lib/tabs/TabPane';
 import qs from 'qs';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
+import Loading from '~/component/Elements/loading/Loading';
 import { AppContainer } from '~/component/Layout/AppContainer';
 import { useMergeState } from '~/hook/useMergeState';
 import { requestApi } from '~/lib/axios';
-import { Customer } from '~/types/shared/Customer';
-import { DATA_WITH_ROOM_API } from '../room/api/room.api';
-import Loading from '~/component/Elements/loading/Loading';
-import ContractForm, { ContractFormRef } from './components/ContractForm';
+import CustomerForm, { CustomerFormRef } from '~/page/customers/components/CustomerForm';
+import ServiceRoom, { ServiceRoomRef } from '~/page/customers/components/ServiceRoom';
 import { Contract } from '~/types/shared/Contract';
-const CustomerForm = React.lazy(() => import('~/page/customers/components/CustomerForm'));
-const ServiceRoom = React.lazy(() => import('~/page/customers/components/ServiceRoom'));
+import { Customer } from '~/types/shared/Customer';
 import { Service, ServiceCustomer } from '~/types/shared/Service';
-import NotifyUtil from '~/util/NotifyUtil';
-import NotificationConstant from '~/configs/contants';
+import { DATA_WITH_ROOM_API } from '../room/api/room.api';
+import ContractForm, { ContractFormRef } from './components/ContractForm';
 import MemberForm, { MemberFormRef } from './components/MemberForm';
-import { CustomerFormRef } from '~/page/customers/components/CustomerForm';
-import { ServiceRoomRef } from '~/page/customers/components/ServiceRoom';
 
 
 interface State {
@@ -113,16 +109,20 @@ const CustomerPage: React.FC = () => {
     }, []);
 
     const onClickSave = () => {
-        if (customerFormRef.current?.isValid()) {
+
+        // if (customerFormRef.current?.isValid()) {
             if (currentTab === 'customer') {
                 customerFormRef.current?.onSave();
             }
             if (currentTab === 'service') {
                 serviceRoomRef.current?.onSave();
             }
-        } {
-            return NotifyUtil.warn(NotificationConstant.TITLE, 'Phải thêm thông tin khách thuê trước !');
-        }
+            if (currentTab === 'contract') {
+                contractFormRef.current?.onSave();
+            }
+        // } {
+        //     return NotifyUtil.warn(NotificationConstant.TITLE, 'Phải thêm thông tin khách thuê trước !');
+        // }
     }
     return state.loading ? (
         <Loading />
