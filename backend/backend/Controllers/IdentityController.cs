@@ -116,10 +116,10 @@ public class IdentityController : ControllerBase
         return ApiResponse<UserDto>.Ok(result);
     }
 
-    // [HttpDelete("delete/{id}")]
-    // public async Task<ApiResponse<UserDto>> DeleteUserCount([FromRoute] string id)
-    // {
-    //     await _userService.DeleteMenu(id);
-    //     return ApiResponse<UserDto>.Ok();
-    // }
+    [HttpDelete("delete/{id}")]
+    public async Task<ApiResponse<UserDto>> DeleteUserCount([FromRoute] string id)
+    {
+        await _userService.DeleteUser(id);
+        return ApiResponse<UserDto>.Ok();
+    }
 }

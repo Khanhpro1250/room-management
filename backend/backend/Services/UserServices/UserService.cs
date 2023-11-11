@@ -4,6 +4,8 @@ using backend.Models.Entities.UserAccount;
 using backend.Models.Repositorties.UserAccountRepositories;
 using backend.Controllers.Dtos;
 using backend.Controllers.Dtos.Responese;
+using backend.Models.Repositorties.UserAccountRepositories.RoleRepositories;
+using backend.Services.RoleServices;
 using backend.Utils;
 using MongoDB.Driver;
 
@@ -12,13 +14,17 @@ namespace backend.Services.UserServices;
 public class UserService : IUserService
 {
     private readonly IUserAccountRepository _userAccountRepository;
+    private readonly IRoleService _roleService;
+    private readonly IRoleRepository _roleRepository;
     private readonly IMapper _mapper;
 
 
-    public UserService(IUserAccountRepository userAccountRepository, IMapper mapper)
+    public UserService(IUserAccountRepository userAccountRepository, IMapper mapper, IRoleService roleService, IRoleRepository roleRepository)
     {
         _userAccountRepository = userAccountRepository;
         _mapper = mapper;
+        _roleService = roleService;
+        _roleRepository = roleRepository;
     }
 
     public async Task<PaginatedList<UserDto>> GetListUser()
@@ -62,7 +68,19 @@ public class UserService : IUserService
         var passWordHash = PasswordHasher.HashPassword(user.Password);
         userEntity.PasswordHash = passWordHash;
         var result = await _userAccountRepository.CreateUser(userEntity);
+        if (!user.IsAdmin)
+        {
+            var roleQueryable = _roleRepository.GetQueryable();
+            var roleUser = await roleQueryable.Find(x => x.Code.Contains("ROOM_OWNER")).FirstOrDefaultAsync();
+            roleUser.UserIds.Add(result.Id);
+            await _roleRepository.UpdateRole(roleUser, roleUser.Id);
+        }
         return _mapper.Map<User, UserDto>(result);
+    }
+
+    public async Task DeleteUser(string id)
+    {
+        await _userAccountRepository.DeleteUser(id);
     }
 
     public async Task<bool> IsValidUserRegister(CreateUpdateUserDtos userDtos)

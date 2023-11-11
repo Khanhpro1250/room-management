@@ -1,4 +1,5 @@
-﻿using backend.Controllers.Dtos.Responese;
+﻿using System.Runtime.InteropServices.ComTypes;
+using backend.Controllers.Dtos.Responese;
 using backend.Controllers.Dtos;
 using backend.DTOs.MenuDtos;
 using backend.Services.MenuService;
@@ -6,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using backend.Services.CustomerServices;
 using backend.DTOs.CustomerDtos;
 using backend.DTOs.ServiceDtos;
+using backend.Services.ExportWordPdfServices;
+using backend.Services.RoomServices;
+using backend.Utils;
 
 namespace backend.Controllers
 {
@@ -14,10 +18,14 @@ namespace backend.Controllers
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerService _customerService;
+        private readonly IExportService _exportService;
+        private readonly IRoomService _roomService;
 
-        public CustomerController(ICustomerService customerService)
+        public CustomerController(ICustomerService customerService, IExportService exportService, IRoomService roomService)
         {
             _customerService = customerService;
+            _exportService = exportService;
+            _roomService = roomService;
         }
 
 
@@ -58,10 +66,10 @@ namespace backend.Controllers
             return ApiResponse<CustomerDto>.Ok(result);
         }
         
-        [HttpPut("update-service-customer/{id}")]
-        public async Task<ApiResponse<CustomerDto>> UpdateServiceCustomerAction([FromBody] UpdateServicesCustomerDto updateServicesCustomerDto, [FromRoute] string id)
+        [HttpPut("update-member-service-customer/{id}")]
+        public async Task<ApiResponse<CustomerDto>> UpdateServiceCustomerAction([FromBody] UpdateMemberServicesCustomerDto updateMemberServicesCustomerDto, [FromRoute] string id)
         {
-            var result = await _customerService.UpdateServiceCustomer(updateServicesCustomerDto, id);
+            var result = await _customerService.UpdateMemberServiceCustomer(updateMemberServicesCustomerDto, id);
             return ApiResponse<CustomerDto>.Ok(result);
         }
 
@@ -71,7 +79,5 @@ namespace backend.Controllers
             await _customerService.DeleteCustomer(id);
             return ApiResponse.Ok();
         }
-        
-        
     }
 }

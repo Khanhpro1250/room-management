@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, useLocation } from 'react-router-dom';
 import { queryClient } from '~/lib/react-query';
 import { AuthProvider } from './AuthProvider';
 

@@ -29,7 +29,6 @@ interface Props {
     initialValues?: Partial<Customer>;
     onClose?: () => void;
     onSubmitSuccessfully?: () => void;
-  
 }
 
 type State = {
@@ -39,16 +38,16 @@ type State = {
 
 type ImageListRef = {
     fileUrls: string[];
-}
+};
 
 export interface CustomerFormRef {
     onSave: () => void;
-    isValid: ()=> void;
+    isValid: () => void;
 }
 const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.Element => {
     const formRef = useRef<BaseFormRef>(null);
     const imageListRef = useRef<ImageListRef>({
-        fileUrls: props.initialValues?.fileUrls ?? []
+        fileUrls: props.initialValues?.fileUrls ?? [],
     });
     const overlayRef = useRef<OverlayRef>(null);
     const modalRef = useRef<ModalRef>(null);
@@ -87,7 +86,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                 message: NotificationConstant.DESCRIPTION_UPDATE_SUCCESS,
             },
         };
-        if (!formRef.current?.isFieldsValidate()){
+        if (!formRef.current?.isFieldsValidate()) {
             return;
         }
         const formValues = formRef.current?.getFieldsValue();
@@ -114,8 +113,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
     };
 
     const handleChange: UploadProps['onChange'] = async ({ fileList, file }) => {
-        if ( await file.status === 'done') {
-            
+        if ((await file.status) === 'done') {
             const result = _.get(file.response, 'result');
             // setState({
             //     fileUrls: [...state.fileUrls, result.fileUrl],
@@ -207,7 +205,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                         label: 'Ngày cấp',
                         name: nameof.full<Customer>(x => x.issueDate),
                         children: (
-                            <DatePicker                            
+                            <DatePicker
                                 className="w-full"
                                 disabled={props.readonly}
                                 placeholder="Ngày cấp"
@@ -222,12 +220,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                         label: 'Số điện thoại 1',
                         name: nameof.full<Customer>(x => x.phoneNumber1),
                         children: (
-                            <Input
-                                readOnly
-                                className="w-full"
-                                disabled={props.readonly}
-                                placeholder="Nhập số điện thoại 1"
-                            />
+                            <Input className="w-full" disabled={props.readonly} placeholder="Nhập số điện thoại 1" />
                         ),
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                         className: 'col-span-6',

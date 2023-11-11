@@ -46,7 +46,7 @@ public class UserAccountRepository : IUserAccountRepository
         return user;
     }
 
-    public async Task DeleteMenu(string id)
+    public async Task DeleteUser(string id)
     {
         var filter = Builders<User>.Filter.Eq(x => x.Id, id);
         await _user.DeleteOneAsync(filter);

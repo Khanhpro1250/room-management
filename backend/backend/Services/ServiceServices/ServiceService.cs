@@ -32,6 +32,7 @@ namespace backend.Services.ServiceServices
         public async Task<List<ServiceDto>> GetListServiceRegister()
         {
             var listService = await _serviceRopository.GetListService();
+            listService = listService.Where(x => x.Status).ToList();
             var result = _mapper.Map<List<Service>, List<ServiceDto>>(listService);
             return result;
         }

@@ -1,6 +1,6 @@
 import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faBed, faEdit, faHouse, faList, faSearch, faTrash, faUserGroup } from '@fortawesome/free-solid-svg-icons';
-import { Input, Tabs } from 'antd';
+import { Input, Select, Tabs } from 'antd';
 import _ from 'lodash';
 import qs from 'qs';
 import React, { useEffect, useRef, useState } from 'react';
@@ -19,6 +19,7 @@ import { House } from '~/types/shared';
 import NotifyUtil from '~/util/NotifyUtil';
 import { HOUSE_DELETE_API, HOUSE_INDEX_API } from '../house/api/house.api';
 import HomeForm from '../house/components/HomeForm';
+import emptyData from '~/assets/layout/emptydata.png';
 
 const RoomListView = React.lazy(() => import('~/page/room/component/RoomListView'));
 
@@ -42,8 +43,15 @@ const RoomPage: React.FC = () => {
     const currTab = _.first(state.house)?.id;
 
     const { tab = currTab } = qs.parse(location.search, { ignoreQueryPrefix: true });
+    console.log(tab);
 
     const [currentTab, setCurrentTab] = useState(tab);
+
+    useEffect(() => {
+        if (tab) {
+            setCurrentTab(tab);
+        }
+    }, [tab]);
 
     const onCreate = () => {
         modalRef.current?.onOpen(
@@ -171,7 +179,23 @@ const RoomPage: React.FC = () => {
                         {
                             label: 'Trạng thái',
                             name: 'status',
-                            children: <Input placeholder="Nhập mã phòng ..." />,
+                            children: (
+                                <Select
+                                    options={[
+                                        {
+                                            value: 'NEW',
+                                            label: 'Còn trống',
+                                        },
+                                        {
+                                            value: 'RENTED',
+                                            label: 'Đã cho thuê',
+                                        },
+                                    ]}
+                                    showSearch
+                                    allowClear
+                                    placeholder="Chọn trạng thái..."
+                                />
+                            ),
                             className: 'col-span-6',
                         },
                     ]}
@@ -196,8 +220,9 @@ const RoomPage: React.FC = () => {
                 }}
                 defaultActiveKey={tab ? String(tab) : (currTab as string)}
                 type="card"
+                className="h-full"
                 tabBarExtraContent={{
-                    right: (
+                    right: state.house.length && (
                         <div className="flex-1 flex items-center justify-end mb-2">
                             <ButtonBase
                                 onClick={() => roomListViewRef.current?.onCreate()}
@@ -227,11 +252,26 @@ const RoomPage: React.FC = () => {
                     ),
                 }}
             >
-                {state.house.map(item => (
-                    <Tabs.TabPane tab={item.name} key={item.id}>
-                        <RoomListView ref={roomListViewRef} houseId={item.id} />
+                {state.house.length > 0 ? (
+                    state.house.map(item => (
+                        <Tabs.TabPane tab={item.name} key={item.id}>
+                            <RoomListView ref={roomListViewRef} houseId={item.id} />
+                        </Tabs.TabPane>
+                    ))
+                ) : (
+                    <Tabs.TabPane className="h-full" tab={''}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '100%',
+                            }}
+                        >
+                            <img src={emptyData} />
+                        </div>
                     </Tabs.TabPane>
-                ))}
+                )}
             </Tabs>
             <ModalBase ref={modalRef} />
         </AppContainer>

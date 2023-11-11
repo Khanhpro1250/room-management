@@ -9,12 +9,11 @@ import { loginAsync } from '~/store/authSlice';
 import { LoginParam } from '~/types/ums/AuthUser';
 import { ButtonBase } from '../Elements/Button/ButtonBase';
 import BaseForm, { BaseFormRef } from '../Form/BaseForm';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { RootState } from '~/AppStore';
 
 const LoginView: React.FC = () => {
     const formRef = useRef<BaseFormRef>(null);
-
     const dispatch = useDispatch();
 
     const { isAuthenticated } = useSelector((state: RootState) => state.authData);
@@ -58,9 +57,20 @@ const LoginView: React.FC = () => {
                     width={'100%'}
                     renderBtnBottom={() => {
                         return (
-                            <div className="flex items-center justify-center w-full">
-                                <ButtonBase title="Đăng nhập" size="md" onClick={onLogin} />
-                                <ButtonBase title="Đăng ký" size="md" onClick={() => <Navigate to={'/register'} />} />
+                            <div>
+                                <div className="flex items-center justify-center w-full">
+                                    <ButtonBase className="w-[170px]" title="Đăng nhập" size="md" onClick={onLogin} />
+                                </div>
+                                <div className="flex items-center justify-center w-full mt-2">
+                                    <span>
+                                        <span
+                                            className="text-blue-600 cursor-pointer hover:text-blue-400"
+                                            onClick={() => window.location.replace('/register')}
+                                        >
+                                            Đăng ký tài khoản mới
+                                        </span>
+                                    </span>
+                                </div>
                             </div>
                         );
                     }}

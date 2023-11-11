@@ -77,6 +77,10 @@ namespace backend.Models.Entities.Customers
         public string Note { get; set; }
         public string RoomId { get; set; }
         /// <summary>
+        /// Trạng thái ( active; inactive ) đang thuê / đã thuê
+        /// </summary>
+        public bool Status { get; set; }
+        /// <summary>
         /// Hình ảnh
         /// </summary>
         [JsonProperty("fileUrls")] 

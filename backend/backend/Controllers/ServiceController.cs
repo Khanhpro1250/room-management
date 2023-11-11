@@ -1,5 +1,5 @@
-﻿using backend.Controllers.Dtos.Responese;
-using backend.Controllers.Dtos;
+﻿using backend.Controllers.Dtos;
+using backend.Controllers.Dtos.Responese;
 using backend.DTOs.ServiceDtos;
 using backend.Services.ServiceServices;
 using Microsoft.AspNetCore.Mvc;

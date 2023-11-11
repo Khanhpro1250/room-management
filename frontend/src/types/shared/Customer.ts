@@ -25,12 +25,12 @@ export interface Customer extends AuditedEntity {
 }
 
 export interface Member {
-    id: string;
-    name: string;
-    dateOfBirth: Date;
-    identityNo: string;
-    permanentAddress: string;
-    phoneNumber: string;
-    vehicleNumber: string;
-    temporarilyAbsentDate: Date;
+    id?: string;
+    name?: string;
+    dateOfBirth?: Date;
+    identityNo?: string;
+    permanentAddress?: string;
+    phoneNumber?: string;
+    vehicleNumber?: string;
+    temporarilyDate?: Date;
 }

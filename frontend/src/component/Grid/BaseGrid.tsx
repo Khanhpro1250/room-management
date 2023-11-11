@@ -2,17 +2,17 @@ import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-mod
 import { ColDef, ColGroupDef, FirstDataRenderedEvent, GetDataPath, ModuleRegistry } from '@ag-grid-community/core';
 import { AgGridReact } from '@ag-grid-community/react';
 import { RowGroupingModule } from '@ag-grid-enterprise/row-grouping';
-import { faEdit, faFile, faPlus, faTrash, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faFile, faPlus, faTrash, faUndo, faUserEdit, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { GridReadyEvent, RowNode, RowSelectedEvent } from 'ag-grid';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { Popconfirm } from 'antd';
 import _ from 'lodash';
-import React, { ReactChild } from 'react';
+import React, { ReactChild, useImperativeHandle } from 'react';
 import { ButtonBase } from '../Elements/Button/ButtonBase';
 import './styles/BaseGrid.scss';
 
-export interface BaseGridColDef extends ColDef, Partial<ColGroupDef> { }
+export interface BaseGridColDef extends ColDef, Partial<ColGroupDef> {}
 
 ModuleRegistry.registerModules([ClientSideRowModelModule, RowGroupingModule]);
 
@@ -36,11 +36,17 @@ export interface BaseGridProps {
         hasDetailBtn?: boolean;
         hasCreateChildBtn?: boolean;
         hasAddUserBtn?: boolean;
+        hasWithdrawBtn?: (data: any, rowNode?: RowNode) => boolean;
+        hasAddCustomerBtn?: (data: any, rowNode?: RowNode) => boolean;
+        hasEditCustomerBtn?: (data: any, rowNode?: RowNode) => boolean;
         onClickEditBtn?: (data: any, rowNode?: RowNode) => void;
         onClickDeleteBtn?: (data: any, rowNode?: RowNode) => void;
         onClickDetailBtn?: (data: any, rowNode?: RowNode) => void;
         onClickCreateChildBtn?: (data: any, rowNode?: RowNode) => void;
         onClickAddUserBtn?: (data: any, rowNode?: RowNode) => void;
+        onClickCustomerBtn?: (data: any, rowNode?: RowNode) => void;
+        onClickEditCustomerBtn?: (data: any, rowNode?: RowNode) => void;
+        onClickWithdrawBtn?: (data: any, rowNode?: RowNode) => void;
     };
     actionRowsWidth?: number;
 
@@ -52,9 +58,9 @@ export interface BaseGridProps {
     children?: ReactChild; // grid tool bar
 }
 
-interface GridConfig { }
+interface GridConfig {}
 
-export interface BaseGridRef extends AgGridReact { }
+export interface BaseGridRef extends AgGridReact {}
 
 const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
     const { numberRows = true, actionRows = true, actionRowsList, pagination = true } = props;
@@ -62,20 +68,20 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
     const customColDefs = (
         numberRows
             ? [
-                {
-                    field: 'stt',
-                    headerName: 'STT',
-                    width: 60,
-                    cellStyle: {
-                        textAlign: 'center',
-                    },
-                    valueGetter: params => {
-                        const rowIndex = _.get(params, 'node.rowIndex');
+                  {
+                      field: 'stt',
+                      headerName: 'STT',
+                      width: 60,
+                      cellStyle: {
+                          textAlign: 'center',
+                      },
+                      valueGetter: params => {
+                          const rowIndex = _.get(params, 'node.rowIndex');
 
-                        return Number(rowIndex) + 1;
-                    },
-                },
-            ]
+                          return Number(rowIndex) + 1;
+                      },
+                  },
+              ]
             : []
     ) as BaseGridColDef[];
 
@@ -94,6 +100,16 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                 const rowNode = _.get(params, 'node');
                 return (
                     <div className="w-full h-full flex items-center justify-center">
+                        {actionRowsList?.hasWithdrawBtn?.(data, rowNode) && (
+                            <ButtonBase
+                                startIcon={faUndo}
+                                variant={'warning'}
+                                onClick={() => {
+                                    actionRowsList.onClickWithdrawBtn?.(data, rowNode);
+                                }}
+                                tooltip="Trả phòng"
+                            />
+                        )}
                         {actionRowsList?.hasDetailBtn && (
                             <ButtonBase
                                 startIcon={faFile}
@@ -121,7 +137,27 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                                 onClick={() => {
                                     actionRowsList.onClickAddUserBtn?.(data, rowNode);
                                 }}
+                                tooltip="Thêm user"
+                            />
+                        )}
+                        {actionRowsList?.hasAddCustomerBtn?.(data, rowNode) && (
+                            <ButtonBase
+                                startIcon={faUserPlus}
+                                variant={'primary'}
+                                onClick={() => {
+                                    actionRowsList.onClickCustomerBtn?.(data, rowNode);
+                                }}
                                 tooltip="Thêm khách thuê"
+                            />
+                        )}
+                        {actionRowsList?.hasEditCustomerBtn?.(data, rowNode) && (
+                            <ButtonBase
+                                startIcon={faUserEdit}
+                                variant={'primary'}
+                                onClick={() => {
+                                    actionRowsList.onClickEditCustomerBtn?.(data, rowNode);
+                                }}
+                                tooltip="Sửa khách thuê"
                             />
                         )}
                         {actionRowsList?.hasEditBtn && (
@@ -182,9 +218,9 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                         onRowSelected={(event: any) => {
                             return props?.onRowSelected?.(event);
                         }}
-                        rowSelection={'multiple'}                            
+                        rowSelection={'multiple'}
                         gridOptions={props.gridOptions}
-                        rowHeight={props.rowHeight ?? 40}
+                        rowHeight={50}
                         {...props.gridConfig}
                     />
                 )}

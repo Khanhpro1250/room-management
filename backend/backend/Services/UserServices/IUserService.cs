@@ -14,6 +14,8 @@ public interface IUserService
     Task<UserDto> UpdateUser(CreateUpdateUserDtos user,string id);
     Task<UserDto> RegisterUser(CreateUpdateUserDtos user);
 
+    Task DeleteUser(string id);
+
     Task<bool> IsValidUserRegister(CreateUpdateUserDtos userDtos);
 
     Task<List<ComboOptionKeyTitleDto>> GetComboUser();
