@@ -9,7 +9,7 @@ const variants = {
     inverse: 'bg-slate-600 text-blue-600 hover:bg-white hover:text-slate hover:border-slate-500',
     danger: 'bg-red-800 text-white hover:bg-white hover:text-red-600 hover:border-red-500',
     info: 'bg-gray-400 text-white hover:bg-white hover:text-gray-600 hover:border-gray-500',
-    warning: 'bg-amber-500 text-white hover:bg-white hover:bg-red-500:text-red-600',
+    warning: 'bg-amber-500 text-white hover:bg-white hover:border-amber-500 hover:text-amber-600',
     success: 'bg-emerald-800 text-white hover:bg-white hover:text-green-600 hover:border-green-500',
 };
 

@@ -6,28 +6,29 @@ import qs from 'qs';
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
-import Loading from '~/component/Elements/loading/Loading';
 import { AppContainer } from '~/component/Layout/AppContainer';
 import { useMergeState } from '~/hook/useMergeState';
 import { requestApi } from '~/lib/axios';
-import CustomerForm, { CustomerFormRef } from '~/page/customers/components/CustomerForm';
+import { Customer, Member } from '~/types/shared/Customer';
+import CustomerForm, { CustomerFormRef } from './components/CustomerForm';
+import Loading from '~/component/Elements/loading/Loading';
 import ServiceRoom, { ServiceRoomRef } from '~/page/customers/components/ServiceRoom';
 import { Contract } from '~/types/shared/Contract';
-import { Customer } from '~/types/shared/Customer';
 import { Service, ServiceCustomer } from '~/types/shared/Service';
 import { DATA_WITH_ROOM_API } from '../room/api/room.api';
 import ContractForm, { ContractFormRef } from './components/ContractForm';
 import MemberForm, { MemberFormRef } from './components/MemberForm';
-
+import { Room } from '~/types/shared';
 
 interface State {
     loading: boolean;
     initData: {
+        room: Room;
         customer: Customer;
         contract: Contract;
         listServices: Service[];
         services: ServiceCustomer[];
-        members: any[];
+        members: Member[];
     };
 }
 
@@ -43,11 +44,12 @@ const CustomerPage: React.FC = () => {
     const [state, setState] = useMergeState<State>({
         loading: true,
         initData: {
+            room: {} as Room,
             customer: {} as Customer,
             services: [],
             contract: {} as Contract,
             listServices: [],
-            members: []
+            members: [],
         },
     });
     const customerFormRef = useRef<CustomerFormRef>(null);
@@ -94,11 +96,12 @@ const CustomerPage: React.FC = () => {
             setState({
                 loading: false,
                 initData: {
+                    room: data?.room,
                     customer: data?.customer,
                     services: data?.services,
                     contract: data?.contract,
                     listServices: data?.listServices,
-                    members: data?.members
+                    members: data?.members,
                 },
             });
         }
@@ -109,21 +112,23 @@ const CustomerPage: React.FC = () => {
     }, []);
 
     const onClickSave = () => {
-
         // if (customerFormRef.current?.isValid()) {
-            if (currentTab === 'customer') {
-                customerFormRef.current?.onSave();
-            }
-            if (currentTab === 'service') {
-                serviceRoomRef.current?.onSave();
-            }
-            if (currentTab === 'contract') {
-                contractFormRef.current?.onSave();
-            }
+        if (currentTab === 'customer') {
+            customerFormRef.current?.onSave();
+        }
+        if (currentTab === 'service') {
+            serviceRoomRef.current?.onSave();
+        }
+        if (currentTab === 'contract') {
+            contractFormRef.current?.onSave();
+        }
+        if (currentTab === 'member') {
+            memberFormRef.current?.onSave();
+        }
         // } {
         //     return NotifyUtil.warn(NotificationConstant.TITLE, 'Phải thêm thông tin khách thuê trước !');
         // }
-    }
+    };
     return state.loading ? (
         <Loading />
     ) : (
@@ -137,14 +142,9 @@ const CustomerPage: React.FC = () => {
                         size="md"
                         startIcon={faArrowRotateBack}
                         variant="danger"
-                    // onClick={props.onClose}
+                        onClick={() => pushDomain('/room-manage')}
                     />
-                    <ButtonBase
-                        title="Lưu"
-                        size="md"
-                        startIcon={faSave}
-                        onClick={onClickSave}
-                    />
+                    <ButtonBase title="Lưu" size="md" startIcon={faSave} onClick={onClickSave} />
                 </div>
             </div>
 
@@ -158,16 +158,38 @@ const CustomerPage: React.FC = () => {
                 defaultActiveKey={tab ? String(tab) : (currTab as string)}
             >
                 <TabPane tab={<div className="text-[16px]">Thông tin khách thuê</div>} key="customer">
-                    <CustomerForm ref={customerFormRef} parentId={roomId} initialValues={state.initData.customer} readonly={isDetail} />
+                    <CustomerForm
+                        ref={customerFormRef}
+                        parentId={roomId}
+                        initialValues={state.initData.customer}
+                        readonly={isDetail}
+                    />
                 </TabPane>
                 <TabPane tab={<div className="text-[16px]">Dịch vụ</div>} key="service">
-                    <ServiceRoom ref={serviceRoomRef} initialValues={state.initData.services} listServices={state.initData.listServices} customerId={state.initData.customer?.id} readonly={isDetail} />
+                    <ServiceRoom
+                        ref={serviceRoomRef}
+                        initialValues={state.initData.services}
+                        listServices={state.initData.listServices}
+                        customerId={state.initData.customer?.id}
+                        readonly={isDetail}
+                    />
                 </TabPane>
                 <TabPane tab={<div className="text-[16px]">Thành viên</div>} key="member">
-                    <MemberForm ref={memberFormRef} initialValues={state.initData.members} customerId={state.initData.customer?.id} readonly={isDetail} />
+                    <MemberForm
+                        ref={memberFormRef}
+                        initialValues={state.initData.members}
+                        customerId={state.initData.customer?.id}
+                        readonly={isDetail}
+                        maxNumberOfPeople={state.initData.room?.maxNumberOfPeople}
+                    />
                 </TabPane>
                 <TabPane tab={<div className="text-[16px]">Hợp đồng</div>} key="contract">
-                    <ContractForm ref={contractFormRef} roomId={roomId} customer={state.initData.customer} initialValues={state.initData.contract} />
+                    <ContractForm
+                        ref={contractFormRef}
+                        roomId={roomId}
+                        customer={state.initData.customer}
+                        initialValues={state.initData.contract}
+                    />
                 </TabPane>
             </Tabs>
         </AppContainer>

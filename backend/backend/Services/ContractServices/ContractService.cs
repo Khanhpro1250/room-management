@@ -60,14 +60,14 @@ namespace backend.Services.ContractServices
             return _mapper.Map<Contract, ContractDto>(result);
         }
 
-        public async Task<ContractDto> GetCurrentContractRoomId(string roomId, string? customerId = null)
+        public async Task<ContractDto> GetCurrentContractRoomId(string roomId , string? customerId = null)
         {
             var queryable = _contractRepository.GetQueryable();
-             var filterBuilder = Builders<Contract>.Filter;
-             var filter = filterBuilder.And(
-                    filterBuilder.Where(x=>x.RoomId.Contains(roomId)),
-                    filterBuilder.WhereIf(customerId is not null , x=> x.CustomerId.Contains(customerId))
-                 );
+            var filterBuilder = Builders<Contract>.Filter;
+            var filter = filterBuilder.And(
+                filterBuilder.Where(x => x.RoomId.Contains(roomId)),
+                filterBuilder.WhereIf(customerId is not null, x => x.CustomerId.Contains(customerId))
+            );
             var listContract = await queryable
                 .Find(filter)
                 .ToListAsync();
@@ -94,7 +94,7 @@ namespace backend.Services.ContractServices
                 x.CustomerId.Contains(contractDto.CustomerId) && x.RoomId.Contains(contractDto.RoomId)).ToListAsync();
             var lastContract = listContract.MaxBy(x => x.ExpiredDate);
 
-            if ( lastContract is not null && contractDto.EffectDate >= lastContract.ExpiredDate)
+            if (lastContract is not null && contractDto.EffectDate >= lastContract.ExpiredDate)
                 throw new Exception(
                     "Ngày hiệu lực hợp đồng không được nằm trong khoản thời gian hiệu lực hợp đồng cũ!");
 

@@ -16,6 +16,7 @@ const HouseListView = React.lazy(() => import('~/page/house/HouseListView'));
 const RoomPage = React.lazy(() => import('~/page/room/RoomPage'));
 const CustomerPage = React.lazy(() => import('~/page/customers/CustomerPage'));
 const ServicesListView = React.lazy(() => import('~/page/services/ServicesListView'));
+const ElectricServiceListView = React.lazy(() => import('~/page/electric-service/ElectricServiceListView'));
 
 //home
 
@@ -68,6 +69,10 @@ const routeList = [
             {
                 path: 'service',
                 element: <ServicesListView />,
+            },
+            {
+                path: 'number-electric',
+                element: <ElectricServiceListView />,
             },
         ],
     },

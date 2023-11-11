@@ -7,20 +7,21 @@ import { RegisterParam } from '~/types/ums/AuthUser';
 import { ButtonBase } from '../Elements/Button/ButtonBase';
 import BaseForm, { BaseFormRef } from '../Form/BaseForm';
 
-import NotificationConstant from '~/configs/contants';
-import NotifyUtil from '~/util/NotifyUtil';
-import { requestApi } from '~/lib/axios';
-import { REGISTER_API } from '~/configs';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { ValidateUtils } from '~/util/ValidateUltil';
 import { useSelector } from 'react-redux';
+import { Navigate } from 'react-router-dom';
 import { RootState } from '~/AppStore';
+import { REGISTER_API } from '~/configs';
+import NotificationConstant from '~/configs/contants';
+import { requestApi } from '~/lib/axios';
+import NotifyUtil from '~/util/NotifyUtil';
+import { ValidateUtils } from '~/util/ValidateUltil';
 
 const RegisterView: React.FC = () => {
     const formRef = useRef<BaseFormRef>(null);
-    const history = useNavigate();
     const { isAuthenticated } = useSelector((state: RootState) => state.authData);
-    const backToLogin = () => history('/login');
+    const backToLogin = () => {
+        window.location.replace('/login');
+    };
     const onSave = async () => {
         const registerValue = formRef.current?.getFieldsValue() as RegisterParam;
         if (await formRef?.current?.isFieldsValidate()) {
@@ -58,7 +59,7 @@ const RegisterView: React.FC = () => {
     return (
         <div className="w-full h-screen relative flex items-center justify-center">
             <img src={bgImageUrl} className="w-full h-full absolute top-0 left-0 -z-10 object-cover" alt="" />
-            <div className="w-[500px] h-[450px] bg-white rounded-md shadow bg-opacity-2 p-3">
+            <div className="w-[500px] h-[470px] bg-white rounded-md shadow bg-opacity-2 p-3">
                 <BaseForm
                     ref={formRef}
                     baseFormItem={[
@@ -111,9 +112,21 @@ const RegisterView: React.FC = () => {
                     width={'100%'}
                     renderBtnBottom={() => {
                         return (
-                            <div className="flex items-center justify-center w-full">
-                                <ButtonBase title="Đăng ký" size="md" onClick={onSave} />
-                                <ButtonBase title="Đăng nhập" size="md" onClick={() => <Navigate to={'/login'} />} />
+                            <div>
+                                <div className="flex items-center justify-center w-full">
+                                    <ButtonBase className="w-[170px]" title="Đăng ký" size="md" onClick={onSave} />
+                                </div>
+                                <div className="flex items-center justify-center w-full mt-2">
+                                    <span>
+                                        Bạn đã có tài khoản ?{' '}
+                                        <span
+                                            className="text-blue-600 cursor-pointer hover:text-blue-400"
+                                            onClick={backToLogin}
+                                        >
+                                            Đăng nhập
+                                        </span>
+                                    </span>
+                                </div>
                             </div>
                         );
                     }}

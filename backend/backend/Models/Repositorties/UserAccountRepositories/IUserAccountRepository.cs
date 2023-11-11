@@ -12,5 +12,5 @@ public interface IUserAccountRepository
     Task<User> UpdateUser(User user,string userId);
     IMongoCollection<User> GetQueryable();
 
-    Task DeleteMenu(string id);
+    Task DeleteUser(string id);
 }

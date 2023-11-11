@@ -11,8 +11,12 @@ namespace backend.Services.CustomerServices
         Task<List<CustomerDto>> GetCustomerByRoomIds(List<string> roomIds);
         Task<CustomerDto> CreateCustomer(CreateUpdateCustomerDto customer);
         Task<CustomerDto> UpdateCustomer(CreateUpdateCustomerDto customer, string id);
-        Task<CustomerDto> UpdateServiceCustomer(UpdateServicesCustomerDto updateServicesCustomerDto, string id);
+
+        Task<CustomerDto> UpdateMemberServiceCustomer(UpdateMemberServicesCustomerDto updateMemberServicesCustomerDto,
+            string id);
+
         Task DeleteCustomer(string id);
-        
+
+        Task<List<string>> GetRoomIdByCustomerName(string name);
     }
 }

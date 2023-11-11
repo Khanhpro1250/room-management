@@ -17,7 +17,7 @@ namespace backend.Services.CustomerServices
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IMapper _mapper;
-        private ICurrentUser _currentUser;
+        private readonly ICurrentUser _currentUser;
 
         public CustomerService(ICustomerRepository customerRepository, IMapper mapper, ICurrentUser currentUser)
         {
@@ -51,10 +51,16 @@ namespace backend.Services.CustomerServices
             return _mapper.Map<Customer, CustomerDto>(result);
         }
 
-        public async Task<CustomerDto> UpdateServiceCustomer(UpdateServicesCustomerDto updateServicesCustomerDto, string id)
+        public async Task<CustomerDto> UpdateMemberServiceCustomer(UpdateMemberServicesCustomerDto updateMemberServicesCustomerDto, string id)
         {
             var customer = await _customerRepository.GetCustomerById(id);
-            customer.Services = _mapper.Map<List<ServiceCustomerDto>, List<ServiceCustomer>>(updateServicesCustomerDto.Services);
+            if (updateMemberServicesCustomerDto.Services.Any())
+            {
+                customer.Services = _mapper.Map<List<ServiceCustomerDto>, List<ServiceCustomer>>(updateMemberServicesCustomerDto.Services);
+            }else if (updateMemberServicesCustomerDto.Members.Any())
+            {
+                customer.Members = _mapper.Map<List<MemberDto>, List<Member>>(updateMemberServicesCustomerDto.Members);
+            }
             var result = await _customerRepository.UpdateCustomer(customer, id);
             return _mapper.Map<Customer, CustomerDto>(result);
         }
@@ -64,7 +70,13 @@ namespace backend.Services.CustomerServices
             await _customerRepository.DeleteCustomer(id);
         }
 
-        
+        public async Task<List<string>> GetRoomIdByCustomerName(string name)
+        {
+            var queryable = _customerRepository.GetQueryable();
+            var customers= await queryable.Find(x => x.FullName.ToLower().Contains(name.ToLower())).ToListAsync();
+            return customers.Select(x => x.RoomId).ToList();
+        }
+
 
         public async Task<PaginatedList<CustomerDto>> GetListCustomer()
         {

@@ -4,6 +4,7 @@ using backend.Controllers.Dtos.Responese;
 using backend.DTOs.HouseDtos;
 using backend.Models.Entities.Houses;
 using backend.Models.Repositorties.HouseRerositories;
+using backend.Services.UserServices;
 using MongoDB.Driver;
 
 namespace backend.Services.HouseServices;
@@ -12,11 +13,13 @@ public class HouseService : IHouseService
 {
     private readonly IHouseRepository _houseRepository;
     private readonly IMapper _mapper;
+    private readonly ICurrentUser _currentUser;
 
-    public HouseService(IHouseRepository houseRepository, IMapper mapper)
+    public HouseService(IHouseRepository houseRepository, IMapper mapper, ICurrentUser currentUser)
     {
         _houseRepository = houseRepository;
         _mapper = mapper;
+        _currentUser = currentUser;
     }
 
     public async Task<HouseDto> CreateHouse(CreateUpdateHouseDto houseDto)
@@ -41,8 +44,9 @@ public class HouseService : IHouseService
 
     public async Task<PaginatedList<HouseDto>> GetListHouse()
     {
+        var currUserId = _currentUser.Id;
         var queryable = _houseRepository.GetQueryable();
-        var listHouse = await queryable.Find(x => true).ToListAsync();
+        var listHouse = await queryable.Find(x => x.UserId.Contains(currUserId)).ToListAsync();
         var totalCount = listHouse.Count;
         return new PaginatedList<HouseDto>(_mapper.Map<List<House>, List<HouseDto>>(listHouse), totalCount, 0, 10);
     }

@@ -60,5 +60,12 @@ namespace backend.Controllers
             var result = await _roomService.GetDataWithRoom(roomId);
             return ApiResponse<DataWithRoomDto>.Ok(result);
         }
+        
+        [HttpGet("list-room-electric-service")]
+        public async Task<ApiResponse<List<RoomElectricServiceDto>>> GetElectricServices([FromQuery] ElectricServiceFilterDto filterDto)
+        {
+            var result = await _roomService.GetElectricServiceRoom(filterDto);
+            return ApiResponse<List<RoomElectricServiceDto>>.Ok(result);
+        }
     }
 }

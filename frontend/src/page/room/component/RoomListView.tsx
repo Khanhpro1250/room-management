@@ -5,17 +5,16 @@ import { useBaseGrid } from '~/hook/useBaseGrid';
 import { House } from '~/types/shared/House';
 
 import { icon } from '@fortawesome/fontawesome-svg-core';
-import { faEdit, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Loading from '~/component/Elements/loading/Loading';
-import { Room } from '~/types/shared';
-import { ROOM_DELETE_API, ROOM_INDEX_API } from '../api/room.api';
-import RoomForm from './RoomForm';
-import NotifyUtil from '~/util/NotifyUtil';
 import NotificationConstant from '~/configs/contants';
 import { requestApi } from '~/lib/axios';
-import CustomerForm from '~/page/customers/components/CustomerForm';
-import { useNavigate } from 'react-router-dom';
+import { Room } from '~/types/shared';
+import NotifyUtil from '~/util/NotifyUtil';
+import { ROOM_DELETE_API, ROOM_INDEX_API } from '../api/room.api';
+import RoomForm from './RoomForm';
 import { Status } from '~/component/Grid/Components/Status';
 
 export interface RoomListViewRef {
@@ -58,7 +57,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         {
             headerName: 'Số người ở tối đa',
             field: nameof.full<Room>(x => x.maxNumberOfPeople),
-            width: 120,
+            width: 150,
 
             cellStyle: { textAlign: 'right' },
         },
@@ -79,13 +78,12 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
             cellRenderer: (params: any) => {
                 return (
                     <div>
-                        <Status status={params.value} statusName={params.data.statusName}  />
+                        <Status status={params.value} statusName={params.data.statusName} />
                     </div>
                 );
             },
         },
     ];
-
 
     useImperativeHandle(
         ref,
@@ -178,30 +176,31 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                         rowHeight={40}
                         pagination={true}
                         actionRowsList={{
-                            hasDetailBtn: true,
+                            // hasDetailBtn: true,
                             hasEditBtn: true,
                             hasDeleteBtn: true,
-                            hasAddUserBtn: true,
-                            onClickAddUserBtn: (data: Room) => {
+                            hasWithdrawBtn(data, rowNode) {
+                                return data.status === 'RENTED';
+                            },
+                            hasAddCustomerBtn(data) {
+                                return data.status === 'NEW';
+                            },
+                            hasEditCustomerBtn(data, rowNode) {
+                                return data.status === 'RENTED';
+                            },
+                            onClickEditCustomerBtn: (data: Room) => {
                                 navigate(`/customer?roomId=${data.id}`);
                             },
-                            onClickDetailBtn: onDetail,
+                            onClickCustomerBtn: (data: Room) => {
+                                navigate(`/customer?roomId=${data.id}`);
+                            },
+                            // onClickDetailBtn: onDetail,
                             onClickEditBtn: onUpdate,
                             onClickDeleteBtn: onDelete,
                         }}
                         actionRowsWidth={200}
-                        // autoGroupColumnDef={autoGroupColumnDef}
-                        // getDataPath={getDataPath}
                         groupDefaultExpanded={-1}
                     />
-                    {/* <GridToolbar
-                            hasCreateButton
-                            hasRefreshButton
-                            onClickCreateButton={onCreate}
-                            onClickRefreshButton={() => gridController?.reloadData()}
-                        />
-                    </BaseGrid> */}
-
                     <ModalBase ref={modalRef} />
                 </>
             )}
