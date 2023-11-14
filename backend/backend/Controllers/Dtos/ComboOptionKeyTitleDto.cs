@@ -2,6 +2,6 @@
 
 public class ComboOptionKeyTitleDto
 {
-    public string Key { get; set; }
+    public Guid Key { get; set; }
     public string Title { get; set; }
 }

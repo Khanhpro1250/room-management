@@ -168,6 +168,7 @@ const CustomerPage: React.FC = () => {
                 <TabPane tab={<div className="text-[16px]">Dịch vụ</div>} key="service">
                     <ServiceRoom
                         ref={serviceRoomRef}
+                        members={state.initData.members}
                         initialValues={state.initData.services}
                         listServices={state.initData.listServices}
                         customerId={state.initData.customer?.id}
@@ -177,6 +178,7 @@ const CustomerPage: React.FC = () => {
                 <TabPane tab={<div className="text-[16px]">Thành viên</div>} key="member">
                     <MemberForm
                         ref={memberFormRef}
+                        services={state.initData.services}
                         initialValues={state.initData.members}
                         customerId={state.initData.customer?.id}
                         readonly={isDetail}

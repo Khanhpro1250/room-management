@@ -90,6 +90,10 @@ const ServicesListView: React.FC = () => {
             headerName: 'Đơn vị tính',
             field: nameof.full<Service>(x => x.unit),
             width: 120,
+            valueFormatter: (params: any) => {
+                const unit = JSON.parse(params.value);
+                return unit;
+            },
         },
         {
             headerName: 'Trạng thái',

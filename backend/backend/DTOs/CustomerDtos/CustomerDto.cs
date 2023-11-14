@@ -44,10 +44,13 @@ namespace backend.DTOs.CustomerDtos
         public string Note { get; set; }
         public string RoomId { get; set; }
 
-        [JsonProperty("fileUrls")] public List<string> FileUrls { get; set; }
+        // [JsonProperty("fileUrls")] 
+        public  string FileUrls { get; set; }
 
-        [JsonProperty("members")] public List<MemberDto> Members { get; set; }
+        // [JsonProperty("members")] 
+        public List<MemberDto> Members { get; set; }
 
-        [JsonProperty("services")] public List<ServiceCustomerDto> Services { get; set; }
+        // [JsonProperty("services")] 
+        public List<ServiceCustomerDto> Services { get; set; }
     }
 }

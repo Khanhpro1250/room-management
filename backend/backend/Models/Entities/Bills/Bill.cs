@@ -1,6 +1,6 @@
 ﻿namespace backend.Models.Entities.Bills
 {
-    public class Bill: AuditedEntity
+    public class Bill: AuditedEntity<Guid>
     {
         public string PaymentTypeId { get; set; }
         public float PaymentAmount { get; set; }

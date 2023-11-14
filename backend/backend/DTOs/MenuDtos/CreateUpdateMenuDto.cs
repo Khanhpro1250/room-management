@@ -10,9 +10,9 @@ public class CreateUpdateMenuDto
     public bool IsDisplay { get; set; } = false;
     public int Level { get; set; } = 1;
     public string Permissions { get; set; }
-    public string ParentId { get; set; }
+    public Guid? ParentId { get; set; }
     public string CreatedBy { get; set; }
-    public DateTime? CreatedTime { get; set; }
+    public DateTime? CreatedTime { get; set; } = DateTime.Now;
     public string LastModifiedBy { get; set; }
     public DateTime? LastModifiedTime { get; set; }
 }

@@ -7,16 +7,16 @@ namespace backend.Services.UserServices;
 
 public interface IUserService
 {
-    Task<PaginatedList<UserDto>> GetListUser();
-    Task<UserDto> GetUserById(string userId);
+    Task<PaginatedList<UserDto>> GetListUser(PaginatedListQuery paginatedListQuery);
+    Task<UserDto> GetUserById(Guid userId);
     Task<User> GetUserByUserName(string userName);
     Task<UserDto> CreateUser(CreateUpdateUserDtos user);
-    Task<UserDto> UpdateUser(CreateUpdateUserDtos user,string id);
+    Task<UserDto> UpdateUser(CreateUpdateUserDtos user,Guid userId);
     Task<UserDto> RegisterUser(CreateUpdateUserDtos user);
-
-    Task DeleteUser(string id);
-
+    
+    Task DeleteUser(Guid userId);
+    
     Task<bool> IsValidUserRegister(CreateUpdateUserDtos userDtos);
-
+    
     Task<List<ComboOptionKeyTitleDto>> GetComboUser();
 }

@@ -4,8 +4,6 @@ namespace backend.DTOs.UserDtos;
 
 public class UpdateUserRoleDto
 {
-    public string RoleId { get; set; }
-    
-    [JsonProperty("userIds")]
-    public List<string> UserIds { get; set; }
+    public Guid RoleId { get; set; }
+    public List<Guid> UserIds { get; set; }
 }

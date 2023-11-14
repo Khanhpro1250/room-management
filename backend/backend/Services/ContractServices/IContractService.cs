@@ -1,18 +1,21 @@
-﻿using backend.Controllers.Dtos.Responese;
+﻿using backend.Controllers.Dtos;
+using backend.Controllers.Dtos.Responese;
 using backend.DTOs.ContractDtos;
 
 namespace backend.Services.ContractServices
 {
     public interface IContractService
     {
-        Task<PaginatedList<ContractDto>> GetListContract();
-        Task<ContractDto> GetContractById(string contractId);
+        Task<PaginatedList<ContractDto>> GetListContract(PaginatedListQuery paginatedListQuery);
+        Task<ContractDto> GetContractById(Guid contractId);
         Task<ContractDto> CreateContract(CreateUpdateContractDto contract);
-        Task<ContractDto> UpdateContract(CreateUpdateContractDto contract, string id);
-        Task DeleteContract(string id);
+        Task<ContractDto> UpdateContract(CreateUpdateContractDto contract, Guid id);
+        Task DeleteContract(Guid id);
+        
+        Task<ContractDto> GetCurrentContractRoomId(Guid roomId, Guid? customerId = null);
 
-        Task<ContractDto> GetCurrentContractRoomId(string roomId, string? customerId = null);
-
-        Task<bool> ValidateContract(CreateUpdateContractDto contractDto, string id);
+        Task<ExportContractDto> GetDataExportContract(CreateUpdateContractDto contractDto);
+        
+        Task<bool> ValidateContract(CreateUpdateContractDto contractDto, Guid? id = null);
     }
 }

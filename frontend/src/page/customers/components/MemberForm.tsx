@@ -14,11 +14,13 @@ import { requestApi } from '~/lib/axios';
 import { Member } from '~/types/shared/Customer';
 import NotifyUtil from '~/util/NotifyUtil';
 import { CUSTOMER_UPDATE_SERVICE_CUSTOMER_API } from '../api/customer.api';
+import { ServiceCustomer } from '~/types/shared/Service';
 interface Props {
     customerId?: string | null;
     maxNumberOfPeople?: number;
     readonly?: boolean;
     initialValues?: Member[];
+    services: ServiceCustomer[];
     onClose?: () => void;
     onSubmitSuccessfully?: () => void;
 }
@@ -48,6 +50,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
         overlayRef.current?.open();
         const response = await requestApi('PUT', `${CUSTOMER_UPDATE_SERVICE_CUSTOMER_API}/${props.customerId}`, {
             members: rowData,
+            services: props.services,
         });
         if (response.data?.success) {
             NotifyUtil.success(NotificationConstant.TITLE, 'Successfully');

@@ -30,7 +30,7 @@ public class HouseController : ControllerBase
     [HttpGet("index")]
     public async Task<ApiResponse<PaginatedList<HouseDto>>> GetIndexAction()
     {
-        var result = await _houseService.GetListHouse();
+        var result = await _houseService.GetListHouse(Request.Query.GetPaginatedListQuery());
         return ApiResponse<PaginatedList<HouseDto>>.Ok(result);
     }
 
@@ -41,9 +41,9 @@ public class HouseController : ControllerBase
         return ApiResponse<HouseDto>.Ok(result);
     }
 
-    [HttpPut("update/{id}")]
+    [HttpPut("update/{id:guid}")]
     public async Task<ApiResponse<HouseDto>> UpdateAction([FromBody] CreateUpdateHouseDto houseDto,
-        [FromRoute] string id)
+        [FromRoute] Guid id)
     {
         var result = await _houseService.UpdateHouse(houseDto, id);
         return ApiResponse<HouseDto>.Ok(result);
@@ -56,24 +56,25 @@ public class HouseController : ControllerBase
         return ApiResponse<List<ComboOptionDto>>.Ok(result);
     }
 
-    [HttpDelete("delete/{id}")]
-    public async Task<ApiResponse> DeleteAction([FromRoute] string id)
+    [HttpDelete("delete/{id:guid}")]
+    public async Task<ApiResponse> DeleteAction([FromRoute] Guid id)
     {
         await _houseService.DeleteHouse(id);
         return ApiResponse.Ok();
     }
-    //
-    // [HttpGet("test-export")]
-    // public async Task<FileStreamResult> Export([FromQuery] bool isPdf, [FromQuery] string fileName)
-    // {
-    //     var document = await _exportService.ExportWord(new
-    //     {
-    //         FirstName = "Khanh",
-    //         LastName = "Huynh"
-    //     }, null,"https://res.cloudinary.com/khanh15032001/raw/upload/v1696238911/documents/e5f51be8-9315-4eae-94dc-62e054b8520d.docx");
-    //     fileName = $"{fileName}.docx";
-    //     if (isPdf)
-    //         fileName = fileName.Replace("docx", "pdf");
-    //     return WorkbookUtil.DocumentToFileStream(document, fileName);
-    // }
+
+    [HttpGet("test-export")]
+    public async Task<FileStreamResult> Export([FromQuery] bool isPdf, [FromQuery] string fileName)
+    {
+        var document = await _exportService.ExportWord(new
+            {
+                FirstName = "Khanh",
+                LastName = "Huynh"
+            }, null,
+            "https://res.cloudinary.com/khanh15032001/raw/upload/v1696238911/documents/e5f51be8-9315-4eae-94dc-62e054b8520d.docx");
+        fileName = $"{fileName}.docx";
+        if (isPdf)
+            fileName = fileName.Replace("docx", "pdf");
+        return WorkbookUtil.DocumentToFileStream(document, fileName);
+    }
 }

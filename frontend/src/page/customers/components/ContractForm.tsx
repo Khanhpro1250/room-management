@@ -95,7 +95,7 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
 
         const response = (await requestApi(
             'POST',
-            `${EXPORT_CONTRACT_API}/${props.roomId}`,
+            EXPORT_CONTRACT_API,
             {
                 ...formValues,
                 roomId: props.roomId,

@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using backend.Models.Entities.UserAccount;
 using backend.Models.Repositorties.UserAccountRepositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services.UserServices;
 
@@ -24,7 +25,7 @@ public class CurrentUser : ICurrentUser
         _userAccountRepository = userAccountRepository;
     }
 
-    public string Id
+    public Guid Id
     {
         get
         {
@@ -32,14 +33,14 @@ public class CurrentUser : ICurrentUser
                 _principalAccessor.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name");
             if (!string.IsNullOrWhiteSpace(userName))
             {
-                var userRepo = _userAccountRepository;
-                var userFindTask = userRepo.GetUserByUserName(userName);
+                var queryable = _userAccountRepository.GetQueryable();
+                var userFindTask = queryable.FirstOrDefaultAsync(x => x.UserName.Contains(userName));
                 userFindTask.Wait();
                 _user = userFindTask.Result;
-                if (_user?.Id != null) return (_user?.Id)?.ToString();
+                if (_user?.Id != null) return _user.Id;
             }
 
-            return null;
+            return new Guid();
         }
     }
 
@@ -51,8 +52,8 @@ public class CurrentUser : ICurrentUser
                 _principalAccessor.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name");
             if (!string.IsNullOrWhiteSpace(userName))
             {
-                var userRepo = _userAccountRepository;
-                var userFindTask = userRepo.GetUserByUserName(userName);
+                var queryable = _userAccountRepository.GetQueryable();
+                var userFindTask = queryable.FirstOrDefaultAsync(x => x.UserName.Contains(userName));
                 userFindTask.Wait();
                 _user = userFindTask.Result;
                 if (_user?.Id != null) return _user.IsAdmin;

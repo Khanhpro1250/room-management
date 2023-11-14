@@ -2,7 +2,7 @@
 
 public interface ICurrentUser
 {
-    string Id { get; }
+    Guid Id { get; }
     bool IsAdmin { get; }
 
     string UserName { get; }
