@@ -1,6 +1,6 @@
 ﻿namespace backend.Models.Entities.Deposits
 {
-    public class Deposit : AuditedEntity
+    public class Deposit : AuditedEntity<Guid>
     {
         public string RoomId { get; set; }
         public string CustomerName { get; set; }

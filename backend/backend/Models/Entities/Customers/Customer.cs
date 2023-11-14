@@ -1,9 +1,11 @@
-﻿using backend.Models.Entities.Services;
+﻿using backend.Models.Entities.Contracts;
+using backend.Models.Entities.Rooms;
+using backend.Models.Entities.Services;
 using Newtonsoft.Json;
 
 namespace backend.Models.Entities.Customers
 {
-    public class Customer : AuditedEntity
+    public class Customer : AuditedEntity<Guid>
     {
         /// <summary>
         /// Họ và tên
@@ -20,7 +22,7 @@ namespace backend.Models.Entities.Customers
         /// <summary>
         /// Ngày cấp
         /// </summary>
-        public DateTime IssueDate { get; set; }
+        public DateTime? IssueDate { get; set; }
         /// <summary>
         /// Số điện thoại 1 - 2
         /// </summary>
@@ -41,7 +43,7 @@ namespace backend.Models.Entities.Customers
         /// <summary>
         /// Ngày sinh
         /// </summary>
-        public string Birthday { get; set; }
+        public DateTime? Birthday { get; set; }
         /// <summary>
         /// Nơi sinh
         /// </summary>
@@ -49,7 +51,7 @@ namespace backend.Models.Entities.Customers
         /// <summary>
         /// Ngày bắt đầu thuê
         /// </summary>
-        public DateTime RentalStartTime { get; set; }
+        public DateTime? RentalStartTime { get; set; }
         /// <summary>
         /// Tiền phòng
         /// </summary>
@@ -75,7 +77,9 @@ namespace backend.Models.Entities.Customers
         /// Ghi chú
         /// </summary>
         public string Note { get; set; }
-        public string RoomId { get; set; }
+        
+        public Guid RoomId { get; set; }
+        
         /// <summary>
         /// Trạng thái ( active; inactive ) đang thuê / đã thuê
         /// </summary>
@@ -83,20 +87,31 @@ namespace backend.Models.Entities.Customers
         /// <summary>
         /// Hình ảnh
         /// </summary>
-        [JsonProperty("fileUrls")] 
-        public List<string> FileUrls { get; set; }
+        // [JsonProperty("fileUrls")] 
+        public string FileUrls { get; set; }
         
-        [JsonProperty("members")] 
+
+
+        #region ref
+
+        public Room Room { get; set; }
+        
+        public List<Contract> Contracts { get; set; }
+        
+        // [JsonProperty("members")] 
         public List<Member> Members { get; set; }
         
-        [JsonProperty("services")] 
+        // [JsonProperty("services")] 
         public List<ServiceCustomer> Services { get; set; }
+
+        #endregion
     }
     
     public class Member : Entity
     {
         public string Name { get; set; }
-        public DateTime DateOfBirth { get; set; }
+        public Guid CustomerId { get; set; }
+        public DateTime? DateOfBirth { get; set; }
         public string IdentityNo { get; set; }
         public string PermanentAddress { get; set; }
         public string PhoneNumber { get; set; }
@@ -105,6 +120,13 @@ namespace backend.Models.Entities.Customers
         /// Ngày đăng kí thường trú
         /// </summary>
         public DateTime? TemporarilyDate { get; set; }
+
+        #region ref
+
+        public Customer Customer { get; set; }
+
+        #endregion
+        
     }
 }
 

@@ -7,9 +7,9 @@ namespace backend.Services.HouseServices;
 public interface IHouseService
 {
     Task<HouseDto> CreateHouse(CreateUpdateHouseDto houseDto);
-    Task<HouseDto> UpdateHouse(CreateUpdateHouseDto houseDto, string id);
-
-    Task DeleteHouse(string id);
-    Task<PaginatedList<HouseDto>> GetListHouse();
+    Task<HouseDto> UpdateHouse(CreateUpdateHouseDto houseDto, Guid id);
+    
+    Task DeleteHouse(Guid id);
+    Task<PaginatedList<HouseDto>> GetListHouse(PaginatedListQuery paginatedListQuery);
     Task<List<ComboOptionDto>> GetComboHouse();
 }

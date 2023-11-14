@@ -5,13 +5,13 @@ namespace backend.Services.RoomServices
 {
     public interface IRoomService
     {
-        Task<PaginatedList<RoomDto>> GetListRoom(RoomFilterDto filterDto);
-        Task<RoomDto> GetRoomById(string roomId);
-        Task<DataWithRoomDto> GetDataWithRoom(string roomId);
+        Task<PaginatedList<RoomDto>> GetListRoom(RoomFiterDto filterDto);
+        Task<RoomDto> GetRoomById(Guid roomId);
+        Task<DataWithRoomDto> GetDataWithRoom(Guid roomId);
         Task<RoomDto> CreateRoom(CreateUpdateRoomDto room);
-        Task<RoomDto> UpdateRoom(CreateUpdateRoomDto room, string id);
+        Task<RoomDto> UpdateRoom(CreateUpdateRoomDto room, Guid id);
 
-        Task<List<RoomElectricServiceDto>> GetElectricServiceRoom(ElectricServiceFilterDto filterDto);
-        Task DeleteRoom(string id);
+        // Task<List<RoomElectricServiceDto>> GetElectricServiceRoom(ElectricServiceFilterDto filterDto);
+        Task DeleteRoom(Guid id);
     }
 }

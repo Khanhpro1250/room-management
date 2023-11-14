@@ -1,19 +1,23 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.ContractDtos;
+using backend.DTOs.CustomerDtos;
 using backend.DTOs.RoomDtos;
-using backend.Models.Entities.Houses;
+using backend.DTOs.ServiceDtos;
+using backend.Models.Entities.Customers;
 using backend.Models.Entities.Rooms;
+using backend.Models.Entities.Services;
+using backend.Models.Repositorties.ContractRepositories;
 using backend.Models.Repositorties.HouseRerositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Services.CloudinaryServices;
 using backend.Services.ContractServices;
 using backend.Services.CustomerServices;
-using backend.Services.HouseServices;
 using backend.Services.ServiceServices;
 using backend.Services.UserServices;
 using backend.Utils;
-using MongoDB.Driver;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services.RoomServices;
 
@@ -25,12 +29,12 @@ public class RoomService : IRoomService
     private readonly ICustomerService _customerService;
     private readonly IServiceService _serviceService;
     private readonly ICurrentUser _currentUser;
-    private readonly IContractService _contractService;
-    private readonly IHouseRepository _houseRepository;
+    private readonly IContractRepository _contractRepository;
+
 
     public RoomService(IRoomRepository roomRepository, IMapper mapper, ICloudinaryService cloudinaryService,
         ICustomerService customerService, IServiceService serviceService, ICurrentUser currentUser,
-        IContractService contractService, IHouseRepository houseRepository)
+        IContractRepository contractRepository)
     {
         _roomRepository = roomRepository;
         _mapper = mapper;
@@ -38,89 +42,85 @@ public class RoomService : IRoomService
         _customerService = customerService;
         _serviceService = serviceService;
         _currentUser = currentUser;
-        _contractService = contractService;
-        _houseRepository = houseRepository;
+        _contractRepository = contractRepository;
     }
 
     public async Task<RoomDto> CreateRoom(CreateUpdateRoomDto room)
     {
         var roomEntity = _mapper.Map<CreateUpdateRoomDto, Room>(room);
-        roomEntity.CreatedBy = _currentUser.Id;
+        roomEntity.CreatedBy = _currentUser.Id.ToString();
         roomEntity.CreatedTime = DateTime.Now;
-        var result = await _roomRepository.CreateRoom(roomEntity);
+        var result = await _roomRepository.AddAsync(roomEntity, true);
         return _mapper.Map<Room, RoomDto>(result);
     }
 
-    public async Task DeleteRoom(string id)
+    public async Task DeleteRoom(Guid id)
     {
-        await _roomRepository.DeleteRoom(id);
+        var room = await _roomRepository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id));
+        await _roomRepository.DeleteAsync(room, true);
     }
 
-    public async Task<PaginatedList<RoomDto>> GetListRoom(RoomFilterDto filterDto)
+    public async Task<PaginatedList<RoomDto>> GetListRoom(RoomFiterDto filterDto)
     {
         var queryable = _roomRepository.GetQueryable();
-        var filterBuilder = Builders<Room>.Filter;
         var currentUserId = _currentUser.Id;
 
-        var filter = filterBuilder.And(
-            filterBuilder.WhereIf(!string.IsNullOrWhiteSpace(filterDto.RoomCode),
-                x => x.RoomCode.Contains(filterDto.RoomCode)),
-            filterBuilder.Eq(x => x.HouseId, filterDto.HouseId),
-            filterBuilder.WhereIf(!_currentUser.IsAdmin, x => x.CreatedBy.Contains(currentUserId))
-        );
+
         var listRoom = await queryable
-            .Find(filter)
-            .Limit(filterDto.Limit)
-            .Skip(filterDto.Offset)
+            .WhereIf(!String.IsNullOrEmpty(filterDto.RoomCode), x => x.RoomCode.Contains(filterDto.RoomCode))
+            .WhereIf(filterDto.HouseId.HasValue, x => x.HouseId.Equals(x.HouseId))
+            .WhereIf(!_currentUser.IsAdmin, x => x.CreatedBy.Contains(currentUserId.ToString()))
+            .WhereIf(!String.IsNullOrEmpty(filterDto.Status) && filterDto.Status == "NEW", x => x.Customers.Any())
+            .WhereIf(!String.IsNullOrEmpty(filterDto.Status) && filterDto.Status == "RENTED", x => !x.Customers.Any())
+            .WhereIf(!String.IsNullOrEmpty(filterDto.CustomerName),
+                x => x.Customers.Any(y => y.Status && y.FullName.Contains(filterDto.CustomerName)))
+            .Include(x => x.Customers)
+            .QueryablePaging(filterDto.PaginatedListQuery)
             .ToListAsync();
-        var listRoomId = listRoom.Select(x => x.Id).ToList();
-        var listRoomRented = await GetListRoomIdRented(listRoomId);
 
-        var result = _mapper.Map<List<Room>, List<RoomDto>>(listRoom);
+        var count = await queryable.CountAsync();
 
-        foreach (var item in result)
+        var result = new List<RoomDto>();
+        foreach (var item in listRoom)
         {
-            if (listRoomRented.Contains(item.Id))
+            var roomDto = _mapper.Map<Room, RoomDto>(item);
+            if (item.Customers.Any())
             {
-                item.Status = "RENTED";
-                item.StatusName = "Đã cho thuê";
+                roomDto.Status = "RENTED";
+                roomDto.StatusName = "Đã cho thuê";
             }
             else
             {
-                item.Status = "NEW";
-                item.StatusName = "Còn trống";
+                roomDto.Status = "NEW";
+                roomDto.StatusName = "Còn trống";
             }
+
+            result.Add(roomDto);
         }
 
-        if (!String.IsNullOrEmpty(filterDto.Status))
-        {
-            result = result.Where(x => x.Status == filterDto.Status).ToList();
-        }
-        else if (!String.IsNullOrEmpty(filterDto.CustomerName))
-        {
-            var listRoomIds = await GetRoomIdByCustomerName(filterDto.CustomerName);
-            result = result.Where(x => listRoomIds.Contains(x.Id)).ToList();
-        }
-
-        return new PaginatedList<RoomDto>(result, result.Count, filterDto.Offset, filterDto.Limit);
+        return new PaginatedList<RoomDto>(result, count, filterDto.PaginatedListQuery.Offset,
+            filterDto.PaginatedListQuery.Limit);
     }
 
-    public async Task<RoomDto> GetRoomById(string roomId)
+    public async Task<RoomDto> GetRoomById(Guid roomId)
     {
-        var room = await _roomRepository.GetRoomById(roomId);
+        var room = await _roomRepository.GetQueryable().FirstOrDefaultAsync(x => x.Id.Equals(roomId));
         var result = _mapper.Map<Room, RoomDto>(room);
         return result;
     }
 
-    public async Task<RoomDto> UpdateRoom(CreateUpdateRoomDto room, string id)
+    public async Task<RoomDto> UpdateRoom(CreateUpdateRoomDto room, Guid id)
     {
-        var oldRoom = await _roomRepository.GetRoomById(id);
+        var oldRoom = await _roomRepository.GetQueryable()
+                          .AsNoTracking()
+                          .FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
+                      throw new Exception("Không tim thấy phòng");
         var newEntity = _mapper.Map<CreateUpdateRoomDto, Room>(room);
-        newEntity.LastModifiedBy = _currentUser.Id;
+        newEntity.LastModifiedBy = _currentUser.Id.ToString();
         newEntity.LastModifiedTime = DateTime.Now;
 
-        var result = await _roomRepository.UpdateRoom(newEntity, id);
-        var listFileDelete = oldRoom.FileUrls.Except(room.FileUrls).ToList();
+        var result = await _roomRepository.UpdateAsync(newEntity, true);
+        var listFileDelete = oldRoom.FileUrls.Split(',').Except(room.FileUrls).ToList();
         if (listFileDelete.Any())
         {
             await _cloudinaryService.DeleteFileCloudinary(listFileDelete);
@@ -130,67 +130,70 @@ public class RoomService : IRoomService
     }
 
 
-    public async Task<DataWithRoomDto> GetDataWithRoom(string roomId)
+    public async Task<DataWithRoomDto> GetDataWithRoom(Guid roomId)
     {
-        var room = await GetRoomById(roomId);
-        var customer = await _customerService.GetCustomerByRoomId(roomId);
+        var queryable = _roomRepository.GetQueryable();
+
+        var room = await queryable
+            .AsNoTracking()
+            .Include(x => x.Customers)
+            .ThenInclude(x => x.Members)
+            .Include(x => x.Customers)
+            .ThenInclude(x => x.Services)
+            .AsNoTrackingWithIdentityResolution()
+            .Include(x => x.Customers)
+            .FirstOrDefaultAsync(x => x.Id.Equals(roomId));
+        var customer = room?.Customers.FirstOrDefault(x => x.Status.Equals(true));
+        ContractDto contract = null;
+        if (customer is not null)
+        {
+            contract = await _contractRepository.GetQueryable()
+                .AsNoTracking()
+                .Where(x => x.CustomerId.Equals(customer.Id))
+                .ProjectTo<ContractDto>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync(x => x.EffectDate <= DateTime.Now && x.ExpiredDate >= DateTime.Now);
+        }
+
         var listServices = await _serviceService.GetListServiceRegister();
         var result = new DataWithRoomDto()
         {
-            Room = room,
-            Customer = customer,
+            Room = _mapper.Map<RoomDto>(room),
+            Customer = _mapper.Map<CustomerDto>(customer),
             ListServices = listServices,
-            Services = customer?.Services,
-            Members = customer?.Members
+            Contract = contract,
+            Services = _mapper.Map<List<ServiceCustomer>, List<ServiceCustomerDto>>(customer?.Services),
+            Members = _mapper.Map<List<Member>, List<MemberDto>>(customer?.Members)
         };
-        if (customer is not null)
-        {
-            var contract = await _contractService.GetCurrentContractRoomId(roomId, customer.Id);
-            result.Contract = contract;
-        }
 
         return result;
     }
 
-    private async Task<List<string>> GetListRoomIdRented(List<string> roomIds)
-    {
-        var listCustomers = await _customerService.GetCustomerByRoomIds(roomIds);
-        return listCustomers.Select(x => x.RoomId).Distinct().ToList();
-    }
 
-    private async Task<List<string>> GetRoomIdByCustomerName(string customerName)
-    {
-        var listRoomIds = await _customerService.GetRoomIdByCustomerName(customerName);
-        return listRoomIds;
-    }
-
-
-    public async Task<List<RoomElectricServiceDto>> GetElectricServiceRoom(ElectricServiceFilterDto filterDto)
-    {
-        var currentUserId = _currentUser.Id;
-        var houseQueryable = _houseRepository.GetQueryable();
-        var roomQueryable = _roomRepository.GetQueryable();
-        var filterHouseBuilder = Builders<House>.Filter;
-        var filterRoomBuilder = Builders<Room>.Filter;
-        var listHouse = await houseQueryable
-            .Find(
-                filterHouseBuilder.And(
-                    filterHouseBuilder.WhereIf(String.IsNullOrEmpty(filterDto.HouseId),
-                        x => filterDto.HouseId.Equals(x.Id)),
-                    filterHouseBuilder.Where(x => x.UserId.Equals(currentUserId))
-                )
-            )
-            .ToListAsync();
-        var listHouseId = listHouse.Select(x => x.Id).ToList();
-        var listRoom = await roomQueryable.Find(filterRoomBuilder.And(
-            filterRoomBuilder.WhereIf(filterDto.Status != Status.All, x => x.Status == nameof(filterDto.Status)),
-            filterRoomBuilder.Where(x => listHouseId.Contains(x.HouseId))
-        )).ToListAsync();
-
-        var result = new List<RoomElectricServiceDto>();
-
-        
-        
-        return result;
-    }
+    // public  Task<List<RoomElectricServiceDto>> GetElectricServiceRoom(ElectricServiceFilterDto filterDto)
+    // {
+    //     // var currentUserId = _currentUser.Id;
+    //     // var houseQueryable = _houseRepository.GetQueryable();
+    //     // var roomQueryable = _roomRepository.GetQueryable();
+    //     // var filterHouseBuilder = Builders<House>.Filter;
+    //     // var filterRoomBuilder = Builders<Room>.Filter;
+    //     // var listHouse = await houseQueryable
+    //     //     .Find(
+    //     //         filterHouseBuilder.And(
+    //     //             filterHouseBuilder.WhereIf(String.IsNullOrEmpty(filterDto.HouseId),
+    //     //                 x => filterDto.HouseId.Equals(x.Id)),
+    //     //             filterHouseBuilder.Where(x => x.UserId.Equals(currentUserId))
+    //     //         )
+    //     //     )
+    //     //     .ToListAsync();
+    //     // var listHouseId = listHouse.Select(x => x.Id).ToList();
+    //     // var listRoom = await roomQueryable.Find(filterRoomBuilder.And(
+    //     //     filterRoomBuilder.WhereIf(filterDto.Status != Status.All, x => x.Status == nameof(filterDto.Status)),
+    //     //     filterRoomBuilder.Where(x => listHouseId.Contains(x.HouseId))
+    //     // )).ToListAsync();
+    //
+    //     var result = new List<RoomElectricServiceDto>();
+    //
+    //
+    //     return result;
+    // }
 }

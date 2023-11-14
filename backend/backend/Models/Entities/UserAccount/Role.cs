@@ -1,14 +1,9 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using Newtonsoft.Json;
+﻿namespace backend.Models.Entities.UserAccount;
 
-namespace backend.Models.Entities.UserAccount;
-
-public class Role: AuditedEntity
+public class Role: AuditedEntity<Guid>
 {
     public string Name { get; set; }
     public string Code { get; set; }
-    [JsonProperty("userIds")]
-    public List<string> UserIds { get; set; }
-    
+    public bool Used { get; set; }
+    public ICollection<UserRole> UserRole { get; set; }
 }

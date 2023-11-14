@@ -6,14 +6,14 @@ namespace backend.Services.RoleServices
 {
     public interface IRoleService
     {
-        Task<PaginatedList<RoleDto>> GetListRole();
-        Task<RoleDto> GetRoleById(string roleId);
+        Task<PaginatedList<RoleDto>> GetListRole(PaginatedListQuery paginatedListQuery);
+        Task<RoleDto> GetRoleById(Guid id);
         Task<RoleDto> CreateRole(CreateUpdateRoleDto role);
         Task<RoleDto> UpdateRole(CreateUpdateRoleDto role, string id);
         Task<RoleDto> UpdateRoleUser(UpdateUserRoleDto userRoleDto);
         Task<List<ComboOptionDto>> GetComboRole();
-        Task DeleteRole(string id);
+        Task DeleteRole(Guid id);
 
-        Task<List<string>> GetPermissionWithCurrentUser();
+        Task<List<Guid>> GetPermissionWithCurrentUser();
     }
 }

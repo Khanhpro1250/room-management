@@ -2,6 +2,7 @@
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.MenuDtos;
 using backend.Services.MenuService;
+using backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers;
@@ -21,7 +22,7 @@ public class MenuController : ControllerBase
     [HttpGet("index")]
     public async Task<ApiResponse<PaginatedList<MenuDto>>> GetIndex()
     {
-        var result = await _menuService.GetListMenus();
+        var result = await _menuService.GetListMenus(Request.Query.GetPaginatedListQuery());
         return ApiResponse<PaginatedList<MenuDto>>.Ok(result);
     }
 
@@ -33,8 +34,8 @@ public class MenuController : ControllerBase
     }
 
 
-    [HttpGet("detail/{id}")]
-    public async Task<ApiResponse<MenuDto>> GetDetail([FromRoute] string id)
+    [HttpGet("detail/{id:guid}")]
+    public async Task<ApiResponse<MenuDto>> GetDetail([FromRoute] Guid id)
     {
         var result = await _menuService.GetDetailMenu(id);
         return ApiResponse<MenuDto>.Ok(result);
@@ -47,15 +48,15 @@ public class MenuController : ControllerBase
         return ApiResponse<MenuDto>.Ok(result);
     }
 
-    [HttpPut("update/{id}")]
-    public async Task<ApiResponse<MenuDto>> UpdateAction([FromBody] CreateUpdateMenuDto menuDto, [FromRoute] string id)
+    [HttpPut("update/{id:guid}")]
+    public async Task<ApiResponse<MenuDto>> UpdateAction([FromBody] CreateUpdateMenuDto menuDto, [FromRoute] Guid id)
     {
         var result = await _menuService.UpdateMenu(menuDto, id);
         return ApiResponse<MenuDto>.Ok(result);
     }
 
-    [HttpDelete("delete/{id}")]
-    public async Task<ApiResponse> DeleteAction([FromRoute] string id)
+    [HttpDelete("delete/{id:guid}")]
+    public async Task<ApiResponse> DeleteAction([FromRoute] Guid id)
     {
         await _menuService.DeleteMenu(id);
         return ApiResponse.Ok();

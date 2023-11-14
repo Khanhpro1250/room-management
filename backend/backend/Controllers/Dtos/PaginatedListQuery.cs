@@ -1,7 +1,8 @@
 ﻿namespace backend.Controllers.Dtos;
 
-public class PaginatedFilterDto
+public class PaginatedListQuery
 {
-    public int Limit { get; set; } = -1;
     public int Offset { get; set; } = 0;
+
+    public int Limit { get; set; } = 25;
 }

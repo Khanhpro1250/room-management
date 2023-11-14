@@ -1,6 +1,6 @@
 ﻿namespace backend.Models.Entities.Requests
 {
-    public class Request:AuditedEntity
+    public class Request:AuditedEntity<Guid>
     {
         public string RoomId { get; set; }
         public string Title { get; set; }

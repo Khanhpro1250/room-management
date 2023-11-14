@@ -4,8 +4,8 @@
     {
         public string? Id { get; set; }
         public string ContractNumber { get; set; }
-        public string RoomId { get; set; }
-        public string CustomerId { get; set; }
+        public Guid RoomId { get; set; }
+        public Guid CustomerId { get; set; }
         public int Month { get; set; }
         public DateTime SignedDate { get; set; }
         public DateTime EffectDate { get; set; }

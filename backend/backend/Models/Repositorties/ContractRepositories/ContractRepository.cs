@@ -1,52 +1,26 @@
 ﻿using backend.Models.Entities.Contracts;
-using backend.Models.Entities.Customers;
-using MongoDB.Driver;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models.Repositorties.ContractRepositories
 {
-    public class ContractRepository : IContractRepository
+    public class ContractRepository : EfCoreRepository<ApplicationDbContext, Contract>, IContractRepository
     {
-        private readonly IMongoCollection<Contract> _contract;
-        public ContractRepository(IMongoClient client, string databaseName)
+        private readonly ApplicationDbContext _context;
+
+        public ContractRepository(IServiceProvider serviceProvider, ApplicationDbContext context) : base(
+            serviceProvider, context)
         {
-            IMongoDatabase database = client.GetDatabase(databaseName);
-            _contract = database.GetCollection<Contract>("Contract");
+            _context = context;
         }
 
-        public async Task<List<Contract>> GetListContract()
+        public DbSet<Contract> GetRepository()
         {
-            return await _contract.Find(item => true).ToListAsync();
+            return _context.Set<Contract>();
         }
 
-        public async Task<Contract> GetContractById(string contractId)
+        public IQueryable<Contract> GetQueryable()
         {
-            var result = await _contract.Find(x => x.Id == contractId).FirstOrDefaultAsync();
-
-            return result ?? new Contract();
-        }
-
-        public async Task<Contract> CreateContract(Contract contract)
-        {
-            await _contract.InsertOneAsync(contract);
-            return contract;
-        }
-
-        public async Task<Contract> UpdateContract(Contract contract, string contractId)
-        {
-            var filter = Builders<Contract>.Filter.Eq(x => x.Id, contractId);
-            await _contract.ReplaceOneAsync(filter, contract);
-            return contract;
-        }
-
-        public async Task DeleteContract(string id)
-        {
-            var filter = Builders<Contract>.Filter.Eq(x => x.Id, id);
-            await _contract.DeleteOneAsync(filter);
-        }
-
-        public IMongoCollection<Contract> GetQueryable()
-        {
-            return _contract;
+            return GetRepository().AsQueryable();
         }
     }
 }

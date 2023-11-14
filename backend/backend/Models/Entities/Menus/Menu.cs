@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace backend.Models.Entities.Menus;
 
-public class Menu : AuditedEntity
+public class Menu : AuditedEntity<Guid>
 {
     public string Name { get; set; }
     public string Route { get; set; }
@@ -12,5 +12,5 @@ public class Menu : AuditedEntity
     public bool IsDisplay { get; set; } = false;
     public int Level { get; set; } = 1;
     public string Permissions { get; set; }
-    public string ParentId { get; set; }
+    public Guid? ParentId { get; set; }
 }

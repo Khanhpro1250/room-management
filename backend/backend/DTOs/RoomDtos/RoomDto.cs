@@ -4,7 +4,7 @@ namespace backend.DTOs.RoomDtos
 {
     public class RoomDto
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string CreatedBy { get; set; }
         public DateTime? CreatedTime { get; set; }
         public string LastModifiedBy { get; set; }
@@ -17,8 +17,8 @@ namespace backend.DTOs.RoomDtos
         public int MaxNumberOfPeople { get; set; }
         public float Price { get; set; }
         public string Description { get; set; }
-        [JsonProperty("fileUrls")] 
-        public List<string> FileUrls { get; set; }
+        // [JsonProperty("fileUrls")] 
+        public string FileUrls { get; set; }
         public string Status { get; set; }
         public float Deposit { get; set; }
         public string InteriorIds { get; set; }

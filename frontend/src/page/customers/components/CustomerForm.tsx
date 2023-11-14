@@ -51,20 +51,20 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
     });
     const overlayRef = useRef<OverlayRef>(null);
     const modalRef = useRef<ModalRef>(null);
-    const [state, setState] = useMergeState<State>({
-        imageList:
-            props.initialValues?.fileUrls?.map(
-                url =>
-                    ({
-                        uid: url,
-                        name: url,
-                        url: url,
-                        status: 'done',
-                        thumbUrl: url,
-                    } as UploadFile),
-            ) ?? [],
-        // fileUrls: props.initialValues?.fileUrls ?? [],
-    });
+    // const [state, setState] = useMergeState<State>({
+    //     imageList:
+    //         props.initialValues?.fileUrls?.map(
+    //             url =>
+    //                 ({
+    //                     uid: url,
+    //                     name: url,
+    //                     url: url,
+    //                     status: 'done',
+    //                     thumbUrl: url,
+    //                 } as UploadFile),
+    //         ) ?? [],
+    //     // fileUrls: props.initialValues?.fileUrls ?? [],
+    // });
 
     const onSubmit = async () => {
         const urlParams: Record<
@@ -121,7 +121,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
             // });
             imageListRef.current.fileUrls = [...imageListRef.current.fileUrls, result.fileUrl];
         }
-        setState({ imageList: fileList });
+        // setState({ imageList: fileList });
     };
 
     const handlePreview = async (file: UploadFile) => {
@@ -355,7 +355,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                         name: nameof.full<Customer>(x => x.fileUrls),
                         children: (
                             <>
-                                <Upload
+                                {/* <Upload
                                     onChange={handleChange}
                                     fileList={state.imageList}
                                     onRemove={onRemove}
@@ -368,7 +368,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                                     listType="picture-card"
                                 >
                                     {state.imageList.length >= 8 ? null : uploadButton}
-                                </Upload>
+                                </Upload> */}
                                 <ModalBase
                                     ref={modalRef}
                                     footer={[
