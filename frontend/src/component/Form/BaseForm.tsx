@@ -29,6 +29,7 @@ export interface BaseFormItem {
     valuePropName?: string;
     children?: React.ReactNode;
     className?: string;
+    getValueFromEvent?: (...args: any[]) => any;
 }
 
 export interface FieldData {
@@ -85,6 +86,7 @@ const BaseForm = React.forwardRef<BaseFormRef, BaseFormProps>((props, ref) => {
                         <Form.Item
                             key={item.name}
                             className={item.className}
+                            getValueFromEvent={item.getValueFromEvent}
                             {...item}
                             //@ts-ignore
                             labelPosition="top"

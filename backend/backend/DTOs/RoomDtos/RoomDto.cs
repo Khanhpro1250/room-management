@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using backend.Controllers.Dtos;
+using Newtonsoft.Json;
 
 namespace backend.DTOs.RoomDtos
 {
@@ -23,5 +24,8 @@ namespace backend.DTOs.RoomDtos
         public float Deposit { get; set; }
         public string InteriorIds { get; set; }
         public string StatusName { get; set; }
+        
+        public Guid? FileEntryCollectionId { get; set; }
+        public FileEntryCollectionDto? FileEntryCollection { get; set; }
     }
 }

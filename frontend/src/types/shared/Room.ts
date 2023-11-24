@@ -1,3 +1,5 @@
+import { FileEntryCollectionDto } from './File';
+
 export interface Room {
     id: string;
     roomCode: string;
@@ -9,6 +11,7 @@ export interface Room {
     deposit: number;
     description: string;
     fileUrls: string[] | null;
+    fileEntryCollection?: FileEntryCollectionDto;
     file: string[] | null;
     status: string;
     statusName: string;

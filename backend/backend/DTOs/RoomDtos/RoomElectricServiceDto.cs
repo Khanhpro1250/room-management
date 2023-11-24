@@ -2,8 +2,8 @@
 
 public class RoomElectricServiceDto
 {
-    public string RoomId { get; set; }
-    public string CustomerId { get; set; }
+    public Guid RoomId { get; set; }
+    public Guid CustomerId { get; set; }
     public string RoomCode { get; set; }
     public string HouseName { get; set; }
     public string CustomerName { get; set; }

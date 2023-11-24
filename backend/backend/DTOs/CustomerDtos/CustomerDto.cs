@@ -1,4 +1,5 @@
-﻿using backend.DTOs.ServiceDtos;
+﻿using backend.Controllers.Dtos;
+using backend.DTOs.ServiceDtos;
 using Newtonsoft.Json;
 
 namespace backend.DTOs.CustomerDtos
@@ -52,5 +53,8 @@ namespace backend.DTOs.CustomerDtos
 
         // [JsonProperty("services")] 
         public List<ServiceCustomerDto> Services { get; set; }
+        
+        public Guid? FileEntryCollectionId { get; set; }
+        public FileEntryCollectionDto? FileEntryCollection { get; set; }
     }
 }

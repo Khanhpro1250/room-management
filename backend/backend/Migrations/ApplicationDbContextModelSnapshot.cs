@@ -96,6 +96,9 @@ namespace backend.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("FileEntryCollectionId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("FileUrls")
                         .HasColumnType("nvarchar(max)");
 
@@ -155,6 +158,8 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FileEntryCollectionId");
+
                     b.HasIndex("RoomId");
 
                     b.ToTable("Customer", "HouseSchema");
@@ -162,9 +167,9 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Entities.Customers.Member", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
                     b.Property<Guid>("CustomerId")
@@ -196,6 +201,69 @@ namespace backend.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("Member", "HouseSchema");
+                });
+
+            modelBuilder.Entity("backend.Models.Entities.Files.FileEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("FileEntryCollectionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FileLocation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RootFolder")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UploadedTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FileEntryCollectionId");
+
+                    b.ToTable("FileEntry");
+                });
+
+            modelBuilder.Entity("backend.Models.Entities.Files.FileEntryCollection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CreatedTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModifiedTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FileEntryCollection");
                 });
 
             modelBuilder.Entity("backend.Models.Entities.Houses.House", b =>
@@ -309,6 +377,9 @@ namespace backend.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("FileEntryCollectionId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("FileUrls")
                         .HasColumnType("nvarchar(max)");
 
@@ -344,9 +415,53 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FileEntryCollectionId");
+
                     b.HasIndex("HouseId");
 
                     b.ToTable("Room", "HouseSchema");
+                });
+
+            modelBuilder.Entity("backend.Models.Entities.Rooms.RoomServiceIndex", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("NewElectricValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("OldElectricValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("UsedElectricValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("RoomServiceIndex", "HouseSchema");
                 });
 
             modelBuilder.Entity("backend.Models.Entities.Services.Service", b =>
@@ -580,11 +695,18 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Entities.Customers.Customer", b =>
                 {
+                    b.HasOne("backend.Models.Entities.Files.FileEntryCollection", "FileEntryCollection")
+                        .WithMany()
+                        .HasForeignKey("FileEntryCollectionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("backend.Models.Entities.Rooms.Room", "Room")
                         .WithMany("Customers")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("FileEntryCollection");
 
                     b.Navigation("Room");
                 });
@@ -600,6 +722,15 @@ namespace backend.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("backend.Models.Entities.Files.FileEntry", b =>
+                {
+                    b.HasOne("backend.Models.Entities.Files.FileEntryCollection", "FileEntryCollection")
+                        .WithMany("FileEntries")
+                        .HasForeignKey("FileEntryCollectionId");
+
+                    b.Navigation("FileEntryCollection");
+                });
+
             modelBuilder.Entity("backend.Models.Entities.Houses.House", b =>
                 {
                     b.HasOne("backend.Models.Entities.UserAccount.User", "User")
@@ -613,13 +744,39 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Entities.Rooms.Room", b =>
                 {
+                    b.HasOne("backend.Models.Entities.Files.FileEntryCollection", "FileEntryCollection")
+                        .WithMany()
+                        .HasForeignKey("FileEntryCollectionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("backend.Models.Entities.Houses.House", "House")
                         .WithMany("Rooms")
                         .HasForeignKey("HouseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("FileEntryCollection");
+
                     b.Navigation("House");
+                });
+
+            modelBuilder.Entity("backend.Models.Entities.Rooms.RoomServiceIndex", b =>
+                {
+                    b.HasOne("backend.Models.Entities.Customers.Customer", "Customer")
+                        .WithMany("RoomServiceIndices")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("backend.Models.Entities.Rooms.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("backend.Models.Entities.Services.ServiceCustomer", b =>
@@ -666,7 +823,14 @@ namespace backend.Migrations
 
                     b.Navigation("Members");
 
+                    b.Navigation("RoomServiceIndices");
+
                     b.Navigation("Services");
+                });
+
+            modelBuilder.Entity("backend.Models.Entities.Files.FileEntryCollection", b =>
+                {
+                    b.Navigation("FileEntries");
                 });
 
             modelBuilder.Entity("backend.Models.Entities.Houses.House", b =>

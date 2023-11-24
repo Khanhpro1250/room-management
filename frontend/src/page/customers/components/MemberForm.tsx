@@ -37,7 +37,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
     const onSubmit = async () => {
         const rowData = getGridData();
         const isValid =
-            rowData.length > 0 &&
+            rowData?.length > 0 &&
             rowData.every((x: Member) => {
                 return (
                     x.name && x.dateOfBirth && x.identityNo && x.permanentAddress && x.phoneNumber && x.vehicleNumber
@@ -70,7 +70,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
     const onAddRow = () => {
         const data = getGridData();
         const numberOfPeople = (props?.maxNumberOfPeople ?? 0) - 1;
-        if (data.length >= numberOfPeople) {
+        if (data?.length >= numberOfPeople) {
             return NotifyUtil.error(
                 NotificationConstant.TITLE,
                 'Số lượng thành viên không được vượt quá ' + numberOfPeople,

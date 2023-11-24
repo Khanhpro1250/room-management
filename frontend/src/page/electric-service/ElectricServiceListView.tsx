@@ -13,12 +13,13 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { baseDeleteApi, requestApi } from '~/lib/axios';
 import NotificationConstant from '~/configs/contants';
 import NotifyUtil from '~/util/NotifyUtil';
+import { LIST_ROOM_FOR_CREATE_ELECTRIC } from './api/electric-service.api';
 
 const ElectricServiceListView: React.FC = () => {
     const gridRef = useRef<BaseGridRef>(null);
     const modalRef = useRef<ModalRef>(null);
     const gridController = useBaseGrid<Service>({
-        url: '',
+        url: LIST_ROOM_FOR_CREATE_ELECTRIC,
         gridRef: gridRef,
     });
 

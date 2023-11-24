@@ -23,6 +23,8 @@ import { RcFile } from 'antd/lib/upload';
 import { UploadOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 import moment from 'moment';
+import ImagePickerField from '~/component/Elements/ImagePreview/ImagePickerField';
+import ApiUtil from '~/util/ApiUtil';
 interface Props {
     parentId?: string | null;
     readonly?: boolean;
@@ -31,40 +33,15 @@ interface Props {
     onSubmitSuccessfully?: () => void;
 }
 
-type State = {
-    imageList: UploadFile[];
-    // fileUrls: string[];
-};
-
-type ImageListRef = {
-    fileUrls: string[];
-};
-
 export interface CustomerFormRef {
     onSave: () => void;
     isValid: () => void;
 }
 const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.Element => {
     const formRef = useRef<BaseFormRef>(null);
-    const imageListRef = useRef<ImageListRef>({
-        fileUrls: props.initialValues?.fileUrls ?? [],
-    });
+
     const overlayRef = useRef<OverlayRef>(null);
-    const modalRef = useRef<ModalRef>(null);
-    // const [state, setState] = useMergeState<State>({
-    //     imageList:
-    //         props.initialValues?.fileUrls?.map(
-    //             url =>
-    //                 ({
-    //                     uid: url,
-    //                     name: url,
-    //                     url: url,
-    //                     status: 'done',
-    //                     thumbUrl: url,
-    //                 } as UploadFile),
-    //         ) ?? [],
-    //     // fileUrls: props.initialValues?.fileUrls ?? [],
-    // });
+    const cloneRowData = _.cloneDeep(props.initialValues);
 
     const onSubmit = async () => {
         const urlParams: Record<
@@ -90,12 +67,40 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
             return;
         }
         const formValues = formRef.current?.getFieldsValue();
+        const formBody = {
+            ...formValues,
+        };
+
+        if (!_.isEmpty(props.initialValues)) {
+            const initFiles = cloneRowData?.fileEntryCollection;
+
+            const [listFileRemaining, newFiles] = _.partition(
+                formBody.fileEntryCollection,
+                (x: any) => !(x instanceof File),
+            );
+
+            const listFileRemainingIds = _.map(listFileRemaining, (x: any) => x.id) || [];
+            const listDeletedFiles = _.filter(initFiles?.fileEntries, (x: any) => !listFileRemainingIds.includes(x.id));
+            const listDeletedFileIds = _.map(listDeletedFiles, (x: any) => x.id);
+
+            _.set(formBody, 'listDeletedFileIds', listDeletedFileIds.toString());
+            _.set(formBody, 'fileEntryCollection', newFiles);
+        }
+
+        const data = ApiUtil.createFormMultipartForNet({
+            ...formBody,
+            roomId: props?.parentId,
+            issueDate: moment(formBody?.issueDate).format('YYYY-MM-DD'),
+            rentalStartTime: moment(formBody?.rentalStartTime).format('YYYY-MM-DD'),
+            birthday: moment(formBody?.birthday).format('YYYY-MM-DD'),
+        });
+
         const urlParam = props.initialValues ? urlParams.update : urlParams.create;
         overlayRef.current?.open();
-        const response = await requestApi(urlParam.method, urlParam.url, {
-            ...formValues,
-            roomId: props?.parentId,
-            fileUrls: imageListRef.current.fileUrls,
+        const response = await requestApi(urlParam.method, urlParam.url, data, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
         });
 
         if (response.data?.success) {
@@ -112,44 +117,6 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
         }
     };
 
-    const handleChange: UploadProps['onChange'] = async ({ fileList, file }) => {
-        if ((await file.status) === 'done') {
-            const result = _.get(file.response, 'result');
-            // setState({
-            //     fileUrls: [...state.fileUrls, result.fileUrl],
-            //     // imageList: fileList
-            // });
-            imageListRef.current.fileUrls = [...imageListRef.current.fileUrls, result.fileUrl];
-        }
-        // setState({ imageList: fileList });
-    };
-
-    const handlePreview = async (file: UploadFile) => {
-        if (!file.url && !file.preview) {
-            file.preview = await FileUtil.getBase64(file.originFileObj as RcFile);
-        }
-
-        modalRef?.current?.onOpen(
-            <img alt="example" style={{ width: '100%' }} src={file.url || (file.preview as string)} />,
-            'Xem trước',
-            '50%',
-            faImage,
-        );
-    };
-
-    const onRemove = (file: UploadFile) => {
-        const fileUrl = file.url ? file.url : _.get(file.response, 'fileUrl');
-        imageListRef.current.fileUrls = imageListRef.current.fileUrls.filter(url => url !== fileUrl);
-        // setState({ fileUrls: state.fileUrls.filter(url => url !== fileUrl) });
-    };
-
-    const uploadButton = (
-        <div>
-            <UploadOutlined />
-            <div style={{ marginTop: 8 }}>Tải ảnh</div>
-        </div>
-    );
-
     useImperativeHandle(
         ref,
         () => ({
@@ -161,17 +128,25 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
         [],
     );
 
-    const handleCancel = () => modalRef.current?.onClose();
+    const initialValues = {
+        ...props.initialValues,
+        issueDate: props.initialValues?.issueDate ? moment(props.initialValues?.issueDate) : null,
+        rentalStartTime: props.initialValues?.rentalStartTime ? moment(props.initialValues?.rentalStartTime) : null,
+        birthday: props.initialValues?.birthday ? moment(props.initialValues?.birthday) : null,
+        fileEntryCollection: props.initialValues?.fileEntryCollection
+            ? props.initialValues?.fileEntryCollection?.fileEntries?.map(file => ({
+                  id: file.id,
+                  name: file.fileName,
+                  status: 'done',
+                  url: file.url,
+              }))
+            : [],
+    };
     return (
         <AppModalContainer>
             <BaseForm
                 disabled={props.readonly}
-                initialValues={{
-                    ...props.initialValues,
-                    issueDate: moment(props.initialValues?.issueDate),
-                    rentalStartTime: moment(props.initialValues?.rentalStartTime),
-                    birthday: moment(props.initialValues?.birthday),
-                }}
+                initialValues={initialValues}
                 ref={formRef}
                 baseFormItem={[
                     {
@@ -352,37 +327,13 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                     },
                     {
                         label: 'Hình ảnh CCCD',
-                        name: nameof.full<Customer>(x => x.fileUrls),
+                        name: nameof.full<Customer>(x => x.fileEntryCollection),
                         children: (
-                            <>
-                                {/* <Upload
-                                    onChange={handleChange}
-                                    fileList={state.imageList}
-                                    onRemove={onRemove}
-                                    action={UPLOAD_FILE_API}
-                                    accept="image/*"
-                                    name="file"
-                                    showUploadList={true}
-                                    onPreview={handlePreview}
-                                    method="post"
-                                    listType="picture-card"
-                                >
-                                    {state.imageList.length >= 8 ? null : uploadButton}
-                                </Upload> */}
-                                <ModalBase
-                                    ref={modalRef}
-                                    footer={[
-                                        <div key="close" className="w-full flex items-center justify-center">
-                                            <ButtonBase
-                                                title="Đóng"
-                                                startIcon={faClose}
-                                                variant="danger"
-                                                onClick={handleCancel}
-                                            />
-                                        </div>,
-                                    ]}
-                                />
-                            </>
+                            <ImagePickerField
+                                formRef={formRef}
+                                initialValue={initialValues.fileEntryCollection}
+                                name={nameof.full<Room>(x => x.fileEntryCollection)}
+                            />
                         ),
                         className: 'col-span-6',
                     },

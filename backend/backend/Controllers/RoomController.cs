@@ -19,7 +19,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<ApiResponse<RoomDto>> CreateRoom([FromBody] CreateUpdateRoomDto room)
+        public async Task<ApiResponse<RoomDto>> CreateRoom([FromForm] CreateUpdateRoomDto room)
         {
             var result = await _roomService.CreateRoom(room);
             return ApiResponse<RoomDto>.Ok(result);
@@ -34,7 +34,7 @@ namespace backend.Controllers
 
         [HttpPut("update/{roomId:guid}")]
         public async Task<ApiResponse<RoomDto>> UpdateRoom([FromRoute] Guid roomId,
-            [FromBody] CreateUpdateRoomDto room)
+            [FromForm] CreateUpdateRoomDto room)
         {
             var result = await _roomService.UpdateRoom(room, roomId);
             return ApiResponse<RoomDto>.Ok(result);
@@ -63,12 +63,12 @@ namespace backend.Controllers
             return ApiResponse<DataWithRoomDto>.Ok(result);
         }
 
-        // [HttpGet("list-room-electric-service")]
-        // public async Task<ApiResponse<List<RoomElectricServiceDto>>> GetElectricServices(
-        //     [FromQuery] ElectricServiceFilterDto filterDto)
-        // {
-        //     var result = await _roomService.GetElectricServiceRoom(filterDto);
-        //     return ApiResponse<List<RoomElectricServiceDto>>.Ok(result);
-        // }
+        [HttpGet("list-electric-service")]
+        public async Task<ApiResponse<List<RoomElectricServiceDto>>> GetElectricServices(
+            [FromQuery] ElectricServiceFilterDto filterDto)
+        {
+            var result = await _roomService.GetElectricServiceRoom(filterDto);
+            return ApiResponse<List<RoomElectricServiceDto>>.Ok(result);
+        }
     }
 }

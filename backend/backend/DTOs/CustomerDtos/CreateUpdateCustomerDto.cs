@@ -46,11 +46,13 @@ namespace backend.DTOs.CustomerDtos
 
         public bool Status { get; set; } = true;
 
-        [JsonProperty("members")] public List<MemberDto> Members { get; set; }
+        public List<MemberDto> Members { get; set; }
 
-        // [JsonProperty("fileUrls")] 
         public string FileUrls { get; set; }
-        [JsonProperty("services")] public List<ServiceCustomerDto> Services { get; set; }
+        
+        public List<IFormFile> FileEntryCollection { get; set; } = new();
+        public string ListDeletedFileIds { get; set; }
+        public List<ServiceCustomerDto> Services { get; set; }
     }
 }
 

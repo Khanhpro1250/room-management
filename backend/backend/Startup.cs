@@ -1,19 +1,23 @@
 ﻿using System.Security.Claims;
 using backend.Models;
+using backend.Models.Entities;
 using backend.Models.Entities.UserAccount;
 using backend.Models.Repositorties.ContractRepositories;
 using backend.Models.Repositorties.CustomerRepositories;
+using backend.Models.Repositorties.FileRepositories;
 using backend.Models.Repositorties.HouseRerositories;
 using backend.Models.Repositorties.MenuRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Models.Repositorties.ServiceRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
 using backend.Models.Repositorties.UserAccountRepositories.RoleRepositories;
+using backend.Providers;
 using backend.Services.CloudinaryServices;
 using backend.Services.ContractServices;
 using backend.Services.CustomerServices;
 using backend.Services.DepositServices;
 using backend.Services.ExportWordPdfServices;
+using backend.Services.FileServices;
 using backend.Services.HouseServices;
 using backend.Services.MenuService;
 using backend.Services.NotificationServices;
@@ -158,6 +162,8 @@ public class Startup
         services.AddTransient<IServiceRepository, ServiceRepository>();
         services.AddTransient<ICustomerRepository, CustomerRepository>();
         services.AddTransient<IContractRepository, ContractRepository>();
+        services.AddTransient<IFileEntryRepository, FileEntryRepository>();
+        services.AddTransient<IFileRepository, FileRepository>();
 
 
         // AddScoped adService
@@ -174,8 +180,13 @@ public class Startup
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<ICloudinaryService, CloudinaryService>();
         services.AddScoped<ICurrentUser, CurrentUser>();
+        services.AddScoped<IFileService, FileService>();
         services.AddScoped<ClaimsPrincipal>(provider => provider.GetService<IHttpContextAccessor>()?.HttpContext?.User);
         services.AddScoped<User>();
+        services.AddScoped<IDbContextProvider<ApplicationDbContext>, DbContextProvider<ApplicationDbContext>>();
+
+        services.Configure<FileSetting>(Configuration.GetSection(nameof(FileSetting)));
+        services.Configure<AppFileBucketConfig>(Configuration.GetSection(nameof(AppFileBucketConfig)));
 
 
         // Add cloundinary
@@ -197,7 +208,7 @@ public class Startup
             options.AddPolicy("AllowReactNativeApp", builder =>
             {
                 // Allow requests from the React Native app's origin (e.g., http://localhost:7179)
-                builder.WithOrigins("http://localhost:19006")
+                builder.WithOrigins()
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     ;

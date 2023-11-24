@@ -11,7 +11,7 @@ namespace backend.Services.RoomServices
         Task<RoomDto> CreateRoom(CreateUpdateRoomDto room);
         Task<RoomDto> UpdateRoom(CreateUpdateRoomDto room, Guid id);
 
-        // Task<List<RoomElectricServiceDto>> GetElectricServiceRoom(ElectricServiceFilterDto filterDto);
+        Task<List<RoomElectricServiceDto>> GetElectricServiceRoom(ElectricServiceFilterDto filterDto);
         Task DeleteRoom(Guid id);
     }
 }
