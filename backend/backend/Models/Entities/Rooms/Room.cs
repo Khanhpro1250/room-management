@@ -1,6 +1,7 @@
 ﻿using backend.Models.Entities.Contracts;
 using backend.Models.Entities.Customers;
 using backend.Models.Entities.Files;
+using backend.Models.Entities.Files;
 using backend.Models.Entities.Houses;
 
 namespace backend.Models.Entities.Rooms

@@ -4,7 +4,6 @@ using backend.Models.Entities.Houses;
 using backend.Models.Entities.Rooms;
 using backend.Models.Entities.Services;
 using Microsoft.EntityFrameworkCore;
-using Type = backend.Models.Entities.Rooms.Type;
 
 namespace backend.Models.EnityConfigs;
 
@@ -51,7 +50,7 @@ public static class HouseEntityConfig
             entity.Property(x => x.IssueDate).IsRequired(false);
             entity.Property(x => x.RentalStartTime).IsRequired(false);
             entity.Property(x => x.FileEntryCollectionId).IsRequired(false);
-            
+
             entity.HasOne(x => x.FileEntryCollection)
                 .WithMany()
                 .HasForeignKey(x => x.FileEntryCollectionId)
@@ -122,12 +121,7 @@ public static class HouseEntityConfig
             entity.ToTable(nameof(RoomServiceIndex), SchemaName);
             entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
 
-            entity.Property(x => x.Type)
-                .HasConversion(
-                    type => type.ToString(),
-                    v => (Type)Enum.Parse(typeof(Type), v)
-                )
-                .HasMaxLength(20);
+            entity.Property(x => x.Type).HasMaxLength(20);
 
             entity.HasOne(x => x.Customer)
                 .WithMany(x => x.RoomServiceIndices)

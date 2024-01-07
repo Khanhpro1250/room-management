@@ -4,7 +4,7 @@ namespace backend.Models.Entities.Rooms;
 
 public class RoomServiceIndex : Entity
 {
-    public Type Type { get; set; }
+    public string Type { get; set; }
     public decimal OldElectricValue { get; set; }
     public decimal NewElectricValue { get; set; }
     public decimal UsedElectricValue { get; set; }
@@ -14,10 +14,4 @@ public class RoomServiceIndex : Entity
     public Guid CustomerId { get; set; }
     public Room Room { get; set; }
     public Customer Customer { get; set; }
-}
-
-public enum Type
-{
-    Electtric,
-    Water
 }
