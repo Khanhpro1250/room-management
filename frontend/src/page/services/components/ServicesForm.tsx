@@ -71,6 +71,7 @@ const ServicesForm: React.FC<Props> = props => {
             <BaseForm
                 initialValues={{
                     ...props.initialValues,
+                    status: props.initialValues?.status ?? true,
                     unit: props.initialValues?.unit ? JSON.parse(props.initialValues?.unit) : [],
                 }}
                 ref={formRef}

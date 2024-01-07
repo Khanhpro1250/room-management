@@ -1,4 +1,6 @@
-﻿using backend.Controllers.Dtos;
+﻿using backend.Contanst;
+using backend.Controllers.Dtos;
+using backend.Services.FileServices;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +12,14 @@ namespace backend.Controllers;
 public class FileController : ControllerBase
 {
     private readonly Cloudinary _cloudinary;
+    private readonly IFileService _fileService;
+    private readonly IWebHostEnvironment _env;
 
-    public FileController(Cloudinary cloudinary)
+    public FileController(Cloudinary cloudinary, IFileService fileService, IWebHostEnvironment env)
     {
         _cloudinary = cloudinary;
+        _fileService = fileService;
+        _env = env;
     }
 
     [HttpPost("upload")]
@@ -66,5 +72,29 @@ public class FileController : ControllerBase
         }
 
         return Ok(new { FileUrls = listUrl });
+    }
+
+    [HttpPost("upload-multis")]
+    public async Task<IActionResult> UploadFile([FromForm] List<IFormFile> files, CancellationToken cancellationToken = default)
+    {
+        var file = await _fileService.CreateFileCollection(files, "UploadFiles", cancellationToken);
+
+        return Ok();
+    }
+    
+    [HttpGet("uploadFiles/{fileName}")]
+    public IActionResult GetFile(string fileName)
+    {
+        var filePath = Path.Combine(_env.ContentRootPath, BucketConstant.UploadFiles, fileName);
+
+        if (System.IO.File.Exists(filePath))
+        {
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, "application/octet-stream", fileName);
+        }
+        else
+        {
+            return NotFound();
+        }
     }
 }

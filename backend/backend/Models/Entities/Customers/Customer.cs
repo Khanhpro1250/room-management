@@ -1,4 +1,5 @@
 ﻿using backend.Models.Entities.Contracts;
+using backend.Models.Entities.Files;
 using backend.Models.Entities.Rooms;
 using backend.Models.Entities.Services;
 using Newtonsoft.Json;
@@ -90,6 +91,10 @@ namespace backend.Models.Entities.Customers
         // [JsonProperty("fileUrls")] 
         public string FileUrls { get; set; }
         
+        public Guid? FileEntryCollectionId { get; set; }
+    
+        public FileEntryCollection FileEntryCollection { get; set; }
+
 
 
         #region ref
@@ -103,6 +108,8 @@ namespace backend.Models.Entities.Customers
         
         // [JsonProperty("services")] 
         public List<ServiceCustomer> Services { get; set; }
+        
+        public List<RoomServiceIndex> RoomServiceIndices { get; set; }
 
         #endregion
     }

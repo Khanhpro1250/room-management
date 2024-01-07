@@ -6,7 +6,7 @@ public class AuditedEntity<TKey> where  TKey : struct
 
     public string CreatedBy { get; set; }
 
-    public DateTime? CreatedTime { get; set; }
+    public DateTime? CreatedTime { get; set; } = DateTime.Now;
 
     public string LastModifiedBy { get; set; }
 

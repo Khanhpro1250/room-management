@@ -50,14 +50,14 @@ namespace backend.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<ApiResponse<CustomerDto>> CreateAction([FromBody] CreateUpdateCustomerDto customerDto)
+        public async Task<ApiResponse<CustomerDto>> CreateAction([FromForm] CreateUpdateCustomerDto customerDto)
         {
             var result = await _customerService.CreateCustomer(customerDto);
             return ApiResponse<CustomerDto>.Ok(result);
         }
 
         [HttpPut("update/{id:guid}")]
-        public async Task<ApiResponse<CustomerDto>> UpdateAction([FromBody] CreateUpdateCustomerDto customerDto,
+        public async Task<ApiResponse<CustomerDto>> UpdateAction([FromForm] CreateUpdateCustomerDto customerDto,
             [FromRoute] Guid id)
         {
             var result = await _customerService.UpdateCustomer(customerDto, id);

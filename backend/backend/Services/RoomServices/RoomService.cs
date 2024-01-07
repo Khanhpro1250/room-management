@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using backend.Contanst;
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.ContractDtos;
 using backend.DTOs.CustomerDtos;
@@ -14,6 +15,7 @@ using backend.Models.Repositorties.RoomRepositories;
 using backend.Services.CloudinaryServices;
 using backend.Services.ContractServices;
 using backend.Services.CustomerServices;
+using backend.Services.FileServices;
 using backend.Services.ServiceServices;
 using backend.Services.UserServices;
 using backend.Utils;
@@ -30,11 +32,12 @@ public class RoomService : IRoomService
     private readonly IServiceService _serviceService;
     private readonly ICurrentUser _currentUser;
     private readonly IContractRepository _contractRepository;
+    private readonly IFileService _fileService;
 
 
     public RoomService(IRoomRepository roomRepository, IMapper mapper, ICloudinaryService cloudinaryService,
         ICustomerService customerService, IServiceService serviceService, ICurrentUser currentUser,
-        IContractRepository contractRepository)
+        IContractRepository contractRepository, IFileService fileService)
     {
         _roomRepository = roomRepository;
         _mapper = mapper;
@@ -43,6 +46,7 @@ public class RoomService : IRoomService
         _serviceService = serviceService;
         _currentUser = currentUser;
         _contractRepository = contractRepository;
+        _fileService = fileService;
     }
 
     public async Task<RoomDto> CreateRoom(CreateUpdateRoomDto room)
@@ -50,6 +54,16 @@ public class RoomService : IRoomService
         var roomEntity = _mapper.Map<CreateUpdateRoomDto, Room>(room);
         roomEntity.CreatedBy = _currentUser.Id.ToString();
         roomEntity.CreatedTime = DateTime.Now;
+        
+        if (room.FileEntryCollection.Any())
+        {
+            // var fileCollectionId = await CreateFileCollection(request, cancellationToken);
+            var fileCollectionId = await _fileService.CreateFileCollection(room.FileEntryCollection,
+                BucketConstant.UploadFiles);
+
+            roomEntity.FileEntryCollectionId = fileCollectionId;
+        }
+        
         var result = await _roomRepository.AddAsync(roomEntity, true);
         return _mapper.Map<Room, RoomDto>(result);
     }
@@ -75,6 +89,7 @@ public class RoomService : IRoomService
             .WhereIf(!String.IsNullOrEmpty(filterDto.CustomerName),
                 x => x.Customers.Any(y => y.Status && y.FullName.Contains(filterDto.CustomerName)))
             .Include(x => x.Customers)
+            .Include(x=> x.FileEntryCollection.FileEntries)
             .QueryablePaging(filterDto.PaginatedListQuery)
             .ToListAsync();
 
@@ -104,8 +119,10 @@ public class RoomService : IRoomService
 
     public async Task<RoomDto> GetRoomById(Guid roomId)
     {
-        var room = await _roomRepository.GetQueryable().FirstOrDefaultAsync(x => x.Id.Equals(roomId));
-        var result = _mapper.Map<Room, RoomDto>(room);
+        var result = await _roomRepository
+            .GetQueryable()
+            .ProjectTo<RoomDto>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync(x => x.Id.Equals(roomId));
         return result;
     }
 
@@ -118,13 +135,18 @@ public class RoomService : IRoomService
         var newEntity = _mapper.Map<CreateUpdateRoomDto, Room>(room);
         newEntity.LastModifiedBy = _currentUser.Id.ToString();
         newEntity.LastModifiedTime = DateTime.Now;
-
+        
+        var listDeletedFileIds = room.ListDeletedFileIds?.Split(',').Select(x => Guid.Parse(x))?.ToList() ??
+                                 new List<Guid>();
+        newEntity.FileEntryCollectionId = await _fileService.AddAndRemoveFileEntries(
+            oldRoom.FileEntryCollectionId,
+            room.FileEntryCollection, listDeletedFileIds,  BucketConstant.UploadFiles);
         var result = await _roomRepository.UpdateAsync(newEntity, true);
-        var listFileDelete = oldRoom.FileUrls.Split(',').Except(room.FileUrls).ToList();
-        if (listFileDelete.Any())
-        {
-            await _cloudinaryService.DeleteFileCloudinary(listFileDelete);
-        }
+        // var listFileDelete = oldRoom.FileUrls.Split(',').Except(room.FileUrls).ToList();
+        // if (listFileDelete.Any())
+        // {
+        //     await _cloudinaryService.DeleteFileCloudinary(listFileDelete);
+        // }
 
         return _mapper.Map<Room, RoomDto>(result);
     }
@@ -140,6 +162,8 @@ public class RoomService : IRoomService
             .ThenInclude(x => x.Members)
             .Include(x => x.Customers)
             .ThenInclude(x => x.Services)
+            .Include(x => x.Customers)
+            .ThenInclude(x=> x.FileEntryCollection.FileEntries)
             .AsNoTrackingWithIdentityResolution()
             .Include(x => x.Customers)
             .FirstOrDefaultAsync(x => x.Id.Equals(roomId));
@@ -151,7 +175,8 @@ public class RoomService : IRoomService
                 .AsNoTracking()
                 .Where(x => x.CustomerId.Equals(customer.Id))
                 .ProjectTo<ContractDto>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync(x => x.EffectDate <= DateTime.Now && x.ExpiredDate >= DateTime.Now);
+                .OrderByDescending(x=> x.CreatedTime)
+                .FirstOrDefaultAsync(x => x.ExpiredDate >= DateTime.Now);
         }
 
         var listServices = await _serviceService.GetListServiceRegister();
@@ -169,31 +194,31 @@ public class RoomService : IRoomService
     }
 
 
-    // public  Task<List<RoomElectricServiceDto>> GetElectricServiceRoom(ElectricServiceFilterDto filterDto)
-    // {
-    //     // var currentUserId = _currentUser.Id;
-    //     // var houseQueryable = _houseRepository.GetQueryable();
-    //     // var roomQueryable = _roomRepository.GetQueryable();
-    //     // var filterHouseBuilder = Builders<House>.Filter;
-    //     // var filterRoomBuilder = Builders<Room>.Filter;
-    //     // var listHouse = await houseQueryable
-    //     //     .Find(
-    //     //         filterHouseBuilder.And(
-    //     //             filterHouseBuilder.WhereIf(String.IsNullOrEmpty(filterDto.HouseId),
-    //     //                 x => filterDto.HouseId.Equals(x.Id)),
-    //     //             filterHouseBuilder.Where(x => x.UserId.Equals(currentUserId))
-    //     //         )
-    //     //     )
-    //     //     .ToListAsync();
-    //     // var listHouseId = listHouse.Select(x => x.Id).ToList();
-    //     // var listRoom = await roomQueryable.Find(filterRoomBuilder.And(
-    //     //     filterRoomBuilder.WhereIf(filterDto.Status != Status.All, x => x.Status == nameof(filterDto.Status)),
-    //     //     filterRoomBuilder.Where(x => listHouseId.Contains(x.HouseId))
-    //     // )).ToListAsync();
-    //
-    //     var result = new List<RoomElectricServiceDto>();
-    //
-    //
-    //     return result;
-    // }
+    public async Task<List<RoomElectricServiceDto>> GetElectricServiceRoom(ElectricServiceFilterDto filterDto)
+    {
+        var currentUserId = _currentUser.Id;
+        var roomQueryable = _roomRepository.GetQueryable();
+        var result = await roomQueryable
+            .Include(x => x.House)
+            .Where(x => x.House.UserId.Equals(currentUserId))
+            .WhereIf(filterDto.HouseId.HasValue, x => x.HouseId.Equals(filterDto.HouseId))
+            .WhereIf(filterDto.Status != Status.All, x => x.Status.Equals(nameof(filterDto.Status)))
+            .Select(x => new RoomElectricServiceDto
+            {
+                RoomId = x.Id,
+                CustomerId = x.Customers.FirstOrDefault(y => y.Status.Equals(true)).Id,
+                RoomCode = x.RoomCode,
+                HouseName = x.House.Name,
+                CustomerName = x.Customers.FirstOrDefault(y => y.Status.Equals(true)).FullName,
+                Month = 0,
+                Year = 0,
+                OldElectricValue = 0,
+                NewElectricValue = 0,
+                UsedElectricValue = 0
+            })
+            .ToListAsync();
+
+
+        return result;
+    }
 }

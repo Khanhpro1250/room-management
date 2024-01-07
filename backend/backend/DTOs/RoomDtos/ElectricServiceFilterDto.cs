@@ -3,7 +3,7 @@
 public class ElectricServiceFilterDto
 {
     public DateTime? CurrentDate { get; set; }
-    public string? HouseId { get; set; }
+    public Guid? HouseId { get; set; }
     public Status Status { get; set; } = RoomDtos.Status.All;
 }
 

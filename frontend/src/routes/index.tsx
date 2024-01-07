@@ -6,6 +6,7 @@ import PrivateRoute from './PrivateRoute';
 const LayoutPage = React.lazy(() => import('~/component/Layout/LayoutPage'));
 const LoginView = React.lazy(() => import('~/component/Layout/LoginView'));
 const RegisterView = React.lazy(() => import('~/component/Layout/RegisterView'));
+const ForgotPassword = React.lazy(() => import('~/component/Layout/ForgotPassword'));
 const NotFound = React.lazy(() => import('~/component/Layout/NotFound'));
 
 //system
@@ -76,10 +77,13 @@ const routeList = [
             },
         ],
     },
-
     {
         path: '/login',
         element: <LoginView />,
+    },
+    {
+        path: '/forgot-password',
+        element: <ForgotPassword />,
     },
     {
         path: '/register',

@@ -13,12 +13,13 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { baseDeleteApi, requestApi } from '~/lib/axios';
 import NotificationConstant from '~/configs/contants';
 import NotifyUtil from '~/util/NotifyUtil';
+import { LIST_ROOM_FOR_CREATE_ELECTRIC } from './api/electric-service.api';
 
 const ElectricServiceListView: React.FC = () => {
     const gridRef = useRef<BaseGridRef>(null);
     const modalRef = useRef<ModalRef>(null);
     const gridController = useBaseGrid<Service>({
-        url: '',
+        url: LIST_ROOM_FOR_CREATE_ELECTRIC,
         gridRef: gridRef,
     });
 
@@ -68,18 +69,15 @@ const ElectricServiceListView: React.FC = () => {
         {
             headerName: 'Tên',
             field: nameof.full<Service>(x => x.name),
-            minWidth: 500,
-            flex: 1,
         },
         {
             headerName: 'Loại dịch vụ',
             field: nameof.full<Service>(x => x.type),
-            width: 120,
         },
         {
             headerName: 'Đơn giá',
             field: nameof.full<Service>(x => x.price),
-            width: 120,
+
             cellStyle: { textAlign: 'right' },
             cellRenderer: (val: any) => {
                 return Number(val.value ?? 0).toLocaleString('vi', { maximumSignificantDigits: 2 });
@@ -88,12 +86,11 @@ const ElectricServiceListView: React.FC = () => {
         {
             headerName: 'Đơn vị tính',
             field: nameof.full<Service>(x => x.unit),
-            width: 120,
         },
         {
             headerName: 'Trạng thái',
             field: nameof.full<Service>(x => x.status),
-            width: 120,
+
             cellStyle: { textAlign: 'center' },
             cellRenderer: (params: any) => {
                 return <Checkbox value={params.value} disabled checked={params.value} />;

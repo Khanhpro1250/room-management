@@ -2,7 +2,7 @@
 
 namespace backend.Controllers.Dtos;
 
-public class ApiResponse<TResult> : ApiResponse where TResult : class
+public class ApiResponse<TResult> : ApiResponse where TResult :class
 {
     public TResult Result { get; }
 
@@ -17,7 +17,8 @@ public class ApiResponse<TResult> : ApiResponse where TResult : class
         this.Result = result;
     }
 
-    public static ApiResponse<TResult> Ok(TResult result = null, string message = null) => new ApiResponse<TResult>(true, message, result);
+    public static ApiResponse<TResult> Ok(TResult result = null, string message = null) =>
+        new ApiResponse<TResult>(true, message, result);
 
     public static ApiResponse<TResult> Fail(
         string message,

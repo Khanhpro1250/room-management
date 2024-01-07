@@ -1,4 +1,5 @@
 import { AuditedEntity } from './AuditedEntity';
+import { FileEntryCollectionDto } from './File';
 
 export interface Customer extends AuditedEntity {
     id: string;
@@ -22,6 +23,7 @@ export interface Customer extends AuditedEntity {
     note: string;
     roomId: string;
     fileUrls: string[];
+    fileEntryCollection?: FileEntryCollectionDto;
 }
 
 export interface Member {

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using backend.Contanst;
 using backend.Controllers.Dtos;
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.CustomerDtos;
@@ -7,6 +8,7 @@ using backend.DTOs.ServiceDtos;
 using backend.Models.Entities.Customers;
 using backend.Models.Entities.Services;
 using backend.Models.Repositorties.CustomerRepositories;
+using backend.Services.FileServices;
 using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -18,12 +20,14 @@ namespace backend.Services.CustomerServices
         private readonly ICustomerRepository _customerRepository;
         private readonly IMapper _mapper;
         private readonly ICurrentUser _currentUser;
+        private readonly IFileService _fileService;
 
-        public CustomerService(ICustomerRepository customerRepository, IMapper mapper, ICurrentUser currentUser)
+        public CustomerService(ICustomerRepository customerRepository, IMapper mapper, ICurrentUser currentUser, IFileService fileService)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
             _currentUser = currentUser;
+            _fileService = fileService;
         }
 
         public async Task<CustomerDto> GetCustomerByRoomId(Guid roomId)
@@ -50,6 +54,13 @@ namespace backend.Services.CustomerServices
             var customerEntity = _mapper.Map<CreateUpdateCustomerDto, Customer>(customer);
             customerEntity.CreatedBy = _currentUser.Id.ToString();
             customerEntity.CreatedTime = DateTime.Now;
+            if (customer.FileEntryCollection.Any())
+            {
+                var fileCollectionId = await _fileService.CreateFileCollection(customer.FileEntryCollection,
+                    BucketConstant.UploadFiles);
+
+                customerEntity.FileEntryCollectionId = fileCollectionId;
+            }
             var result = await _customerRepository.AddAsync(customerEntity, true);
             return _mapper.Map<Customer, CustomerDto>(result);
         }
@@ -113,11 +124,18 @@ namespace backend.Services.CustomerServices
         public async Task<CustomerDto> UpdateCustomer(CreateUpdateCustomerDto customer, Guid id)
         {
             var findCustomer = await _customerRepository.GetQueryable()
-                                   .AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
+                                   .Include(x=> x.Members)
+                                   .FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
                                throw new Exception("Không tìm thấy Customer");
-            var customerEntity = _mapper.Map<CreateUpdateCustomerDto, Customer>(customer);
+            var customerEntity = _mapper.Map<CreateUpdateCustomerDto, Customer>(customer,findCustomer);
             customerEntity.LastModifiedBy = _currentUser.Id.ToString();
             customerEntity.LastModifiedTime = DateTime.Now;
+            
+            var listDeletedFileIds = customer.ListDeletedFileIds?.Split(',').Select(x => Guid.Parse(x))?.ToList() ??
+                                     new List<Guid>();
+            customerEntity.FileEntryCollectionId = await _fileService.AddAndRemoveFileEntries(
+                findCustomer.FileEntryCollectionId,
+                customer.FileEntryCollection, listDeletedFileIds,  BucketConstant.UploadFiles);
 
             var result = await _customerRepository.UpdateAsync(customerEntity, true);
             return _mapper.Map<Customer, CustomerDto>(result);

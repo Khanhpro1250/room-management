@@ -20,5 +20,6 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ConfigureUserEntities();
         modelBuilder.ConfigureMenuEntities();
         modelBuilder.ConfigureHouseEntities();
+        modelBuilder.ConfigureCommonEntities();
     }
 }

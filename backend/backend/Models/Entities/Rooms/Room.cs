@@ -1,5 +1,6 @@
 ﻿using backend.Models.Entities.Contracts;
 using backend.Models.Entities.Customers;
+using backend.Models.Entities.Files;
 using backend.Models.Entities.Houses;
 
 namespace backend.Models.Entities.Rooms
@@ -21,6 +22,10 @@ namespace backend.Models.Entities.Rooms
         public string Status { get; set; }
         public float Deposit { get; set; }
         public string InteriorIds { get; set; }
+        
+        public Guid? FileEntryCollectionId { get; set; }
+    
+        public FileEntryCollection FileEntryCollection { get; set; }
 
         #region ref
 
