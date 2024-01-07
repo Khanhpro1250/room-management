@@ -124,9 +124,10 @@ namespace backend.Services.CustomerServices
         public async Task<CustomerDto> UpdateCustomer(CreateUpdateCustomerDto customer, Guid id)
         {
             var findCustomer = await _customerRepository.GetQueryable()
-                                   .AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
+                                   .Include(x=> x.Members)
+                                   .FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
                                throw new Exception("Không tìm thấy Customer");
-            var customerEntity = _mapper.Map<CreateUpdateCustomerDto, Customer>(customer);
+            var customerEntity = _mapper.Map<CreateUpdateCustomerDto, Customer>(customer,findCustomer);
             customerEntity.LastModifiedBy = _currentUser.Id.ToString();
             customerEntity.LastModifiedTime = DateTime.Now;
             

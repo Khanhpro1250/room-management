@@ -175,7 +175,8 @@ public class RoomService : IRoomService
                 .AsNoTracking()
                 .Where(x => x.CustomerId.Equals(customer.Id))
                 .ProjectTo<ContractDto>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync(x => x.EffectDate <= DateTime.Now && x.ExpiredDate >= DateTime.Now);
+                .OrderByDescending(x=> x.CreatedTime)
+                .FirstOrDefaultAsync(x => x.ExpiredDate >= DateTime.Now);
         }
 
         var listServices = await _serviceService.GetListServiceRegister();

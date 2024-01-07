@@ -47,17 +47,17 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         {
             headerName: 'Số phòng',
             field: nameof.full<Room>(x => x.number),
-            width: 150,
+            // width: 150,
         },
         {
             headerName: 'Diện tích',
             field: nameof.full<Room>(x => x.acreage),
-            width: 120,
+            // width: 120,
         },
         {
             headerName: 'Số người ở tối đa',
             field: nameof.full<Room>(x => x.maxNumberOfPeople),
-            width: 150,
+            // width: 150,
 
             cellStyle: { textAlign: 'right' },
         },
@@ -73,7 +73,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         {
             headerName: 'Trạng thái',
             field: nameof.full<Room>(x => x.status),
-            minWidth: 120,
+            // minWidth: 120,
             cellStyle: { textAlign: 'center' },
             cellRenderer: (params: any) => {
                 return (
@@ -167,11 +167,12 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
             {gridController?.loading ? (
                 <Loading />
             ) : (
-                <>
+                <div className="h-full">
                     <BaseGrid
                         columnDefs={colDefs}
                         data={gridController?.data}
                         ref={gridRef}
+                        pinAction
                         numberRows={true}
                         rowHeight={40}
                         pagination={true}
@@ -202,7 +203,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                         groupDefaultExpanded={-1}
                     />
                     <ModalBase ref={modalRef} />
-                </>
+                </div>
             )}
         </>
     );

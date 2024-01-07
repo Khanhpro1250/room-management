@@ -1,36 +1,28 @@
-import React, { useImperativeHandle } from 'react';
-import { faClose, faImage, faSave } from '@fortawesome/free-solid-svg-icons';
-import { DatePicker, Input, Radio, Select, Upload, UploadFile, UploadProps } from 'antd';
+import { DatePicker, Input, Radio } from 'antd';
 import { Method } from 'axios';
-import { useRef } from 'react';
-import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
+import React, { useImperativeHandle, useRef } from 'react';
 import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
 import { AppModalContainer } from '~/component/Layout/AppModalContainer';
 import NotificationConstant from '~/configs/contants';
 import { Room } from '~/types/shared';
 
-import { requestApi } from '~/lib/axios';
-import NotifyUtil from '~/util/NotifyUtil';
 import TextArea from 'antd/lib/input/TextArea';
-import Overlay, { OverlayRef } from '~/component/Elements/loading/Overlay';
-import { CUSTOMER_CREATE_API, CUSTOMER_UPDATE_API } from '../api/customer.api';
-import { Customer } from '~/types/shared/Customer';
-import { UPLOAD_FILE_API } from '~/configs';
-import { useMergeState } from '~/hook/useMergeState';
-import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
-import FileUtil from '~/util/FileUtil';
-import { RcFile } from 'antd/lib/upload';
-import { UploadOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 import moment from 'moment';
 import ImagePickerField from '~/component/Elements/ImagePreview/ImagePickerField';
+import { requestApi } from '~/lib/axios';
+import { Customer } from '~/types/shared/Customer';
 import ApiUtil from '~/util/ApiUtil';
+import NotifyUtil from '~/util/NotifyUtil';
+import { CUSTOMER_CREATE_API, CUSTOMER_UPDATE_API } from '../api/customer.api';
 interface Props {
     parentId?: string | null;
     readonly?: boolean;
     initialValues?: Partial<Customer>;
     onClose?: () => void;
     onSubmitSuccessfully?: () => void;
+    mask?: () => void;
+    unMask?: () => void;
 }
 
 export interface CustomerFormRef {
@@ -40,7 +32,6 @@ export interface CustomerFormRef {
 const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.Element => {
     const formRef = useRef<BaseFormRef>(null);
 
-    const overlayRef = useRef<OverlayRef>(null);
     const cloneRowData = _.cloneDeep(props.initialValues);
 
     const onSubmit = async () => {
@@ -96,7 +87,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
         });
 
         const urlParam = props.initialValues ? urlParams.update : urlParams.create;
-        overlayRef.current?.open();
+        props.mask?.();
         const response = await requestApi(urlParam.method, urlParam.url, data, {
             headers: {
                 'Content-Type': 'multipart/form-data',
@@ -107,12 +98,12 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
             NotifyUtil.success(NotificationConstant.TITLE, urlParam.message);
             props?.onSubmitSuccessfully?.();
             props.onClose?.();
-            overlayRef.current?.close();
+            props.unMask?.();
             return;
         } else {
             NotifyUtil.error(NotificationConstant.TITLE, response?.data?.message ?? 'Có lỗi xảy ra');
             props.onClose?.();
-            overlayRef.current?.close();
+            props.unMask?.();
             return;
         }
     };
@@ -130,6 +121,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
 
     const initialValues = {
         ...props.initialValues,
+        genders: props.initialValues?.gender ?? 1,
         issueDate: props.initialValues?.issueDate ? moment(props.initialValues?.issueDate) : null,
         rentalStartTime: props.initialValues?.rentalStartTime ? moment(props.initialValues?.rentalStartTime) : null,
         birthday: props.initialValues?.birthday ? moment(props.initialValues?.birthday) : null,
@@ -277,42 +269,6 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                         className: 'col-span-6',
                     },
                     {
-                        label: 'Kỳ thanh toán',
-                        name: nameof.full<Customer>(x => x.paymentPeriod),
-                        children: (
-                            <Select
-                                defaultValue="15"
-                                // onChange={handleChange}
-                                options={[
-                                    { value: '15', label: 'Ngày 15' },
-                                    { value: '30', label: 'Ngày 30' },
-                                ]}
-                            />
-                        ),
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
-                        className: 'col-span-6',
-                    },
-                    {
-                        label: 'Thanh toán mỗi lần',
-                        name: nameof.full<Customer>(x => x.paymentOneTime),
-                        children: (
-                            <Select
-                                defaultValue={1}
-                                options={[
-                                    { value: 1, label: '1 Tháng' },
-                                    { value: 2, label: '2 Tháng' },
-                                    { value: 3, label: '3 Tháng' },
-                                    { value: 4, label: '4 Tháng' },
-                                    { value: 5, label: '5 Tháng' },
-                                    { value: 6, label: '6 Tháng' },
-                                    { value: 12, label: '12 Tháng' },
-                                ]}
-                            />
-                        ),
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
-                        className: 'col-span-6',
-                    },
-                    {
                         label: 'Số xe',
                         name: nameof.full<Customer>(x => x.vehicleNumber),
                         children: <Input disabled={props.readonly} placeholder="Nhập số xe" />,
@@ -321,7 +277,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                     },
                     {
                         label: 'Ghi chú',
-                        name: nameof.full<Customer>(x => x.vehicleNumber),
+                        name: nameof.full<Customer>(x => x.note),
                         children: <TextArea disabled={props.readonly} placeholder="Nhập ghi chú" />,
                         className: 'col-span-6',
                     },
@@ -363,7 +319,6 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                     <span className="text-red-500 font-bold">(*): Thông tin bắt buộc</span>
                 </div>
             </div>
-            <Overlay ref={overlayRef} />
         </AppModalContainer>
     );
 });

@@ -1,5 +1,5 @@
 // @flow
-import { Input } from 'antd';
+import { Form, FormInstance, Input } from 'antd';
 import * as React from 'react';
 import { useRef } from 'react';
 import bgImageUrl from '~/assets/login/login_background.svg';
@@ -10,21 +10,55 @@ import BaseForm, { BaseFormRef } from '../Form/BaseForm';
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import { RootState } from '~/AppStore';
-import { REGISTER_API } from '~/configs';
+import { CHECK_REGISTER_API, REGISTER_API, RESENT_OTP_REGISTER_API } from '~/configs';
 import NotificationConstant from '~/configs/contants';
 import { requestApi } from '~/lib/axios';
 import NotifyUtil from '~/util/NotifyUtil';
 import { ValidateUtils } from '~/util/ValidateUltil';
+import ModalBase, { ModalRef } from '../Modal/ModalBase';
+import OTPForm from '../Form/OTPForm';
+import _ from 'lodash';
+import CommonUtil from '~/util/CommonUtil';
+import Overlay, { OverlayRef } from '../Elements/loading/Overlay';
 
 const RegisterView: React.FC = () => {
-    const formRef = useRef<BaseFormRef>(null);
+    const formRef = useRef<FormInstance>(null);
     const { isAuthenticated } = useSelector((state: RootState) => state.authData);
+    const modalRef = useRef<ModalRef>(null);
+    const overlayRef = useRef<OverlayRef>(null);
     const backToLogin = () => {
         window.location.replace('/login');
     };
+
+    const isFieldsValidate = () => {
+        const registerValue = formRef.current?.getFieldsValue() as RegisterParam;
+        if (_.isEmpty(registerValue.fullName)) {
+            NotifyUtil.error(NotificationConstant.TITLE, 'Vui lòng nhập họ và tên');
+            return false;
+        }
+        if (_.isEmpty(registerValue.userName)) {
+            NotifyUtil.error(NotificationConstant.TITLE, 'Vui lòng nhập email');
+            return false;
+        }
+        if (_.isEmpty(registerValue.userName)) {
+            NotifyUtil.error(NotificationConstant.TITLE, 'Vui lòng nhập username');
+            return false;
+        }
+        if (_.isEmpty(registerValue.password)) {
+            NotifyUtil.error(NotificationConstant.TITLE, 'Vui lòng nhập mật khẩu');
+            return false;
+        }
+        return true;
+    };
+
     const onSave = async () => {
         const registerValue = formRef.current?.getFieldsValue() as RegisterParam;
-        if (await formRef?.current?.isFieldsValidate()) {
+        if (isFieldsValidate()) {
+            if (registerValue.password.length < 6) {
+                NotifyUtil.error(NotificationConstant.TITLE, 'Mật khẩu phải tối thiểu 6 ký tự');
+                return;
+            }
+
             if (!ValidateUtils.ValidateEmail(registerValue.emailAddress)) {
                 NotifyUtil.error(NotificationConstant.TITLE, 'Email not valid');
                 return;
@@ -33,19 +67,34 @@ const RegisterView: React.FC = () => {
                 NotifyUtil.error(NotificationConstant.TITLE, 'PhoneNumber not valid');
                 return;
             }
-            if (registerValue.password !== registerValue.rePassword) {
+
+            if (
+                _.isEmpty(registerValue.password) ||
+                (_.isEmpty(registerValue.rePassword) && registerValue.password !== registerValue.rePassword)
+            ) {
                 NotifyUtil.error(NotificationConstant.TITLE, 'Password not match');
                 return;
             }
-            const response = await requestApi('POST', REGISTER_API, {
+            overlayRef.current?.open();
+            const response = await requestApi('POST', CHECK_REGISTER_API, {
                 ...registerValue,
             });
 
             if (response.data?.success) {
-                NotifyUtil.success(NotificationConstant.TITLE, 'Register success');
-                backToLogin();
-                return;
+                overlayRef.current?.close();
+                modalRef.current?.onOpen(
+                    <OTPForm
+                        data={registerValue}
+                        api={REGISTER_API}
+                        apiResent={RESENT_OTP_REGISTER_API}
+                        message={'Đăng kí thành công'}
+                        onSubmitSuccessfully={backToLogin}
+                    />,
+                    'Nhập mã OTP đã gửi qua email ( hiệu lực trong 5 phút )',
+                    '50%',
+                );
             } else {
+                overlayRef.current?.close();
                 NotifyUtil.error(NotificationConstant.TITLE, response?.data?.message ?? 'Đăng ký thất bại');
                 return;
             }
@@ -57,82 +106,91 @@ const RegisterView: React.FC = () => {
     }
 
     return (
-        <div className="w-full h-screen relative flex items-center justify-center">
-            <img src={bgImageUrl} className="w-full h-full absolute top-0 left-0 -z-10 object-cover" alt="" />
-            <div className="w-[500px] h-[470px] bg-white rounded-md shadow bg-opacity-2 p-3">
-                <BaseForm
-                    ref={formRef}
-                    baseFormItem={[
-                        {
-                            label: 'Họ và tên',
-                            name: nameof.full<RegisterParam>(x => x.fullName),
-                            children: <Input />,
-                            rules: [{ required: true }],
-                        },
-                        {
-                            label: ' Địa chỉ email',
-                            name: nameof.full<RegisterParam>(x => x.emailAddress),
-                            children: <Input />,
-                            rules: [{ required: true }],
-                        },
-                        {
-                            label: 'Tài khoản',
-                            name: nameof.full<RegisterParam>(x => x.userName),
-                            children: <Input />,
-                            rules: [{ required: true }],
-                        },
-                        {
-                            label: 'Mật khẩu',
-                            name: nameof.full<RegisterParam>(x => x.password),
-                            children: <Input.Password />,
-                            rules: [{ required: true }],
-                        },
-                        {
-                            label: 'Nhập lại mật khẩu',
-                            name: nameof.full<RegisterParam>(x => x.rePassword),
-                            children: <Input.Password />,
-                            rules: [{ required: true }],
-                        },
-                        {
-                            label: ' Địa chỉ',
-                            name: nameof.full<RegisterParam>(x => x.address),
-                            children: <Input />,
-                            rules: [{ required: true }],
-                        },
-                        {
-                            label: 'Số điện thoại',
-                            name: nameof.full<RegisterParam>(x => x.phoneNumber),
-                            children: <Input />,
-                            rules: [{ required: true }],
-                        },
-                    ]}
-                    labelAlign="left"
-                    labelCol={8}
-                    className={'w-full flex items-center justify-center flex-col'}
-                    width={'100%'}
-                    renderBtnBottom={() => {
-                        return (
-                            <div>
-                                <div className="flex items-center justify-center w-full">
-                                    <ButtonBase className="w-[170px]" title="Đăng ký" size="md" onClick={onSave} />
-                                </div>
-                                <div className="flex items-center justify-center w-full mt-2">
-                                    <span>
-                                        Bạn đã có tài khoản ?{' '}
-                                        <span
-                                            className="text-blue-600 cursor-pointer hover:text-blue-400"
-                                            onClick={backToLogin}
-                                        >
-                                            Đăng nhập
-                                        </span>
-                                    </span>
-                                </div>
+        <>
+            <section className="h-screen w-full ">
+                <div className="h-full  px-6 py-24 container">
+                    <div className="flex h-full flex-wrap items-center justify-center lg:justify-around">
+                        <div className="mb-12 md:mb-0 md:w-7/12 lg:w-6/12 ">
+                            <img
+                                src="https://tecdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.svg"
+                                className="w-full"
+                                alt="Phone image"
+                            />
+                        </div>
+                        <div className="md:w-4/12 lg:w-5/12">
+                            <div className="flex justify-center mb-5">
+                                <span className="text-cyan-500  text-5xl">Đăng ký tài khoản</span>
                             </div>
-                        );
-                    }}
-                />
-            </div>
-        </div>
+                            <Form ref={formRef}>
+                                <Form.Item required name={nameof.full<RegisterParam>(x => x.fullName)}>
+                                    <Input size="large" type="email" placeholder="Nhập họ và tên..." className="mb-4" />
+                                </Form.Item>
+                                <Form.Item required name={nameof.full<RegisterParam>(x => x.emailAddress)}>
+                                    <Input size="large" type="email" placeholder="Nhập email..." className="mb-4" />
+                                </Form.Item>
+                                <Form.Item required name={nameof.full<RegisterParam>(x => x.userName)}>
+                                    <Input size="large" type="text" placeholder="Nhập username..." className="mb-4" />
+                                </Form.Item>
+                                <div className="flex justify-between gap-4">
+                                    <Form.Item
+                                        className="flex-1"
+                                        required
+                                        name={nameof.full<RegisterParam>(x => x.password)}
+                                    >
+                                        <Input
+                                            size="large"
+                                            type="password"
+                                            placeholder="Nhập password..."
+                                            className="mb-4"
+                                        />
+                                    </Form.Item>
+                                    <Form.Item
+                                        className="flex-1"
+                                        required
+                                        name={nameof.full<RegisterParam>(x => x.rePassword)}
+                                    >
+                                        <Input
+                                            size="large"
+                                            type="password"
+                                            placeholder="Nhập lại password..."
+                                            className="mb-4"
+                                        />
+                                    </Form.Item>
+                                </div>
+                                <Form.Item required name={nameof.full<RegisterParam>(x => x.address)}>
+                                    <Input size="large" type="text" placeholder="Nhập địa chỉ..." className="mb-4" />
+                                </Form.Item>
+                                <Form.Item required name={nameof.full<RegisterParam>(x => x.phoneNumber)}>
+                                    <Input
+                                        size="large"
+                                        type="tel"
+                                        placeholder="Nhập số điện thoại..."
+                                        className="mb-4"
+                                    />
+                                </Form.Item>
+                                <div className="mb-4 flex items-center justify-end">
+                                    <a
+                                        href="#!"
+                                        onClick={backToLogin}
+                                        className="text-cyan-600 transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
+                                    >
+                                        Trở về trang đăng nhập?
+                                    </a>
+                                </div>
+                                <ButtonBase
+                                    className="inline-block w-full rounded bg-primary px-7 pb-2.5 pt-3 text-sm font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)]"
+                                    title="Đăng ký "
+                                    size="md"
+                                    onClick={onSave}
+                                />
+                            </Form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <ModalBase ref={modalRef} />
+            <Overlay ref={overlayRef} />
+        </>
     );
 };
 

@@ -12,9 +12,9 @@ import { requestApi } from '~/lib/axios';
 import { Contract } from '~/types/shared/Contract';
 import { Customer } from '~/types/shared/Customer';
 
+import FileUtil from '~/util/FileUtil';
 import NotifyUtil from '~/util/NotifyUtil';
 import { CREATE_CONTACT_API, EXPORT_CONTRACT_API, UPDATE_CONTACT_API } from '../api/customer.api';
-import FileUtil from '~/util/FileUtil';
 
 interface Props {
     initialValues?: Partial<Contract>;
@@ -22,6 +22,8 @@ interface Props {
     onSubmitSuccessfully?: () => void;
     customer?: Customer;
     roomId?: string | null;
+    mask?: () => void;
+    unMask?: () => void;
 }
 
 export interface ContractFormRef {
@@ -30,6 +32,7 @@ export interface ContractFormRef {
 
 const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.Element => {
     const formRef = useRef<BaseFormRef>(null);
+
     const initialValues = {
         ...props.initialValues,
         effectDate: props.initialValues?.effectDate ? moment(props.initialValues?.effectDate) : undefined,
@@ -68,7 +71,7 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
         };
 
         const urlParam = props.initialValues ? urlParams.update : urlParams.create;
-
+        props.mask?.();
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
             roomId: props.roomId,
@@ -76,10 +79,14 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
         });
 
         if (response.data?.success) {
+            props.unMask?.();
+
             NotifyUtil.success(NotificationConstant.TITLE, urlParam.message);
             props?.onSubmitSuccessfully?.();
             props.onClose?.();
             return;
+        } else {
+            props.unMask?.();
         }
     };
 
@@ -92,6 +99,7 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
         }
 
         const formValues = formRef.current?.getFieldsValue();
+        props.mask?.();
 
         const response = (await requestApi(
             'POST',
@@ -107,6 +115,7 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
         )) as any;
 
         FileUtil.downloadFileTest(response);
+        props.unMask?.();
     };
 
     useImperativeHandle(

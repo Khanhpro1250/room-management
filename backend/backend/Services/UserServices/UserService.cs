@@ -33,7 +33,7 @@ public class UserService : IUserService
     {
         var queryable = _userAccountRepository.GetQueryable();
         var result = await queryable
-            .Include(x=> x.UserRoles)
+            .Include(x => x.UserRoles)
             .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
             .QueryablePaging(paginatedListQuery)
             .ToListAsync();
@@ -49,7 +49,8 @@ public class UserService : IUserService
 
     public async Task<User> GetUserByUserName(string userName)
     {
-        var user = await _userAccountRepository.GetQueryable().FirstOrDefaultAsync(x => x.UserName.Contains(userName));
+        var user = await _userAccountRepository.GetQueryable()
+            .FirstOrDefaultAsync(x => x.UserName.ToLower().Contains(userName.ToLower()));
         return user;
     }
 
@@ -57,30 +58,12 @@ public class UserService : IUserService
     {
         var userEntity = _mapper.Map<CreateUpdateUserDtos, User>(user);
         var result = await _userAccountRepository.CreateUser(userEntity);
-        return _mapper.Map<User, UserDto>(result);
-    }
-
-    public async Task<UserDto> UpdateUser(CreateUpdateUserDtos user, Guid id)
-    {
-        var findUser = await _userAccountRepository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
-                       throw new Exception("User không tồn tại");
-        var userEntity = _mapper.Map<CreateUpdateUserDtos, User>(user);
-        var result = await _userAccountRepository.UpdateAsync(userEntity, true);
-        return _mapper.Map<User, UserDto>(result);
-    }
-
-    public async Task<UserDto> RegisterUser(CreateUpdateUserDtos user)
-    {
-        var userEntity = _mapper.Map<CreateUpdateUserDtos, User>(user);
-        var passWordHash = PasswordHasher.HashPassword(user.Password);
-        userEntity.PasswordHash = passWordHash;
-        var result = await _userAccountRepository.CreateUser(userEntity);
         if (!user.IsAdmin)
         {
             var roleQueryable = _roleRepository.GetQueryable();
             var roleUser = await roleQueryable
                 .AsNoTracking()
-                .Include(x=> x.UserRole)
+                .Include(x => x.UserRole)
                 .FirstOrDefaultAsync(x => x.Code.Contains("ROOM_OWNER"));
             if (roleUser is not null)
             {
@@ -96,10 +79,72 @@ public class UserService : IUserService
         return _mapper.Map<User, UserDto>(result);
     }
 
+    public async Task<UserDto> UpdateUser(CreateUpdateUserDtos user, Guid id)
+    {
+        var findUser =
+            await _userAccountRepository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
+            throw new Exception("User không tồn tại");
+        var userEntity = _mapper.Map<CreateUpdateUserDtos, User>(user);
+        var result = await _userAccountRepository.UpdateAsync(userEntity, true);
+        return _mapper.Map<User, UserDto>(result);
+    }
+
+    public async Task<UserDto> RegisterUser(CreateUpdateUserDtos user)
+    {
+        var userEntity = _mapper.Map<CreateUpdateUserDtos, User>(user);
+        var passWordHash = PasswordHasher.HashPassword(user.Password.ToLower());
+        userEntity.PasswordHash = passWordHash;
+        var result = await _userAccountRepository.CreateUser(userEntity);
+        if (!user.IsAdmin)
+        {
+            var roleQueryable = _roleRepository.GetQueryable();
+            var roleUser = await roleQueryable
+                .Include(x => x.UserRole)
+                .FirstOrDefaultAsync(x => x.Code.Contains("ROOM_OWNER"));
+            if (roleUser is not null)
+            {
+                if (roleUser.UserRole is not null && roleUser.UserRole.Any())
+                {
+                    roleUser.UserRole.Add(new UserRole()
+                    {
+                        RoleId = roleUser.Id,
+                        UserId = result.Id
+                    });
+                }
+                else
+                {
+                    roleUser.UserRole = new List<UserRole>()
+                    {
+                        new UserRole()
+                        {
+                            RoleId = roleUser.Id,
+                            UserId = result.Id
+                        }
+                    };
+                }
+
+                await _roleRepository.UpdateAsync(roleUser, true);
+            }
+        }
+
+        return _mapper.Map<User, UserDto>(result);
+    }
+
+    public async Task ChangePassWord(ChangePasswordDto request)
+    {
+        var user = await _userAccountRepository.GetQueryable()
+                       .FirstOrDefaultAsync(x => x.EmailAddress.Contains(request.Email.ToLower())) ??
+                   throw new Exception("User không tồn tại");
+        var passWordHash = PasswordHasher.HashPassword(request.Password.ToLower());
+        user.PasswordHash = passWordHash;
+        await _userAccountRepository.UpdateAsync(user, true);
+    }
+
     public async Task DeleteUser(Guid id)
     {
-        var findUser = await _userAccountRepository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
-                       throw new Exception("User không tồn tại");
+        var findUser =
+            await _userAccountRepository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
+            throw new Exception("User không tồn tại");
         await _userAccountRepository.DeleteAsync(findUser, true);
     }
 
@@ -108,8 +153,17 @@ public class UserService : IUserService
         var queryable = _userAccountRepository.GetQueryable();
         var findUser = await queryable
             .FirstOrDefaultAsync(x =>
-                x.UserName.Contains(userDtos.UserName) || x.EmailAddress.Contains(userDtos.EmailAddress));
+                x.UserName.Contains(userDtos.UserName.ToLower()) ||
+                x.EmailAddress.Contains(userDtos.EmailAddress.ToLower()));
         return findUser == null;
+    }
+
+    public async Task<bool> IsEmailRegister(string email)
+    {
+        var queryable = _userAccountRepository.GetQueryable();
+        var findUser = await queryable
+            .FirstOrDefaultAsync(x => x.EmailAddress.Contains(email.ToLower()));
+        return findUser is not null;
     }
 
 

@@ -1,20 +1,18 @@
 import React, { useImperativeHandle, useRef } from 'react';
-import { BaseFormRef } from '~/component/Form/BaseForm';
 
 import { RowNode } from 'ag-grid';
 import { DatePicker } from 'antd';
 import Input from 'antd/lib/input/Input';
 import moment from 'moment';
-import { OverlayRef } from '~/component/Elements/loading/Overlay';
 import BaseGrid, { BaseGridColDef, BaseGridRef } from '~/component/Grid/BaseGrid';
 import { GridToolbar } from '~/component/Grid/Components/GridToolbar';
 import { ModalRef } from '~/component/Modal/ModalBase';
 import NotificationConstant from '~/configs/contants';
 import { requestApi } from '~/lib/axios';
 import { Member } from '~/types/shared/Customer';
+import { ServiceCustomer } from '~/types/shared/Service';
 import NotifyUtil from '~/util/NotifyUtil';
 import { CUSTOMER_UPDATE_SERVICE_CUSTOMER_API } from '../api/customer.api';
-import { ServiceCustomer } from '~/types/shared/Service';
 interface Props {
     customerId?: string | null;
     maxNumberOfPeople?: number;
@@ -23,13 +21,14 @@ interface Props {
     services: ServiceCustomer[];
     onClose?: () => void;
     onSubmitSuccessfully?: () => void;
+    mask?: () => void;
+    unMask?: () => void;
 }
 
 export interface MemberFormRef {
     onSave: () => void;
 }
 const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Element => {
-    const overlayRef = useRef<OverlayRef>(null);
     const modalRef = useRef<ModalRef>(null);
     const gridRef = useRef<BaseGridRef>(null);
     let initialData = props.initialValues || ([] as Member[]);
@@ -47,7 +46,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
         if (!isValid) {
             return NotifyUtil.error(NotificationConstant.TITLE, 'Vui lòng nhập đầy đủ thông tin thành viên');
         }
-        overlayRef.current?.open();
+        props.mask?.();
         const response = await requestApi('PUT', `${CUSTOMER_UPDATE_SERVICE_CUSTOMER_API}/${props.customerId}`, {
             members: rowData,
             services: props.services,
@@ -56,7 +55,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
             NotifyUtil.success(NotificationConstant.TITLE, 'Successfully');
             props.onClose?.();
         }
-        overlayRef.current?.close();
+        props.unMask?.();
     };
 
     const getGridData = () => {
@@ -110,7 +109,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
         {
             headerName: 'Họ và tên',
             field: nameof.full<Member>(x => x.name),
-            width: 200,
+
             editable: true,
             cellRenderer: (params: any) => {
                 return (
@@ -127,7 +126,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
         {
             headerName: 'Ngày sinh',
             field: nameof.full<Member>(x => x.dateOfBirth),
-            minWidth: 200,
+
             cellStyle: { textAlign: 'right' },
             cellRenderer: (params: any) => {
                 return (
@@ -145,7 +144,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
         {
             headerName: 'CMND/CCCD',
             field: nameof.full<Member>(x => x.identityNo),
-            width: 120,
+
             cellRenderer: (params: any) => {
                 return (
                     <Input
@@ -161,8 +160,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
         {
             headerName: 'Địa chỉ',
             field: nameof.full<Member>(x => x.permanentAddress),
-            flex: 1,
-            minWidth: 200,
+
             cellStyle: { textAlign: 'center' },
             cellRenderer: (params: any) => {
                 return (
@@ -179,7 +177,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
         {
             headerName: 'Số điện thoại',
             field: nameof.full<Member>(x => x.phoneNumber),
-            width: 150,
+
             cellStyle: { textAlign: 'center' },
             cellRenderer: (params: any) => {
                 return (
@@ -196,7 +194,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
         {
             headerName: 'Số xe',
             field: nameof.full<Member>(x => x.vehicleNumber),
-            width: 150,
+
             cellStyle: { textAlign: 'center' },
             cellRenderer: (params: any) => {
                 return (
@@ -213,7 +211,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
         {
             headerName: 'Ngày ĐKTT',
             field: nameof.full<Member>(x => x.temporarilyDate),
-            width: 150,
+
             cellStyle: { textAlign: 'center' },
             cellRenderer: (params: any) => {
                 return (
@@ -248,6 +246,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
                 pagination={false}
                 actionRows={true}
                 actionRowsWidth={100}
+                pinAction
                 actionRowsList={{
                     hasDeleteBtn: true,
                     onClickDeleteBtn: onDeleteRow,

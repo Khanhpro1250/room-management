@@ -128,7 +128,7 @@ const RoomPage: React.FC = () => {
     if (state.loading) return <Loading />;
 
     return (
-        <AppContainer className="body-page h-full overflow-auto">
+        <AppContainer className="body-page h-screen overflow-auto">
             <div className="flex-1 flex items-center justify-end mb-2">
                 <ButtonBase
                     variant={'primary'}

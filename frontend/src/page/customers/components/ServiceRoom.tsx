@@ -3,13 +3,12 @@ import NotificationConstant from '~/configs/contants';
 
 import { InputNumber } from 'antd';
 import _ from 'lodash';
-import { OverlayRef } from '~/component/Elements/loading/Overlay';
 import BaseGrid, { BaseGridColDef, BaseGridRef } from '~/component/Grid/BaseGrid';
 import { requestApi } from '~/lib/axios';
+import { Member } from '~/types/shared/Customer';
 import { Service, ServiceCustomer } from '~/types/shared/Service';
 import NotifyUtil from '~/util/NotifyUtil';
 import { CUSTOMER_UPDATE_SERVICE_CUSTOMER_API } from '../api/customer.api';
-import { Member } from '~/types/shared/Customer';
 interface Props {
     customerId?: string | null;
     readonly?: boolean;
@@ -18,6 +17,8 @@ interface Props {
     listServices?: Service[];
     onClose?: () => void;
     onSubmitSuccessfully?: () => void;
+    mask?: () => void;
+    unMask?: () => void;
 }
 
 export interface ServiceRoomRef {
@@ -25,7 +26,6 @@ export interface ServiceRoomRef {
 }
 const ServiceRoom = React.memo(
     React.forwardRef<ServiceRoomRef, Props>((props, ref): JSX.Element => {
-        const overlayRef = useRef<OverlayRef>(null);
         const gridRef = useRef<BaseGridRef>(null);
         const { readonly = false } = props;
 
@@ -51,7 +51,7 @@ const ServiceRoom = React.memo(
                 } as ServiceCustomer;
             });
 
-            overlayRef.current?.open();
+            props.mask?.();
             const response = await requestApi('PUT', `${CUSTOMER_UPDATE_SERVICE_CUSTOMER_API}/${props.customerId}`, {
                 services: listServices,
                 members: props.members,
@@ -60,12 +60,12 @@ const ServiceRoom = React.memo(
                 NotifyUtil.success(NotificationConstant.TITLE, 'Successfully');
                 props?.onSubmitSuccessfully?.();
                 props.onClose?.();
-                overlayRef.current?.close();
+                props.unMask?.();
                 return;
             } else {
                 NotifyUtil.error(NotificationConstant.TITLE, response?.data?.message ?? 'Có lỗi xảy ra');
                 props.onClose?.();
-                overlayRef.current?.close();
+                props.unMask?.();
                 return;
             }
         };
@@ -86,12 +86,11 @@ const ServiceRoom = React.memo(
                 headerCheckboxSelection: !readonly,
                 headerCheckboxSelectionFilteredOnly: !readonly,
                 checkboxSelection: true,
-                flex: 1,
             },
             {
                 headerName: 'Đơn giá',
                 field: nameof.full<Service>(x => x.price),
-                minWidth: 200,
+
                 cellStyle: { textAlign: 'right' },
                 // editable: !readonly,
                 // valueFormatter: (params: any) => {
@@ -118,12 +117,11 @@ const ServiceRoom = React.memo(
             {
                 headerName: 'Đơn vị tính',
                 field: nameof.full<Service>(x => x.unit),
-                width: 120,
             },
             {
                 headerName: 'Số lượng',
                 field: 'quantity',
-                width: 150,
+
                 cellStyle: { textAlign: 'right' },
                 // editable: !readonly,
                 // valueFormatter: (params: any) => {
@@ -175,6 +173,7 @@ const ServiceRoom = React.memo(
                 pagination={false}
                 actionRows={false}
                 actionRowsWidth={120}
+                pinAction
                 // gridOptions={{
                 //     rowClassRules: {
                 //         'ag-row-selected': (params: any) => {

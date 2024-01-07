@@ -10,6 +10,7 @@ using backend.Models.Repositorties.MenuRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Models.Repositorties.ServiceRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
+using backend.Models.Repositorties.UserAccountRepositories.OtpRepositories;
 using backend.Models.Repositorties.UserAccountRepositories.RoleRepositories;
 using backend.Providers;
 using backend.Services.CloudinaryServices;
@@ -164,6 +165,7 @@ public class Startup
         services.AddTransient<IContractRepository, ContractRepository>();
         services.AddTransient<IFileEntryRepository, FileEntryRepository>();
         services.AddTransient<IFileRepository, FileRepository>();
+        services.AddTransient<IOtpRepository, OtpRepostiory>();
 
 
         // AddScoped adService
@@ -181,6 +183,7 @@ public class Startup
         services.AddScoped<ICloudinaryService, CloudinaryService>();
         services.AddScoped<ICurrentUser, CurrentUser>();
         services.AddScoped<IFileService, FileService>();
+        services.AddScoped<IOtpService, OtpService>();
         services.AddScoped<ClaimsPrincipal>(provider => provider.GetService<IHttpContextAccessor>()?.HttpContext?.User);
         services.AddScoped<User>();
         services.AddScoped<IDbContextProvider<ApplicationDbContext>, DbContextProvider<ApplicationDbContext>>();

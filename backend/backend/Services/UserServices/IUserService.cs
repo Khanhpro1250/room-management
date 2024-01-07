@@ -13,10 +13,13 @@ public interface IUserService
     Task<UserDto> CreateUser(CreateUpdateUserDtos user);
     Task<UserDto> UpdateUser(CreateUpdateUserDtos user,Guid userId);
     Task<UserDto> RegisterUser(CreateUpdateUserDtos user);
+    Task ChangePassWord(ChangePasswordDto request);
     
     Task DeleteUser(Guid userId);
     
     Task<bool> IsValidUserRegister(CreateUpdateUserDtos userDtos);
+    
+    Task<bool> IsEmailRegister(string email);
     
     Task<List<ComboOptionKeyTitleDto>> GetComboUser();
 }

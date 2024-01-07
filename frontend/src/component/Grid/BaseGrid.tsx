@@ -17,6 +17,7 @@ export interface BaseGridColDef extends ColDef, Partial<ColGroupDef> {}
 ModuleRegistry.registerModules([ClientSideRowModelModule, RowGroupingModule]);
 
 export interface BaseGridProps {
+    pinAction?: boolean;
     columnDefs: BaseGridColDef[];
     gridOptions?: GridConfig | undefined;
     data: any[] | undefined;
@@ -91,6 +92,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
         customColDefs.push({
             field: 'actionRows',
             headerName: 'Hành động',
+            pinned: props.pinAction ? 'right' : undefined,
             width: props.actionRowsWidth ?? 100,
             cellStyle: {
                 textAlign: 'center',
@@ -188,8 +190,8 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
 
     return (
         <div className="w-full h-[500px]">
-            <div className="h-[6%]">{props.children}</div>
-            <div className="w-full h-[94%] ag-theme-alpine grid base-grid">
+            <div>{props.children}</div>
+            <div className="w-full h-[94%] ag-theme-alpine grid base-grid mt-3">
                 {props.data && (
                     <AgGridReact
                         ref={ref}

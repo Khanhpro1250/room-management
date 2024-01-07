@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { useRef } from 'react';
 import Loading from '~/component/Elements/loading/Loading';
 import BaseGrid, { BaseGridColDef, BaseGridRef } from '~/component/Grid/BaseGrid';
@@ -8,7 +9,6 @@ import { useBaseGrid } from '~/hook/useBaseGrid';
 import { House } from '~/types/shared/House';
 import { HOUSE_INDEX_API } from './api/house.api';
 import HomeForm from './components/HomeForm';
-import _ from 'lodash';
 
 const HouseListView: React.FC = () => {
     const gridRef = useRef<BaseGridRef>(null);
@@ -51,22 +51,19 @@ const HouseListView: React.FC = () => {
         {
             headerName: 'Tên nhà',
             field: nameof.full<House>(x => x.name),
-            minWidth: 500,
         },
         {
             headerName: 'Địa chỉ',
             field: nameof.full<House>(x => x.location),
-            width: 120,
         },
         {
             headerName: 'Loại nhà',
             field: nameof.full<House>(x => x.houseTypeName),
-            width: 120,
         },
         {
             headerName: 'Hình ảnh',
             field: nameof.full<House>(x => x.imgLink),
-            width: 120,
+
             cellRenderer: (params: any) => {
                 return <img style={{ width: '100%', height: '100%' }} src={params.value} />;
             },

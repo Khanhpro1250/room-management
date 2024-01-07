@@ -25,8 +25,8 @@ const ImagePickerField: React.FC<ImagePickerFieldProps> = ({ name, initialValue,
     };
 
     useEffect(() => {
-        initialValue.length > 0 &&
-            initialValue.forEach((file: any) => {
+        initialValue?.length > 0 &&
+            initialValue?.forEach((file: any) => {
                 const fileName = file.name;
                 const id = file.id;
                 fetch(file.url)

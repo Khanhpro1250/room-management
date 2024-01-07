@@ -15,7 +15,7 @@ const Loading: React.FC<LoadingProps> = props => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 width: '100%',
-                height: '100%',
+                height: '100vh',
                 zIndex: 999,
             }}
         >
