@@ -121,7 +121,10 @@ public static class HouseEntityConfig
             entity.ToTable(nameof(RoomServiceIndex), SchemaName);
             entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
 
-            entity.Property(x => x.Type).HasMaxLength(20);
+            entity.HasOne(x => x.Service)
+                .WithMany()
+                .HasForeignKey(x => x.ServiceId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(x => x.Customer)
                 .WithMany(x => x.RoomServiceIndices)
