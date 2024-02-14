@@ -1,21 +1,20 @@
-import { useImperativeHandle, useRef } from 'react';
+import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import BaseGrid, { BaseGridColDef, BaseGridRef } from '~/component/Grid/BaseGrid';
 import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
 import { useBaseGrid } from '~/hook/useBaseGrid';
 import { House } from '~/types/shared/House';
-
+import qs from 'qs';
 import { icon } from '@fortawesome/fontawesome-svg-core';
-import { faEdit, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Loading from '~/component/Elements/loading/Loading';
-import { Room } from '~/types/shared';
-import { ROOM_DELETE_API, ROOM_INDEX_API } from '../api/room.api';
-import RoomForm from './RoomForm';
-import NotifyUtil from '~/util/NotifyUtil';
 import NotificationConstant from '~/configs/contants';
 import { requestApi } from '~/lib/axios';
-import CustomerForm from '~/page/customers/components/CustomerForm';
-import { useNavigate } from 'react-router-dom';
+import { Room } from '~/types/shared';
+import NotifyUtil from '~/util/NotifyUtil';
+import { ROOM_DELETE_API, ROOM_INDEX_API } from '../api/room.api';
+import RoomForm from './RoomForm';
 import { Status } from '~/component/Grid/Components/Status';
 
 export interface RoomListViewRef {
@@ -29,13 +28,16 @@ interface Props {
 }
 
 const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.Element => {
+    const location = useLocation();
+    const { tab } = qs.parse(location.search, { ignoreQueryPrefix: true });
     const gridRef = useRef<BaseGridRef>(null);
     const modalRef = useRef<ModalRef>(null);
+    const [houseId, setHouseId] = useState(props.houseId ?? tab);
     const navigate = useNavigate();
     const gridController = useBaseGrid<House>({
         url: ROOM_INDEX_API,
         gridRef: gridRef,
-        params: { houseId: props.houseId },
+        params: { houseId: houseId },
     });
 
     const colDefs: BaseGridColDef[] = [
@@ -48,17 +50,17 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         {
             headerName: 'Số phòng',
             field: nameof.full<Room>(x => x.number),
-            width: 150,
+            // width: 150,
         },
         {
             headerName: 'Diện tích',
             field: nameof.full<Room>(x => x.acreage),
-            width: 120,
+            // width: 120,
         },
         {
             headerName: 'Số người ở tối đa',
             field: nameof.full<Room>(x => x.maxNumberOfPeople),
-            width: 120,
+            // width: 150,
 
             cellStyle: { textAlign: 'right' },
         },
@@ -74,25 +76,24 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         {
             headerName: 'Trạng thái',
             field: nameof.full<Room>(x => x.status),
-            minWidth: 120,
+            // minWidth: 120,
             cellStyle: { textAlign: 'center' },
             cellRenderer: (params: any) => {
                 return (
                     <div>
-                        <Status status={params.value} statusName={params.data.statusName}  />
+                        <Status status={params.value} statusName={params.data.statusName} />
                     </div>
                 );
             },
         },
     ];
 
-
     useImperativeHandle(
         ref,
         () => ({
             onFilter: (formValues: any) => onFilter(formValues),
             refreshData: () => gridController?.reloadData(),
-            onCreate,
+            onCreate,            
         }),
         [],
     );
@@ -137,7 +138,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                     gridController?.reloadData();
                 }}
                 onClose={modalRef.current?.onClose}
-                parentId={props.houseId}
+                parentId={houseId}
                 initialValues={data}
                 readonly={true}
             />,
@@ -148,7 +149,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
     };
 
     const onFilter = (formValues: any) => {
-        gridController?.setParams({ houseId: props.houseId, ...formValues });
+        gridController?.setParams({ houseId: houseId, ...formValues });
         gridController?.reloadData();
     };
 
@@ -169,41 +170,43 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
             {gridController?.loading ? (
                 <Loading />
             ) : (
-                <>
+                <div className="h-full">
                     <BaseGrid
                         columnDefs={colDefs}
                         data={gridController?.data}
                         ref={gridRef}
+                        pinAction
                         numberRows={true}
                         rowHeight={40}
                         pagination={true}
                         actionRowsList={{
-                            hasDetailBtn: true,
+                            // hasDetailBtn: true,
                             hasEditBtn: true,
                             hasDeleteBtn: true,
-                            hasAddUserBtn: true,
-                            onClickAddUserBtn: (data: Room) => {
+                            hasWithdrawBtn(data, rowNode) {
+                                return data.status === 'RENTED';
+                            },
+                            hasAddCustomerBtn(data) {
+                                return data.status === 'NEW';
+                            },
+                            hasEditCustomerBtn(data, rowNode) {
+                                return data.status === 'RENTED';
+                            },
+                            onClickEditCustomerBtn: (data: Room) => {
                                 navigate(`/customer?roomId=${data.id}`);
                             },
-                            onClickDetailBtn: onDetail,
+                            onClickCustomerBtn: (data: Room) => {
+                                navigate(`/customer?roomId=${data.id}`);
+                            },
+                            // onClickDetailBtn: onDetail,
                             onClickEditBtn: onUpdate,
                             onClickDeleteBtn: onDelete,
                         }}
                         actionRowsWidth={200}
-                        // autoGroupColumnDef={autoGroupColumnDef}
-                        // getDataPath={getDataPath}
                         groupDefaultExpanded={-1}
                     />
-                    {/* <GridToolbar
-                            hasCreateButton
-                            hasRefreshButton
-                            onClickCreateButton={onCreate}
-                            onClickRefreshButton={() => gridController?.reloadData()}
-                        />
-                    </BaseGrid> */}
-
                     <ModalBase ref={modalRef} />
-                </>
+                </div>
             )}
         </>
     );

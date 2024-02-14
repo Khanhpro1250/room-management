@@ -58,6 +58,7 @@ const Overlay = forwardRef<OverlayRef, IProps>((props, ref) => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    innerHeight: 'full',
                 },
                 props.style,
             )}

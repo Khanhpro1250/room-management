@@ -1,25 +1,22 @@
-import { faClose, faImage, faSave } from '@fortawesome/free-solid-svg-icons';
-import { Input, Upload, UploadFile, UploadProps } from 'antd';
+import { faClose, faSave } from '@fortawesome/free-solid-svg-icons';
+import { Input } from 'antd';
 import { Method } from 'axios';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
 import { AppModalContainer } from '~/component/Layout/AppModalContainer';
 import NotificationConstant from '~/configs/contants';
 import { Room } from '~/types/shared';
 
+import TextArea from 'antd/lib/input/TextArea';
+import _ from 'lodash';
+import ImagePickerField from '~/component/Elements/ImagePreview/ImagePickerField';
+import Overlay, { OverlayRef } from '~/component/Elements/loading/Overlay';
 import { requestApi } from '~/lib/axios';
+import ApiUtil from '~/util/ApiUtil';
 import NotifyUtil from '~/util/NotifyUtil';
 import { ROOM_CREATE_API, ROOM_UPDATE_API } from '../api/room.api';
-import TextArea from 'antd/lib/input/TextArea';
-import Overlay, { OverlayRef } from '~/component/Elements/loading/Overlay';
-import { useMergeState } from '~/hook/useMergeState';
-import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
-import { UPLOAD_FILE_API, UPLOAD_MULTI_FILE_API } from '~/configs';
-import _ from 'lodash';
-import { RcFile } from 'antd/lib/upload';
-import FileUtil from '~/util/FileUtil';
-import { UploadOutlined } from '@ant-design/icons';
+
 interface Props {
     parentId?: string;
     readonly?: boolean;
@@ -28,54 +25,11 @@ interface Props {
     onSubmitSuccessfully?: () => void;
 }
 
-type State = {
-    imageList: UploadFile[];
-    fileUrls: string[];
-};
 const RoomForm: React.FC<Props> = props => {
     const formRef = useRef<BaseFormRef>(null);
     const overlayRef = useRef<OverlayRef>(null);
-    const modalRef = useRef<ModalRef>(null);
-    const [state, setState] = useMergeState<State>({
-        imageList:
-            props.initialValues?.fileUrls?.map(
-                url =>
-                    ({
-                        uid: url,
-                        name: url,
-                        url: url,
-                        status: 'done',
-                        thumbUrl: url,
-                    } as UploadFile),
-            ) ?? [],
-        fileUrls: props.initialValues?.fileUrls ?? [],
-    });
 
-    const handleChange: UploadProps['onChange'] = ({ fileList, file }) => {
-        if (file.status === 'done') {
-            const result = _.get(file.response, 'result');
-            setState({
-                fileUrls: [...state.fileUrls, result.fileUrl],
-                // imageList: fileList
-            });
-        }
-        setState({ imageList: fileList });
-    };
-
-    const handlePreview = async (file: UploadFile) => {
-        if (!file.url && !file.preview) {
-            file.preview = await FileUtil.getBase64(file.originFileObj as RcFile);
-        }
-
-        modalRef?.current?.onOpen(
-            <img alt="example" style={{ width: '100%' }} src={file.url || (file.preview as string)} />,
-            'Xem trước',
-            '50%',
-            faImage,
-        );
-    };
-
-    const handleCancel = () => modalRef.current?.onClose();
+    const cloneRowData = _.cloneDeep(props.initialValues);
 
     const onSubmit = async () => {
         const isValidForm = await formRef.current?.isFieldsValidate();
@@ -105,12 +59,37 @@ const RoomForm: React.FC<Props> = props => {
             },
         };
         const formValues = formRef.current?.getFieldsValue();
+        const formBody = {
+            ...formValues,
+        };
+
+        if (!_.isEmpty(props.initialValues)) {
+            const initFiles = cloneRowData?.fileEntryCollection;
+
+            const [listFileRemaining, newFiles] = _.partition(
+                formBody.fileEntryCollection,
+                (x: any) => !(x instanceof File),
+            );
+
+            const listFileRemainingIds = _.map(listFileRemaining, (x: any) => x.id) || [];
+            const listDeletedFiles = _.filter(initFiles?.fileEntries, (x: any) => !listFileRemainingIds.includes(x.id));
+            const listDeletedFileIds = _.map(listDeletedFiles, (x: any) => x.id);
+
+            _.set(formBody, 'listDeletedFileIds', listDeletedFileIds.toString());
+            _.set(formBody, 'fileEntryCollection', newFiles);
+        }
+
+        const data = ApiUtil.createFormMultipartForNet({
+            ...formBody,
+            houseId: props.parentId,
+        });
+
         const urlParam = props.initialValues ? urlParams.update : urlParams.create;
         overlayRef.current?.open();
-        const response = await requestApi(urlParam.method, urlParam.url, {
-            ...formValues,
-            houseId: props.parentId,
-            fileUrls: state.fileUrls,
+        const response = await requestApi(urlParam.method, urlParam.url, data, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
         });
 
         if (response.data?.success) {
@@ -126,23 +105,22 @@ const RoomForm: React.FC<Props> = props => {
             return;
         }
     };
-    const onRemove = (file: UploadFile) => {
-        const fileUrl = file.url ? file.url : _.get(file.response, 'fileUrl');
-        setState({ fileUrls: state.fileUrls.filter(url => url !== fileUrl) });
-    };
 
-    const uploadButton = (
-        <div>
-            <UploadOutlined />
-            <div style={{ marginTop: 8 }}>Tải ảnh</div>
-        </div>
-    );
+    const initialValues = {
+        ...props.initialValues,
+        fileEntryCollection: props.initialValues?.fileEntryCollection?.fileEntries.map(file => ({
+            id: file.id,
+            name: file.fileName,
+            status: 'done',
+            url: file.url,
+        })),
+    };
 
     return (
         <AppModalContainer>
             <BaseForm
                 disabled={props.readonly}
-                initialValues={props.initialValues}
+                initialValues={initialValues}
                 ref={formRef}
                 baseFormItem={[
                     {
@@ -187,37 +165,13 @@ const RoomForm: React.FC<Props> = props => {
                     },
                     {
                         label: 'Hình ảnh',
-                        name: nameof.full<Room>(x => x.fileUrls),
+                        name: nameof.full<Room>(x => x.fileEntryCollection),
                         children: (
-                            <>
-                                <Upload
-                                    onChange={handleChange}
-                                    onRemove={onRemove}
-                                    fileList={state.imageList}
-                                    action={UPLOAD_FILE_API}
-                                    accept="image/*"
-                                    name="file"
-                                    showUploadList={true}
-                                    onPreview={handlePreview}
-                                    method="post"
-                                    listType="picture-card"
-                                >
-                                    {state.imageList.length >= 8 ? null : uploadButton}
-                                </Upload>
-                                <ModalBase
-                                    ref={modalRef}
-                                    footer={[
-                                        <div key="close" className="w-full flex items-center justify-center">
-                                            <ButtonBase
-                                                title="Đóng"
-                                                startIcon={faClose}
-                                                variant="danger"
-                                                onClick={handleCancel}
-                                            />
-                                        </div>,
-                                    ]}
-                                />
-                            </>
+                            <ImagePickerField
+                                formRef={formRef}
+                                initialValue={initialValues.fileEntryCollection}
+                                name={nameof.full<Room>(x => x.fileEntryCollection)}
+                            />
                         ),
                     },
                 ]}

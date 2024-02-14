@@ -14,8 +14,7 @@ namespace backend.DTOs.ServiceDtos
         public string Name { get; set; }
         public string Code { get; set; }
         public float Price { get; set; }
-        [JsonProperty("unit")] 
-        public List<string> Unit { get; set; }
+        public string Unit { get; set; }
         public bool Status { get; set; }
     }
 }

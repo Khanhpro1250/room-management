@@ -1,21 +1,24 @@
 ﻿using System.Security.Claims;
-using System.Text;
+using backend.Models;
+using backend.Models.Entities;
+using backend.Models.Entities.UserAccount;
 using backend.Models.Repositorties.ContractRepositories;
 using backend.Models.Repositorties.CustomerRepositories;
-using backend.Models.Repositorties.DepositRepositories;
+using backend.Models.Repositorties.FileRepositories;
 using backend.Models.Repositorties.HouseRerositories;
 using backend.Models.Repositorties.MenuRepositories;
-using backend.Models.Repositorties.NotificationRepositories;
-using backend.Models.Repositorties.RequestRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Models.Repositorties.ServiceRepositories;
 using backend.Models.Repositorties.UserAccountRepositories;
+using backend.Models.Repositorties.UserAccountRepositories.OtpRepositories;
 using backend.Models.Repositorties.UserAccountRepositories.RoleRepositories;
+using backend.Providers;
 using backend.Services.CloudinaryServices;
 using backend.Services.ContractServices;
 using backend.Services.CustomerServices;
 using backend.Services.DepositServices;
 using backend.Services.ExportWordPdfServices;
+using backend.Services.FileServices;
 using backend.Services.HouseServices;
 using backend.Services.MenuService;
 using backend.Services.NotificationServices;
@@ -27,12 +30,8 @@ using backend.Services.ServiceServices;
 using backend.Services.UserServices;
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using MongoDB.Driver;
-using Moq;
 
 namespace backend;
 
@@ -90,72 +89,85 @@ public class Startup
         // Add Swagger
         services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo() { Title = "My API", Version = "v1" }); });
 
-        
+        //AddDbContext
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(options =>
-            {
-                options.Cookie.Name = "CookieAuth";
+            .AddCookie(options => { options.Cookie.Name = "CookieAuth"; });
 
-            });
 
-        
-        services.AddSingleton<IRoleRepository>(_ =>
-        {
-            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-            return new RoleRepository(mongoClient, "room_manager");
-        });
-        services.AddSingleton<IServiceRepository>(_ =>
-        {
-            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-            return new ServiceRepository(mongoClient, "room_manager");
-        });
-        services.AddSingleton<INotificationRepository>(_ =>
-        {
-            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-            return new NotificationRepository(mongoClient, "room_manager");
-        });
-        services.AddSingleton<IRequestRepository>(_ =>
-        {
-            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-            return new RequestRepository(mongoClient, "room_manager");
-        });
-        services.AddSingleton<IDepositRepository>(_ =>
-        {
-            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-            return new DepositRepository(mongoClient, "room_manager");
-        });
-        services.AddSingleton<IContractRepository>(_ =>
-        {
-            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-            return new ContractRepository(mongoClient, "room_manager");
-        });
-        services.AddSingleton<ICustomerRepository>(_ =>
-        {
-            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-            return new CustomerRepository(mongoClient, "room_manager");
-        });
-        services.AddSingleton<IRoomRepository>(_ =>
-        {
-            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-            return new RoomRepository(mongoClient, "room_manager");
-        });
-        services.AddSingleton<IUserAccountRepository>(_ =>
-        {
-            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-            return new UserAccountRepository(mongoClient, "room_manager");
-        });
-        services.AddSingleton<IMenuRepository>(_ =>
-        {
-            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-            return new MenuRepository(mongoClient, "room_manager");
-        });
+        // services.AddSingleton<IRoleRepository>(_ =>
+        // {
+        //     var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+        //     return new RoleRepository(mongoClient, "room_manager");
+        // });
+        // services.AddSingleton<IServiceRepository>(_ =>
+        // {
+        //     var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+        //     return new ServiceRepository(mongoClient, "room_manager");
+        // });
+        // services.AddSingleton<INotificationRepository>(_ =>
+        // {
+        //     var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+        //     return new NotificationRepository(mongoClient, "room_manager");
+        // });
+        // services.AddSingleton<IRequestRepository>(_ =>
+        // {
+        //     var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+        //     return new RequestRepository(mongoClient, "room_manager");
+        // });
+        // services.AddSingleton<IDepositRepository>(_ =>
+        // {
+        //     var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+        //     return new DepositRepository(mongoClient, "room_manager");
+        // });
+        // services.AddSingleton<IContractRepository>(_ =>
+        // {
+        //     var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+        //     return new ContractRepository(mongoClient, "room_manager");
+        // });
+        // services.AddSingleton<ICustomerRepository>(_ =>
+        // {
+        //     var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+        //     return new CustomerRepository(mongoClient, "room_manager");
+        // });
+        // services.AddSingleton<IRoomRepository>(_ =>
+        // {
+        //     var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+        //     return new RoomRepository(mongoClient, "room_manager");
+        // });
+        // services.AddSingleton<IUserAccountRepository>(_ =>
+        // {
+        //     var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+        //     return new UserAccountRepository(mongoClient, "room_manager");
+        // });
+        // services.AddSingleton<IMenuRepository>(_ =>
+        // {
+        //     var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+        //     return new MenuRepository(mongoClient, "room_manager");
+        // });
+        //
+        // services.AddSingleton<IHouseRepository>(_ =>
+        // {
+        //     var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
+        //     return new HouseRepository(mongoClient, "room_manager");
+        // });
 
-        services.AddSingleton<IHouseRepository>(_ =>
-        {
-            var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDBConnection"));
-            return new HouseRepository(mongoClient, "room_manager");
-        });
-        
+        services.AddTransient<IUserAccountRepository, UserAccountRepository>();
+        services.AddTransient<IRoleRepository, RoleRepository>();
+        services.AddTransient<IMenuRepository, MenuRepository>();
+        services.AddTransient<IHouseRepository, HouseRepository>();
+        services.AddTransient<IRoomRepository, RoomRepository>();
+        services.AddTransient<IServiceRepository, ServiceRepository>();
+        services.AddTransient<ICustomerRepository, CustomerRepository>();
+        services.AddTransient<IContractRepository, ContractRepository>();
+        services.AddTransient<IFileEntryRepository, FileEntryRepository>();
+        services.AddTransient<IFileRepository, FileRepository>();
+        services.AddTransient<IOtpRepository, OtpRepostiory>();
+        services.AddTransient<IRoomServiceIndexRepository, RoomServiceIndexRepository>();
+
 
         // AddScoped adService
         services.AddScoped<IUserService, UserService>();
@@ -171,11 +183,16 @@ public class Startup
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<ICloudinaryService, CloudinaryService>();
         services.AddScoped<ICurrentUser, CurrentUser>();
+        services.AddScoped<IFileService, FileService>();
+        services.AddScoped<IOtpService, OtpService>();
         services.AddScoped<ClaimsPrincipal>(provider => provider.GetService<IHttpContextAccessor>()?.HttpContext?.User);
-        services.AddScoped<backend.Models.Entities.UserAccount.User>();
+        services.AddScoped<User>();
+        services.AddScoped<IDbContextProvider<ApplicationDbContext>, DbContextProvider<ApplicationDbContext>>();
+
+        services.Configure<FileSetting>(Configuration.GetSection(nameof(FileSetting)));
+        services.Configure<AppFileBucketConfig>(Configuration.GetSection(nameof(AppFileBucketConfig)));
 
 
-        
         // Add cloundinary
         Account account = new Account(
             "khanh15032001",
@@ -184,7 +201,7 @@ public class Startup
 
         Cloudinary cloudinary = new Cloudinary(account);
         services.AddSingleton(cloudinary);
-        
+
 
         //Sendmail
         services.AddScoped<ISendMailService, SendMailService>();
@@ -195,13 +212,13 @@ public class Startup
             options.AddPolicy("AllowReactNativeApp", builder =>
             {
                 // Allow requests from the React Native app's origin (e.g., http://localhost:7179)
-                builder.WithOrigins("http://localhost:19006")
+                builder.WithOrigins()
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     ;
             });
         });
-        
+
         services.AddHttpContextAccessor();
     }
 }

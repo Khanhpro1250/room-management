@@ -13,7 +13,7 @@ import NotifyUtil from '~/util/NotifyUtil';
 import { SERVICE_CREATE_API, SERVICE_UPDATE_API } from '../api/services.api';
 
 interface Props {
-    initialValues?: Partial<Role>;
+    initialValues?: Partial<Service>;
     onClose?: () => void;
     onSubmitSuccessfully?: () => void;
 }
@@ -55,6 +55,7 @@ const ServicesForm: React.FC<Props> = props => {
 
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
+            unit: JSON.stringify(formValues?.unit),
         });
 
         if (response.data?.success) {
@@ -68,7 +69,11 @@ const ServicesForm: React.FC<Props> = props => {
     return (
         <AppModalContainer>
             <BaseForm
-                initialValues={props.initialValues}
+                initialValues={{
+                    ...props.initialValues,
+                    status: props.initialValues?.status ?? true,
+                    unit: props.initialValues?.unit ? JSON.parse(props.initialValues?.unit) : [],
+                }}
                 ref={formRef}
                 baseFormItem={[
                     {

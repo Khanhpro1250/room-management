@@ -1,16 +1,17 @@
 ﻿using backend.Models.Entities.Customers;
-using backend.Models.Entities.Rooms;
-using MongoDB.Driver;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models.Repositorties.CustomerRepositories
 {
-    public interface ICustomerRepository
+    public interface ICustomerRepository : IRepository<Customer>
     {
-        Task<List<Customer>> GetListCustomer();
-        Task<Customer> GetCustomerById(string customerId);
-        Task<Customer> CreateCustomer(Customer customer);
-        Task<Customer> UpdateCustomer(Customer customer, string id);
-        IMongoCollection<Customer> GetQueryable();
-        Task DeleteCustomer(string id);
+        // Task<List<Customer>> GetListCustomer();
+        // Task<Customer> GetCustomerById(string customerId);
+        // Task<Customer> CreateCustomer(Customer customer);
+        // Task<Customer> UpdateCustomer(Customer customer, string id);
+        // IMongoCollection<Customer> GetQueryable();
+        // Task DeleteCustomer(string id);
+        DbSet<Customer> GetRepository();
+        IQueryable<Customer> GetQueryable();
     }
 }

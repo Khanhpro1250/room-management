@@ -5,7 +5,5 @@ namespace backend.Models.Entities;
 
 public class Entity
 {
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; }
+    public Guid Id { get; set; }
 }

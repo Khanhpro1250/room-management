@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using backend.Controllers.Dtos;
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.MenuDtos;
 using backend.Models.Entities.Menus;
 using backend.Models.Repositorties.MenuRepositories;
 using backend.Services.RoleServices;
 using backend.Services.UserServices;
+using backend.Utils;
+using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 
 namespace backend.Services.MenuService;
@@ -25,13 +29,16 @@ public class MenuService : IMenuService
         _currentUser = currentUser;
     }
 
-    public async Task<PaginatedList<MenuDto>> GetListMenus()
+    public async Task<PaginatedList<MenuDto>> GetListMenus(PaginatedListQuery paginatedListQuery)
     {
         var queryable = _menuRepository.GetQueryable();
+        var count = await queryable.CountAsync();
         var listMenu = await queryable
-            .Find(x => true)
+            .ProjectTo<MenuDto>(_mapper.ConfigurationProvider)
+            .OrderByDescending(x => x.CreatedTime)
+            .QueryablePaging(paginatedListQuery)
             .ToListAsync();
-        return new PaginatedList<MenuDto>(_mapper.Map<List<Menu>, List<MenuDto>>(listMenu), listMenu.Count, 0, 10);
+        return new PaginatedList<MenuDto>(listMenu, count, paginatedListQuery.Offset, paginatedListQuery.Limit);
     }
 
     public async Task<List<MenuLayoutDto>> GetMenuLayout()
@@ -40,7 +47,10 @@ public class MenuService : IMenuService
         var roles = await _roleService.GetPermissionWithCurrentUser();
         var queryable = _menuRepository.GetQueryable();
 
-        var menuList = await queryable.Find(x => isAdmin || roles.Contains(x.Permissions)).ToListAsync();
+        var menus = await queryable.Where(x => x.IsDisplay).ToListAsync();
+
+        var menuList = menus.Where(x => isAdmin || roles.Any(y => x.Permissions.Split(",").Contains(y.ToString())))
+            .ToList();
 
         var listMenuLayout = new List<MenuLayoutDto>();
         foreach (var menu in menuList)
@@ -57,16 +67,17 @@ public class MenuService : IMenuService
                 Path = menu.Path,
                 BreadCrumbs = BuildTreeGroup(menu.Path, menuList),
                 Permissions = menu.Permissions,
-                HasPermissionToAccess = isAdmin || roles.Contains(menu.Permissions)
+                HasPermissionToAccess = isAdmin || roles.Any(x => menu.Permissions.Contains(x.ToString())),
+                CreatedTime = menu.CreatedTime
             });
         }
 
-        return listMenuLayout;
+        return listMenuLayout.OrderBy(x => x.CreatedTime).ToList();
     }
 
-    public async Task<MenuDto> GetDetailMenu(string id)
+    public async Task<MenuDto> GetDetailMenu(Guid id)
     {
-        var menu = await _menuRepository.GetMenuById(id);
+        var menu = await _menuRepository.GetQueryable().FirstOrDefaultAsync(x => x.Id.Equals(id));
         return _mapper.Map<Menu, MenuDto>(menu);
     }
 
@@ -76,9 +87,8 @@ public class MenuService : IMenuService
         // if (checkMenu is not null) throw new Exception("Menu đã tồn tại route");
         if (menuDto.ParentId is not null)
         {
-            var parentMenu = await _menuRepository.GetQueryable().Find(x => x.Id == menuDto.ParentId)
-                .FirstOrDefaultAsync();
-            menuDto.Path = parentMenu.Path;
+            var parentMenu = await _menuRepository.GetQueryable().FirstOrDefaultAsync(x => x.Id == menuDto.ParentId);
+            menuDto.Path = parentMenu?.Path;
         }
         else
         {
@@ -86,17 +96,19 @@ public class MenuService : IMenuService
         }
 
         var menu = _mapper.Map<CreateUpdateMenuDto, Menu>(menuDto);
-        var result = await _menuRepository.CreateMenu(menu);
+
+        var result = await _menuRepository.AddAsync(menu, true);
         return _mapper.Map<Menu, MenuDto>(result);
     }
 
-    public async Task<MenuDto> UpdateMenu(CreateUpdateMenuDto menuDto, string id)
+    public async Task<MenuDto> UpdateMenu(CreateUpdateMenuDto menuDto, Guid id)
     {
+        var findMenu = await _menuRepository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
+                       throw new Exception("Không tìm thấy Menu");
         if (menuDto.ParentId is not null)
         {
-            var parentMenu = await _menuRepository.GetQueryable().Find(x => x.Id == menuDto.ParentId)
-                .FirstOrDefaultAsync();
-            menuDto.Path = parentMenu.Path;
+            var parentMenu = await _menuRepository.GetQueryable().FirstOrDefaultAsync(x => x.Id == menuDto.ParentId);
+            menuDto.Path = parentMenu?.Path;
         }
         else
         {
@@ -104,18 +116,20 @@ public class MenuService : IMenuService
         }
 
         var updateMenu = _mapper.Map<CreateUpdateMenuDto, Menu>(menuDto);
-        var result = await _menuRepository.UpdateMenu(updateMenu, id);
+        var result = await _menuRepository.UpdateAsync(updateMenu, true);
         return _mapper.Map<Menu, MenuDto>(result);
     }
 
-    public async Task DeleteMenu(string id)
+    public async Task DeleteMenu(Guid id)
     {
-        await _menuRepository.DeleteMenu(id);
+        var findMenu = await _menuRepository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
+                       throw new Exception("Không tìm thấy Menu");
+        await _menuRepository.DeleteAsync(findMenu, true);
     }
 
     private List<string> BuildTreeGroup(string path, List<Menu> menus)
     {
-        var arrPath = path?.Split(".").ToList();
+        var arrPath = path?.Split(".").Select(Guid.Parse).ToList();
         var groupResponse = new List<string>();
 
         if (arrPath != null)

@@ -2,6 +2,7 @@
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.RoomDtos;
 using backend.Services.RoomServices;
+using backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -18,47 +19,64 @@ namespace backend.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<ApiResponse<RoomDto>> CreateRoom([FromBody] CreateUpdateRoomDto room)
+        public async Task<ApiResponse<RoomDto>> CreateRoom([FromForm] CreateUpdateRoomDto room)
         {
             var result = await _roomService.CreateRoom(room);
             return ApiResponse<RoomDto>.Ok(result);
         }
 
-        [HttpGet("detail/{roomId}")]
-        public async Task<ApiResponse<RoomDto>> GetRoomDetail([FromRoute] string roomId)
+        [HttpGet("detail/{roomId:guid}")]
+        public async Task<ApiResponse<RoomDto>> GetRoomDetail([FromRoute] Guid roomId)
         {
             var result = await _roomService.GetRoomById(roomId);
             return ApiResponse<RoomDto>.Ok(result);
         }
 
-        [HttpPut("update/{roomId}")]
-        public async Task<ApiResponse<RoomDto>> UpdateRoom([FromRoute] string roomId,
-            [FromBody] CreateUpdateRoomDto room)
+        [HttpPut("update/{roomId:guid}")]
+        public async Task<ApiResponse<RoomDto>> UpdateRoom([FromRoute] Guid roomId,
+            [FromForm] CreateUpdateRoomDto room)
         {
             var result = await _roomService.UpdateRoom(room, roomId);
             return ApiResponse<RoomDto>.Ok(result);
         }
 
 
-        [HttpDelete("delete/{id}")]
-        public async Task<ApiResponse<RoomDto>> DeleteRoom([FromRoute] string id)
+        [HttpDelete("delete/{id:guid}")]
+        public async Task<ApiResponse<RoomDto>> DeleteRoom([FromRoute] Guid id)
         {
             await _roomService.DeleteRoom(id);
             return ApiResponse<RoomDto>.Ok();
         }
 
         [HttpGet("index")]
-        public async Task<ApiResponse<PaginatedList<RoomDto>>> GetListRoom([FromQuery] RoomFilterDto filterDto)
+        public async Task<ApiResponse<PaginatedList<RoomDto>>> GetListRoom([FromQuery] RoomFiterDto filterDto)
         {
+            filterDto.PaginatedListQuery = Request.Query.GetPaginatedListQuery();
             var result = await _roomService.GetListRoom(filterDto);
             return ApiResponse<PaginatedList<RoomDto>>.Ok(result);
         }
 
         [HttpGet("get-data-with-room")]
-        public async Task<ApiResponse<DataWithRoomDto>> GetDataWithRoom([FromQuery] string roomId)
+        public async Task<ApiResponse<DataWithRoomDto>> GetDataWithRoom([FromQuery] Guid roomId)
         {
             var result = await _roomService.GetDataWithRoom(roomId);
             return ApiResponse<DataWithRoomDto>.Ok(result);
+        }
+
+        [HttpGet("list-electric-service")]
+        public async Task<ApiResponse<PaginatedList<RoomElectricServiceDto>>> GetElectricServices(
+            [FromQuery] ElectricServiceFilterDto filterDto)
+        {
+            var result = await _roomService.GetElectricServiceRoom(filterDto);
+            return ApiResponse<PaginatedList<RoomElectricServiceDto>>.Ok(result);
+        }
+
+        [HttpPut("service-index/update")]
+        public async Task<ApiResponse<object>> UpdateServiceIndexRoom(
+            [FromBody] RoomServiceIndexCreateUpdateDto updateDto)
+        {
+            await _roomService.UpdateServiceIndex(updateDto);
+            return ApiResponse<object>.Ok();
         }
     }
 }

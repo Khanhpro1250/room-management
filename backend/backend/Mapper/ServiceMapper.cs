@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using backend.DTOs.CustomerDtos;
 using backend.DTOs.ServiceDtos;
-using backend.Models.Entities.Customers;
 using backend.Models.Entities.Services;
 
 namespace backend.Mapper

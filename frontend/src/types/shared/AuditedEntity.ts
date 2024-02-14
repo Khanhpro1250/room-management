@@ -5,3 +5,7 @@ export interface AuditedEntity {
     lastModifiedTime: Date | null;
     lastModifiedBy: string | null;
 }
+
+export interface IEntity {
+    id: string;
+}

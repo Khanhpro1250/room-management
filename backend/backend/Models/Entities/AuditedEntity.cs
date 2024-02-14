@@ -1,17 +1,12 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿namespace backend.Models.Entities;
 
-namespace backend.Models.Entities;
-
-public class AuditedEntity
+public class AuditedEntity<TKey> where  TKey : struct 
 {
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; }
+    public TKey Id { get; set; }
 
     public string CreatedBy { get; set; }
 
-    public DateTime? CreatedTime { get; set; }
+    public DateTime? CreatedTime { get; set; } = DateTime.Now;
 
     public string LastModifiedBy { get; set; }
 

@@ -3,36 +3,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Tabs } from 'antd';
 import TabPane from 'antd/lib/tabs/TabPane';
 import qs from 'qs';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 import Loading from '~/component/Elements/loading/Loading';
+import Overlay, { OverlayRef } from '~/component/Elements/loading/Overlay';
 import { AppContainer } from '~/component/Layout/AppContainer';
-import { useMergeState } from '~/hook/useMergeState';
-import { requestApi } from '~/lib/axios';
-import CustomerForm, { CustomerFormRef } from '~/page/customers/components/CustomerForm';
+import { useCustomerInfo } from '~/hook/useCustomerInfo';
 import ServiceRoom, { ServiceRoomRef } from '~/page/customers/components/ServiceRoom';
-import { Contract } from '~/types/shared/Contract';
-import { Customer } from '~/types/shared/Customer';
-import { Service, ServiceCustomer } from '~/types/shared/Service';
-import { DATA_WITH_ROOM_API } from '../room/api/room.api';
 import ContractForm, { ContractFormRef } from './components/ContractForm';
+import CustomerForm, { CustomerFormRef } from './components/CustomerForm';
 import MemberForm, { MemberFormRef } from './components/MemberForm';
 
-
-interface State {
-    loading: boolean;
-    initData: {
-        customer: Customer;
-        contract: Contract;
-        listServices: Service[];
-        services: ServiceCustomer[];
-        members: any[];
-    };
-}
+interface State {}
 
 const CustomerPage: React.FC = () => {
     const params = new URL(window.location.href).searchParams;
+    const overlayRef = useRef<OverlayRef>(null);
     const pushDomain = useNavigate();
     const location = useLocation();
     const roomId = params.get('roomId');
@@ -40,20 +27,14 @@ const CustomerPage: React.FC = () => {
     const currTab = 'customer';
     const { tab = currTab } = qs.parse(location.search, { ignoreQueryPrefix: true });
     const [currentTab, setCurrentTab] = useState(tab);
-    const [state, setState] = useMergeState<State>({
-        loading: true,
-        initData: {
-            customer: {} as Customer,
-            services: [],
-            contract: {} as Contract,
-            listServices: [],
-            members: []
-        },
-    });
     const customerFormRef = useRef<CustomerFormRef>(null);
     const serviceRoomRef = useRef<ServiceRoomRef>(null);
     const contractFormRef = useRef<ContractFormRef>(null);
     const memberFormRef = useRef<MemberFormRef>(null);
+
+    const { data: response, isFetching, refetch } = useCustomerInfo(roomId);
+
+    const data = useMemo(() => response?.data?.result, [response]);
 
     const title = () => {
         switch (currentTab) {
@@ -84,47 +65,25 @@ const CustomerPage: React.FC = () => {
         }
     };
 
-    const fetchData = async () => {
-        setState({
-            loading: true,
-        });
-        const res = await requestApi('get', DATA_WITH_ROOM_API, { roomId });
-        if (res.data?.success) {
-            const data = res.data?.result;
-            setState({
-                loading: false,
-                initData: {
-                    customer: data?.customer,
-                    services: data?.services,
-                    contract: data?.contract,
-                    listServices: data?.listServices,
-                    members: data?.members
-                },
-            });
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
-
     const onClickSave = () => {
-
         // if (customerFormRef.current?.isValid()) {
-            if (currentTab === 'customer') {
-                customerFormRef.current?.onSave();
-            }
-            if (currentTab === 'service') {
-                serviceRoomRef.current?.onSave();
-            }
-            if (currentTab === 'contract') {
-                contractFormRef.current?.onSave();
-            }
+        if (currentTab === 'customer') {
+            customerFormRef.current?.onSave();
+        }
+        if (currentTab === 'service') {
+            serviceRoomRef.current?.onSave();
+        }
+        if (currentTab === 'contract') {
+            contractFormRef.current?.onSave();
+        }
+        if (currentTab === 'member') {
+            memberFormRef.current?.onSave();
+        }
         // } {
         //     return NotifyUtil.warn(NotificationConstant.TITLE, 'Phải thêm thông tin khách thuê trước !');
         // }
-    }
-    return state.loading ? (
+    };
+    return isFetching ? (
         <Loading />
     ) : (
         <AppContainer className="body-page h-full overflow-auto relative p-0">
@@ -137,14 +96,9 @@ const CustomerPage: React.FC = () => {
                         size="md"
                         startIcon={faArrowRotateBack}
                         variant="danger"
-                    // onClick={props.onClose}
+                        onClick={() => pushDomain('/room-manage')}
                     />
-                    <ButtonBase
-                        title="Lưu"
-                        size="md"
-                        startIcon={faSave}
-                        onClick={onClickSave}
-                    />
+                    <ButtonBase title="Lưu" size="md" startIcon={faSave} onClick={onClickSave} />
                 </div>
             </div>
 
@@ -158,18 +112,52 @@ const CustomerPage: React.FC = () => {
                 defaultActiveKey={tab ? String(tab) : (currTab as string)}
             >
                 <TabPane tab={<div className="text-[16px]">Thông tin khách thuê</div>} key="customer">
-                    <CustomerForm ref={customerFormRef} parentId={roomId} initialValues={state.initData.customer} readonly={isDetail} />
+                    <CustomerForm
+                        ref={customerFormRef}
+                        parentId={roomId}
+                        initialValues={data?.customer}
+                        readonly={isDetail}
+                        onSubmitSuccessfully={refetch}
+                        mask={() => overlayRef.current?.open()}
+                        unMask={() => overlayRef.current?.close()}
+                    />
                 </TabPane>
                 <TabPane tab={<div className="text-[16px]">Dịch vụ</div>} key="service">
-                    <ServiceRoom ref={serviceRoomRef} initialValues={state.initData.services} listServices={state.initData.listServices} customerId={state.initData.customer?.id} readonly={isDetail} />
+                    <ServiceRoom
+                        ref={serviceRoomRef}
+                        members={data?.members ?? []}
+                        initialValues={data?.services}
+                        listServices={data?.listServices}
+                        customerId={data?.customer?.id}
+                        readonly={isDetail}
+                        mask={() => overlayRef.current?.open()}
+                        unMask={() => overlayRef.current?.close()}
+                    />
                 </TabPane>
                 <TabPane tab={<div className="text-[16px]">Thành viên</div>} key="member">
-                    <MemberForm ref={memberFormRef} initialValues={state.initData.members} customerId={state.initData.customer?.id} readonly={isDetail} />
+                    <MemberForm
+                        ref={memberFormRef}
+                        services={data?.services ?? []}
+                        initialValues={data?.members}
+                        customerId={data?.customer?.id}
+                        readonly={isDetail}
+                        maxNumberOfPeople={data?.room?.maxNumberOfPeople}
+                        mask={() => overlayRef.current?.open()}
+                        unMask={() => overlayRef.current?.close()}
+                    />
                 </TabPane>
                 <TabPane tab={<div className="text-[16px]">Hợp đồng</div>} key="contract">
-                    <ContractForm ref={contractFormRef} roomId={roomId} customer={state.initData.customer} initialValues={state.initData.contract} />
+                    <ContractForm
+                        ref={contractFormRef}
+                        roomId={roomId}
+                        customer={data?.customer}
+                        initialValues={data?.contract}
+                        mask={() => overlayRef.current?.open()}
+                        unMask={() => overlayRef.current?.close()}
+                    />
                 </TabPane>
             </Tabs>
+            <Overlay ref={overlayRef} />
         </AppContainer>
     );
 };

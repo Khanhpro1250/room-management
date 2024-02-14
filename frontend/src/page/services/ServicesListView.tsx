@@ -1,19 +1,20 @@
+import { icon } from '@fortawesome/fontawesome-svg-core';
+import { faCubes, faEdit } from '@fortawesome/free-solid-svg-icons';
 import Checkbox from 'antd/lib/checkbox/Checkbox';
 import React, { useRef } from 'react';
 import Loading from '~/component/Elements/loading/Loading';
 import BaseGrid, { BaseGridColDef, BaseGridRef } from '~/component/Grid/BaseGrid';
 import { GridToolbar } from '~/component/Grid/Components/GridToolbar';
+import { BaseIcon } from '~/component/Icon/BaseIcon';
 import { AppContainer } from '~/component/Layout/AppContainer';
 import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
+import NotificationConstant from '~/configs/contants';
 import { useBaseGrid } from '~/hook/useBaseGrid';
+import { requestApi } from '~/lib/axios';
 import { Service } from '~/types/shared/Service';
+import NotifyUtil from '~/util/NotifyUtil';
 import { SERVICE_DELETE_API, SERVICE_INDEX_API } from './api/services.api';
 import ServicesForm from './components/ServicesForm';
-import { icon } from '@fortawesome/fontawesome-svg-core';
-import { faEdit } from '@fortawesome/free-solid-svg-icons';
-import { baseDeleteApi, requestApi } from '~/lib/axios';
-import NotificationConstant from '~/configs/contants';
-import NotifyUtil from '~/util/NotifyUtil';
 
 const ServicesListView: React.FC = () => {
     const gridRef = useRef<BaseGridRef>(null);
@@ -90,6 +91,10 @@ const ServicesListView: React.FC = () => {
             headerName: 'Đơn vị tính',
             field: nameof.full<Service>(x => x.unit),
             width: 120,
+            valueFormatter: (params: any) => {
+                const unit = JSON.parse(params.value);
+                return unit;
+            },
         },
         {
             headerName: 'Trạng thái',
@@ -102,38 +107,48 @@ const ServicesListView: React.FC = () => {
         },
     ];
 
-    return (
-        <AppContainer>
-            {gridController?.loading ? (
-                <Loading />
-            ) : (
-                <>
-                    <BaseGrid
-                        columnDefs={ServiceColDefs}
-                        data={gridController?.data || []}
-                        ref={gridRef}
-                        numberRows={false}
-                        pagination={false}
-                        actionRowsList={{
-                            hasEditBtn: true,
-                            hasDeleteBtn: true,
-                            hasCreateChildBtn: true,
-                            // onClickCreateChildBtn: onCreateChild,
-                            onClickEditBtn: onUpdate,
-                            onClickDeleteBtn: onDelete,
-                        }}
-                        actionRowsWidth={120}
+    const renderTitle = () => {
+        return (
+            <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+                <div>
+                    <div
+                        className={
+                            'text-sm inline-flex items-center font-bold leading-sm ' +
+                            'uppercase px-[8px] py-[5px] bg-[#73737320] text-[#737373] rounded-md mr-1'
+                        }
                     >
-                        <GridToolbar
-                            hasCreateButton
-                            hasRefreshButton
-                            onClickCreateButton={onCreate}
-                            // onClickRefreshButton={() => gridController?.reloadData()}
-                        />
-                    </BaseGrid>
-                    <ModalBase ref={modalRef} />
-                </>
-            )}
+                        <BaseIcon icon={faCubes} />
+                    </div>
+                    <span className="font-semibold text-lg">Dịch vụ</span>
+                </div>
+                <GridToolbar
+                    hasCreateButton
+                    hasRefreshButton
+                    onClickCreateButton={onCreate}
+                    // onClickRefreshButton={() => gridController?.reloadData()}
+                />
+            </div>
+        );
+    };
+
+    return (
+        <AppContainer loading={gridController?.loading} title={renderTitle()}>
+            <BaseGrid
+                columnDefs={ServiceColDefs}
+                data={gridController?.data || []}
+                ref={gridRef}
+                numberRows={false}
+                pagination={false}
+                actionRowsList={{
+                    hasEditBtn: true,
+                    hasDeleteBtn: true,
+                    onClickEditBtn: onUpdate,
+                    onClickDeleteBtn: onDelete,
+                }}
+                actionRowsWidth={120}
+            />
+
+            <ModalBase ref={modalRef} />
         </AppContainer>
     );
 };

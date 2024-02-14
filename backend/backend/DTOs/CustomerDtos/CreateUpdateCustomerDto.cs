@@ -7,7 +7,7 @@ namespace backend.DTOs.CustomerDtos
     {
         public string Id { get; set; }
         public string FullName { get; set; }
-        
+
         public int Gender { get; set; }
 
         public string IdentityNo { get; set; }
@@ -43,12 +43,15 @@ namespace backend.DTOs.CustomerDtos
 
         public string Note { get; set; }
         public string RoomId { get; set; }
-        
-        [JsonProperty("members")] 
+
+        public bool Status { get; set; } = true;
+
         public List<MemberDto> Members { get; set; }
-        [JsonProperty("fileUrls")] 
-        public List<string> FileUrls { get; set; }
-        [JsonProperty("services")]
+
+        public string FileUrls { get; set; }
+        
+        public List<IFormFile> FileEntryCollection { get; set; } = new();
+        public string ListDeletedFileIds { get; set; }
         public List<ServiceCustomerDto> Services { get; set; }
     }
 }
@@ -61,6 +64,7 @@ public class MemberDto
     public string PermanentAddress { get; set; }
     public string PhoneNumber { get; set; }
     public string VehicleNumber { get; set; }
+
     /// <summary>
     /// Ngày đăng kí thường trú
     /// </summary>

@@ -1,8 +1,9 @@
-import { faClose, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { DatePicker, Input } from 'antd';
 import { Method } from 'axios';
 import moment from 'moment';
 import React, { useImperativeHandle, useRef } from 'react';
+import 'react-quill/dist/quill.snow.css';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
 import { AppModalContainer } from '~/component/Layout/AppModalContainer';
@@ -10,13 +11,10 @@ import NotificationConstant from '~/configs/contants';
 import { requestApi } from '~/lib/axios';
 import { Contract } from '~/types/shared/Contract';
 import { Customer } from '~/types/shared/Customer';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 
+import FileUtil from '~/util/FileUtil';
 import NotifyUtil from '~/util/NotifyUtil';
-import { CREATE_CONTACT_API, UPDATE_CONTACT_API } from '../api/customer.api';
-
-
+import { CREATE_CONTACT_API, EXPORT_CONTRACT_API, UPDATE_CONTACT_API } from '../api/customer.api';
 
 interface Props {
     initialValues?: Partial<Contract>;
@@ -24,6 +22,8 @@ interface Props {
     onSubmitSuccessfully?: () => void;
     customer?: Customer;
     roomId?: string | null;
+    mask?: () => void;
+    unMask?: () => void;
 }
 
 export interface ContractFormRef {
@@ -32,8 +32,9 @@ export interface ContractFormRef {
 
 const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.Element => {
     const formRef = useRef<BaseFormRef>(null);
+
     const initialValues = {
-        ...props.initialValues, 
+        ...props.initialValues,
         effectDate: props.initialValues?.effectDate ? moment(props.initialValues?.effectDate) : undefined,
         expiredDate: props.initialValues?.expiredDate ? moment(props.initialValues?.expiredDate) : undefined,
         signedDate: props.initialValues?.signedDate ? moment(props.initialValues?.signedDate) : undefined,
@@ -70,7 +71,7 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
         };
 
         const urlParam = props.initialValues ? urlParams.update : urlParams.create;
-
+        props.mask?.();
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
             roomId: props.roomId,
@@ -78,11 +79,43 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
         });
 
         if (response.data?.success) {
+            props.unMask?.();
+
             NotifyUtil.success(NotificationConstant.TITLE, urlParam.message);
             props?.onSubmitSuccessfully?.();
             props.onClose?.();
             return;
+        } else {
+            props.unMask?.();
         }
+    };
+
+    const onExport = async () => {
+        const isValidForm = await formRef.current?.isFieldsValidate();
+
+        if (!isValidForm) {
+            NotifyUtil.error(NotificationConstant.TITLE, NotificationConstant.ERROR_MESSAGE_UTIL);
+            return;
+        }
+
+        const formValues = formRef.current?.getFieldsValue();
+        props.mask?.();
+
+        const response = (await requestApi(
+            'POST',
+            EXPORT_CONTRACT_API,
+            {
+                ...formValues,
+                roomId: props.roomId,
+                customerId: props.customer?.id,
+            },
+            {
+                responseType: 'arraybuffer',
+            },
+        )) as any;
+
+        FileUtil.downloadFileTest(response);
+        props.unMask?.();
     };
 
     useImperativeHandle(
@@ -113,7 +146,7 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
                             <DatePicker
                                 className="w-full"
                                 // disabled={props.readonly}
-                                placeholder='Ngày ký hợp đồng'
+                                placeholder="Ngày ký hợp đồng"
                                 format={'DD/MM/YYYY'}
                             />
                         ),
@@ -127,7 +160,7 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
                             <DatePicker
                                 className="w-full"
                                 // disabled={props.readonly}
-                                placeholder='Ngày hiệu lực'
+                                placeholder="Ngày hiệu lực"
                                 format={'DD/MM/YYYY'}
                             />
                         ),
@@ -137,16 +170,18 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
                     {
                         label: 'Số tháng',
                         name: nameof.full<Contract>(x => x.month),
-                        children: <Input
-                            onChange={(e => {
-                                const val = Number(e.target.value);
-                                const formValue = formRef.current?.getFieldsValue() as Contract;
-                                if (formValue.effectDate) {
-                                    const expiredDate = moment(formValue.effectDate).add(val, 'months');
-                                    formRef.current?.setFieldsValue({ expiredDate: expiredDate })
-                                }
-                            })}
-                        />,
+                        children: (
+                            <Input
+                                onChange={e => {
+                                    const val = Number(e.target.value);
+                                    const formValue = formRef.current?.getFieldsValue() as Contract;
+                                    if (formValue.effectDate) {
+                                        const expiredDate = moment(formValue.effectDate).add(val, 'months');
+                                        formRef.current?.setFieldsValue({ expiredDate: expiredDate });
+                                    }
+                                }}
+                            />
+                        ),
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                         className: 'col-span-6',
                     },
@@ -157,12 +192,11 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
                             <DatePicker
                                 className="w-full"
                                 // disabled={props.readonly}
-                                placeholder='Ngày kết thúc hợp đồng'
-                                onChange={(e) => {
+                                placeholder="Ngày kết thúc hợp đồng"
+                                onChange={e => {
                                     const formValue = formRef.current?.getFieldsValue() as Contract;
                                     const month = moment(e).diff(formValue.effectDate, 'months');
-                                    formRef.current?.setFieldsValue({ month: month })
-
+                                    formRef.current?.setFieldsValue({ month: month });
                                 }}
                                 format={'DD/MM/YYYY'}
                             />
@@ -176,6 +210,9 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
                 labelWidth={200}
                 isDisplayGrid={true}
             />
+            <div className=" flex-1 flex items-center justify-start mb-2">
+                <ButtonBase title="Tải hợp đồng" size="md" startIcon={faDownload} variant="danger" onClick={onExport} />
+            </div>
         </AppModalContainer>
     );
 });

@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using AutoMapper;
+using backend.Contanst;
 using backend.Controllers.Dtos;
 using backend.DTOs.UserDtos;
 using backend.Models.Entities.UserAccount;
-using backend.Models.Repositorties.UserAccountRepositories;
 using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.AspNetCore.Authentication;
@@ -18,11 +18,13 @@ public class IdentityController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly IMapper _mapper;
+    private readonly IOtpService _otpService;
 
-    public IdentityController(IUserService userService, IMapper mapper)
+    public IdentityController(IUserService userService, IMapper mapper, IOtpService otpService)
     {
         _userService = userService;
         _mapper = mapper;
+        _otpService = otpService;
     }
 
     [HttpGet("check-login")]
@@ -83,13 +85,49 @@ public class IdentityController : ControllerBase
         return ApiResponse<object>.Ok();
     }
 
-    [HttpPost("register")]
-    public async Task<ApiResponse<UserDto>> RegisterUser([FromBody] CreateUpdateUserDtos user)
+    [HttpPost("check-register")]
+    public async Task<ApiResponse<object>> CheckRegisterUser([FromBody] CreateUpdateUserDtos user)
     {
         var checkUserRegister = await _userService.IsValidUserRegister(user);
-        if (!checkUserRegister) return ApiResponse<UserDto>.Fail("UserName or email is existed");
-        var userDto = await _userService.RegisterUser(user);
+        if (!checkUserRegister) return ApiResponse<object>.Fail("UserName or email is existed");
+        await _otpService.GenerateOtp(user.EmailAddress, CommonConstant.TYPE_OPT_REGISTER);
+        return ApiResponse<object>.Ok();
+    }
+
+    [HttpPost("resent-otp-register")]
+    public async Task<ApiResponse<object>> ResentOtpRegisterUser([FromBody] CreateUpdateUserDtos user)
+    {
+        await _otpService.GenerateOtp(user.EmailAddress, CommonConstant.TYPE_OPT_REGISTER);
+        return ApiResponse<object>.Ok();
+    }
+
+    [HttpPost("register")]
+    public async Task<ApiResponse<UserDto>> RegisterUser([FromBody] RequestWithOtpCode<CreateUpdateUserDtos> request)
+    {
+        var isValidOtp = await _otpService.ValidateOtp(request.Data.EmailAddress, request.OtpCode,
+            CommonConstant.TYPE_OPT_REGISTER);
+        if (!isValidOtp) return ApiResponse<UserDto>.Fail("Otp code is invalid");
+        var userDto = await _userService.RegisterUser(request.Data);
         return ApiResponse<UserDto>.Ok(userDto);
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<ApiResponse<object>> ForgotPassWord([FromBody] ChangePasswordDto request)
+    {
+        var isValidEmail = await _userService.IsEmailRegister(request.Email);
+        if (!isValidEmail) return ApiResponse<object>.Fail("Email is not existed");
+        await _otpService.GenerateOtp(request.Email, CommonConstant.TYPE_OPT_FORGOT_PASSWORD);
+        return ApiResponse<object>.Ok();
+    }
+
+    [HttpPost("change-password")]
+    public async Task<ApiResponse<object>> ChangePassWord([FromBody] RequestWithOtpCode<ChangePasswordDto> request)
+    {
+        var isValidOtp = await _otpService.ValidateOtp(request.Data.Email, request.OtpCode,
+            CommonConstant.TYPE_OPT_FORGOT_PASSWORD);
+        if (!isValidOtp) return ApiResponse<object>.Fail("Otp code is invalid");
+        await _userService.ChangePassWord(request.Data);
+        return ApiResponse<object>.Ok();
     }
 
 
@@ -102,24 +140,24 @@ public class IdentityController : ControllerBase
         return ApiResponse<UserDto>.Ok(userDto);
     }
 
-    [HttpGet("detail/{userId}")]
-    public async Task<ApiResponse<UserDto>> GetUserDetail([FromRoute] string userId)
+    [HttpGet("detail/{userId:guid}")]
+    public async Task<ApiResponse<UserDto>> GetUserDetail([FromRoute] Guid userId)
     {
         var user = await _userService.GetUserById(userId);
         return ApiResponse<UserDto>.Ok(user);
     }
 
-    [HttpPut("update/{id}")]
-    public async Task<ApiResponse<UserDto>> UpdateUserCount([FromBody] CreateUpdateUserDtos user, [FromRoute] string id)
+    [HttpPut("update/{id:guid}")]
+    public async Task<ApiResponse<UserDto>> UpdateUserCount([FromBody] CreateUpdateUserDtos user, [FromRoute] Guid id)
     {
         var result = await _userService.UpdateUser(user, id);
         return ApiResponse<UserDto>.Ok(result);
     }
 
-    // [HttpDelete("delete/{id}")]
-    // public async Task<ApiResponse<UserDto>> DeleteUserCount([FromRoute] string id)
-    // {
-    //     await _userService.DeleteMenu(id);
-    //     return ApiResponse<UserDto>.Ok();
-    // }
+    [HttpDelete("delete/{id:guid}")]
+    public async Task<ApiResponse<UserDto>> DeleteUserCount([FromRoute] Guid id)
+    {
+        await _userService.DeleteUser(id);
+        return ApiResponse<UserDto>.Ok();
+    }
 }
