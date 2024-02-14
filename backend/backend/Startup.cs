@@ -166,6 +166,7 @@ public class Startup
         services.AddTransient<IFileEntryRepository, FileEntryRepository>();
         services.AddTransient<IFileRepository, FileRepository>();
         services.AddTransient<IOtpRepository, OtpRepostiory>();
+        services.AddTransient<IRoomServiceIndexRepository, RoomServiceIndexRepository>();
 
 
         // AddScoped adService

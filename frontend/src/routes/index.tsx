@@ -1,6 +1,7 @@
 import React from 'react';
 import { matchRoutes, RouteMatch, RouteObject, useRoutes } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
+import WaterServiceListView from '~/page/electric-service/WaterServiceListView';
 
 //layout
 const LayoutPage = React.lazy(() => import('~/component/Layout/LayoutPage'));
@@ -74,6 +75,10 @@ const routeList = [
             {
                 path: 'number-electric',
                 element: <ElectricServiceListView />,
+            },
+            {
+                path: 'number-water',
+                element: <WaterServiceListView />,
             },
         ],
     },

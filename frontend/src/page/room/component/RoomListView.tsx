@@ -1,13 +1,13 @@
-import { useImperativeHandle, useRef } from 'react';
+import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import BaseGrid, { BaseGridColDef, BaseGridRef } from '~/component/Grid/BaseGrid';
 import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
 import { useBaseGrid } from '~/hook/useBaseGrid';
 import { House } from '~/types/shared/House';
-
+import qs from 'qs';
 import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Loading from '~/component/Elements/loading/Loading';
 import NotificationConstant from '~/configs/contants';
 import { requestApi } from '~/lib/axios';
@@ -28,13 +28,16 @@ interface Props {
 }
 
 const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.Element => {
+    const location = useLocation();
+    const { tab } = qs.parse(location.search, { ignoreQueryPrefix: true });
     const gridRef = useRef<BaseGridRef>(null);
     const modalRef = useRef<ModalRef>(null);
+    const [houseId, setHouseId] = useState(props.houseId ?? tab);
     const navigate = useNavigate();
     const gridController = useBaseGrid<House>({
         url: ROOM_INDEX_API,
         gridRef: gridRef,
-        params: { houseId: props.houseId },
+        params: { houseId: houseId },
     });
 
     const colDefs: BaseGridColDef[] = [
@@ -90,7 +93,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         () => ({
             onFilter: (formValues: any) => onFilter(formValues),
             refreshData: () => gridController?.reloadData(),
-            onCreate,
+            onCreate,            
         }),
         [],
     );
@@ -135,7 +138,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                     gridController?.reloadData();
                 }}
                 onClose={modalRef.current?.onClose}
-                parentId={props.houseId}
+                parentId={houseId}
                 initialValues={data}
                 readonly={true}
             />,
@@ -146,7 +149,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
     };
 
     const onFilter = (formValues: any) => {
-        gridController?.setParams({ houseId: props.houseId, ...formValues });
+        gridController?.setParams({ houseId: houseId, ...formValues });
         gridController?.reloadData();
     };
 

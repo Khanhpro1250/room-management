@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import * as React from 'react';
 import { BaseIcon } from '~/component/Icon/BaseIcon';
 
-const variants = {
+export const variants = {
     primary: 'bg-sky-600 text-white hover:bg-white hover:text-blue-600 hover:border-blue-500',
     inverse: 'bg-slate-600 text-blue-600 hover:bg-white hover:text-slate hover:border-slate-500',
     danger: 'bg-red-800 text-white hover:bg-white hover:text-red-600 hover:border-red-500',
@@ -21,7 +21,7 @@ export const sizes = {
     xl: 'py-2 px-6 text-lg',
 };
 
-type IconProps = {
+export type IconProps = {
     startIcon?: IconDefinition;
     endIcon?: IconDefinition;
 };

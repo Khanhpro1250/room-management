@@ -10,8 +10,9 @@ namespace backend.Services.RoomServices
         Task<DataWithRoomDto> GetDataWithRoom(Guid roomId);
         Task<RoomDto> CreateRoom(CreateUpdateRoomDto room);
         Task<RoomDto> UpdateRoom(CreateUpdateRoomDto room, Guid id);
+        Task UpdateServiceIndex(RoomServiceIndexCreateUpdateDto updateDto);
 
-        Task<List<RoomElectricServiceDto>> GetElectricServiceRoom(ElectricServiceFilterDto filterDto);
+        Task<PaginatedList<RoomElectricServiceDto>> GetElectricServiceRoom(ElectricServiceFilterDto filterDto);
         Task DeleteRoom(Guid id);
     }
 }

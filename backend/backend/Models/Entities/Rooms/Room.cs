@@ -33,6 +33,7 @@ namespace backend.Models.Entities.Rooms
         public House House { get; set; }
 
         public List<Customer> Customers { get; set; }
+        public List<RoomServiceIndex> RoomServiceIndices { get; set; }
 
         #endregion
     }
