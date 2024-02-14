@@ -5,7 +5,7 @@ import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
 import { useBaseGrid } from '~/hook/useBaseGrid';
 import { Service } from '~/types/shared/Service';
 
-import { faBolt, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faShower } from '@fortawesome/free-solid-svg-icons';
 import { GridApi } from 'ag-grid-community';
 import { DatePicker, Select } from 'antd';
 import _, { debounce } from 'lodash';
@@ -21,62 +21,22 @@ import { useHouseCombo } from '../house/api/useHouseCombo';
 import { LIST_ROOM_FOR_CREATE_ELECTRIC, UPDATE_ELECTRIC } from './api/electric-service.api';
 import { ElectricServiceDto, ServiceType } from './type/electic-service';
 
-const ElectricServiceListView: React.FC = () => {
+const WaterServiceListView: React.FC = () => {
     const gridRef = useRef<BaseGridRef>(null);
     const modalRef = useRef<ModalRef>(null);
     const formRef = useRef<BaseFormRef>(null);
     const gridController = useBaseGrid<Service>({
         url: LIST_ROOM_FOR_CREATE_ELECTRIC,
-        gridRef: gridRef,
         params: {
-            serviceType: ServiceType.Electric,
+            month: moment().month() + 1,
+            year: moment().year(),
+            serviceType: ServiceType.Water,
         },
+        gridRef: gridRef,
     });
 
     const { data: houseComboResponse, isFetching: isLoadingHouseCombo } = useHouseCombo();
     const houseCombo = useMemo(() => houseComboResponse?.data?.result ?? [], [isLoadingHouseCombo]);
-
-    const onCreate = () => {
-        // modalRef.current?.onOpen(
-        //     <ServicesForm
-        //         onSubmitSuccessfully={() => {
-        //             modalRef.current?.onClose();
-        //             gridController?.reloadData();
-        //         }}
-        //         onClose={modalRef.current?.onClose}
-        //     />,
-        //     'Tạo mới dịch vụ',
-        //     '50%',
-        // );
-    };
-
-    const onUpdate = (data: Service) => {
-        // modalRef.current?.onOpen(
-        //     <ServicesForm
-        //         onSubmitSuccessfully={() => {
-        //             modalRef.current?.onClose();
-        //             gridController?.reloadData();
-        //         }}
-        //         onClose={modalRef.current?.onClose}
-        //         initialValues={data}
-        //     />,
-        //     'Cập nhật dịch vụ',
-        //     '50%',
-        //     icon(faEdit),
-        // );
-    };
-
-    const onDelete = async (data: Service) => {
-        // const res = await requestApi('delete', `${SERVICE_DELETE_API}/${data.id}`);
-        // if (res.data?.success) {
-        //     NotifyUtil.success(NotificationConstant.TITLE, NotificationConstant.DESCRIPTION_DELETE_SUCCESS);
-        //     gridController?.reloadData();
-        //     return;
-        // } else {
-        // NotifyUtil.error(NotificationConstant.TITLE, res.data?.message ?? 'Có lỗi xảy ra');
-        // return;
-        // }
-    };
 
     const ElectricServiceColDefs: BaseGridColDef[] = [
         {
@@ -101,7 +61,7 @@ const ElectricServiceListView: React.FC = () => {
             field: nameof.full<ElectricServiceDto>(x => x.roomCode),
         },
         {
-            headerName: 'Chỉ số điện cũ',
+            headerName: 'Chỉ số nước cũ',
             field: nameof.full<ElectricServiceDto>(x => x.oldElectricValue),
             width: 200,
             cellStyle: { textAlign: 'right' },
@@ -122,7 +82,7 @@ const ElectricServiceListView: React.FC = () => {
                             if (!!val && Number(val) > newElectricValue) {
                                 return NotifyUtil.error(
                                     NotificationConstant.TITLE,
-                                    'Chỉ số điện cũ không được lớn hơn chỉ số điện mới',
+                                    'Chỉ số nước cũ không được lớn hơn chỉ số nước mới',
                                 );
                             }
                         }, 300)}
@@ -132,7 +92,7 @@ const ElectricServiceListView: React.FC = () => {
             },
         },
         {
-            headerName: 'Chỉ số điện mới',
+            headerName: 'Chỉ số nước mới',
             field: nameof.full<ElectricServiceDto>(x => x.newElectricValue),
             cellStyle: { textAlign: 'right' },
             width: 200,
@@ -153,7 +113,7 @@ const ElectricServiceListView: React.FC = () => {
                             if (!!val && Number(val) < oldElectricValue) {
                                 NotifyUtil.error(
                                     NotificationConstant.TITLE,
-                                    'Chỉ số điện cũ không được lớn hơn chỉ số điện mới',
+                                    'Chỉ số nước cũ không được lớn hơn chỉ số nước mới',
                                 );
                             }
                         }, 300)}
@@ -179,7 +139,7 @@ const ElectricServiceListView: React.FC = () => {
         const oldElectricValue = data.oldElectricValue ?? 0;
         const newElectricValue = data.newElectricValue ?? 0;
         if (!!oldElectricValue && !!newElectricValue && Number(oldElectricValue) > Number(newElectricValue)) {
-            return NotifyUtil.error(NotificationConstant.TITLE, 'Chỉ số điện cũ không được lớn hơn chỉ số điện mới');
+            return NotifyUtil.error(NotificationConstant.TITLE, 'Chỉ số nước cũ không được lớn hơn chỉ số nước mới');
         }
 
         const formData = {
@@ -228,9 +188,9 @@ const ElectricServiceListView: React.FC = () => {
                         'uppercase px-[8px] py-[5px] bg-[#73737320] text-[#737373] rounded-md mr-1'
                     }
                 >
-                    <BaseIcon icon={faBolt} />
+                    <BaseIcon icon={faShower} />
                 </div>
-                <span className="font-semibold text-lg">Chỉ số điện</span>
+                <span className="font-semibold text-lg">Chỉ số nước</span>
             </div>
         );
     };
@@ -298,7 +258,7 @@ const ElectricServiceListView: React.FC = () => {
                                 <>
                                     <strong>Lưu ý:</strong>
                                     <div className="text-sm">
-                                        - Bạn phải gán dịch vụ thuộc loại điện cho khách thuê trước thì phần chỉ số này
+                                        - Bạn phải gán dịch vụ thuộc loại nước cho khách thuê trước thì phần chỉ số này
                                         mới được tính cho phòng đó khi tính tiền.
                                     </div>
                                     <div className="text-sm">
@@ -332,4 +292,4 @@ const ElectricServiceListView: React.FC = () => {
     );
 };
 
-export default ElectricServiceListView;
+export default WaterServiceListView;

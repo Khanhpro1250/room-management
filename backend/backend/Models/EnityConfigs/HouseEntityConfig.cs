@@ -131,7 +131,7 @@ public static class HouseEntityConfig
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(x => x.Room)
-                .WithMany()
+                .WithMany(x=> x.RoomServiceIndices)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

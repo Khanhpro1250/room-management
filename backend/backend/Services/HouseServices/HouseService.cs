@@ -28,6 +28,7 @@ public class HouseService : IHouseService
     public async Task<HouseDto> CreateHouse(CreateUpdateHouseDto houseDto)
     {
         var house = _mapper.Map<CreateUpdateHouseDto, House>(houseDto);
+        house.CreatedTime = DateTime.Now;
         var result = await _houseRepository.AddAsync(house, true);
         return _mapper.Map<House, HouseDto>(result);
     }
@@ -46,9 +47,9 @@ public class HouseService : IHouseService
     public async Task DeleteHouse(Guid id)
     {
         var findHouse =
-            await _houseRepository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
+            await _houseRepository.GetQueryable().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
             throw new Exception("Không tìm thấy nhà");
-        await _houseRepository.DeleteAsync(findHouse);
+        await _houseRepository.DeleteAsync(findHouse, true);
     }
 
     public async Task<PaginatedList<HouseDto>> GetListHouse(PaginatedListQuery paginatedListQuery)
@@ -58,10 +59,10 @@ public class HouseService : IHouseService
         var listHouse = await queryable
             .Where(x => x.UserId.Equals(currUserId))
             .ProjectTo<HouseDto>(_mapper.ConfigurationProvider)
-            .QueryablePaging(paginatedListQuery)
+            .OrderBy(x => x.CreatedTime)
             .ToListAsync();
         var totalCount = await queryable.CountAsync();
-        return new PaginatedList<HouseDto>(listHouse, totalCount, paginatedListQuery.Offset, paginatedListQuery.Limit);
+        return new PaginatedList<HouseDto>(listHouse, totalCount, 0, -1);
     }
 
     public async Task<List<ComboOptionDto>> GetComboHouse()

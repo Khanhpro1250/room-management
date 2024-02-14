@@ -2,15 +2,28 @@ import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-mod
 import { ColDef, ColGroupDef, FirstDataRenderedEvent, GetDataPath, ModuleRegistry } from '@ag-grid-community/core';
 import { AgGridReact } from '@ag-grid-community/react';
 import { RowGroupingModule } from '@ag-grid-enterprise/row-grouping';
-import { faEdit, faFile, faPlus, faTrash, faUndo, faUserEdit, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import {
+    faEdit,
+    faFile,
+    faPlus,
+    faRotate,
+    faTrash,
+    faUndo,
+    faUserEdit,
+    faUserPlus,
+} from '@fortawesome/free-solid-svg-icons';
 import { GridReadyEvent, RowNode, RowSelectedEvent } from 'ag-grid';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { Popconfirm } from 'antd';
 import _ from 'lodash';
-import React, { ReactChild, useImperativeHandle } from 'react';
-import { ButtonBase } from '../Elements/Button/ButtonBase';
+import React, { ReactChild } from 'react';
+import { ButtonBase, ButtonProps, sizes, variants } from '../Elements/Button/ButtonBase';
+import { BaseIcon } from '../Icon/BaseIcon';
 import './styles/BaseGrid.scss';
+import { ICellRendererParams } from 'ag-grid-community';
+import Button, { ButtonType } from 'antd/lib/button';
+import { IEntity } from '~/types/shared/AuditedEntity';
 
 export interface BaseGridColDef extends ColDef, Partial<ColGroupDef> {}
 
@@ -57,14 +70,25 @@ export interface BaseGridProps {
     autoGroupColumnDef?: ColDef<any>;
     pagination?: boolean;
     children?: ReactChild; // grid tool bar
+    reloadData?: () => void;
+    actionRowsReRender?: IActionRows[];
 }
+export type IActionRows = {
+    type?: ButtonType;
+    style?: React.CSSProperties;
+    name?: string;
+    onClick: (data: any, rowNode?: RowNode) => void;
+    icon?: JSX.Element;
+    danger?: boolean;
+    isConfirm?: boolean;
+} & ButtonProps;
 
 interface GridConfig {}
 
 export interface BaseGridRef extends AgGridReact {}
 
 const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
-    const { numberRows = true, actionRows = true, actionRowsList, pagination = true } = props;
+    const { numberRows = true, actionRows = true, actionRowsList, pagination = true, actionRowsReRender } = props;
 
     const customColDefs = (
         numberRows
@@ -87,6 +111,8 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
     ) as BaseGridColDef[];
 
     customColDefs.push(...props.columnDefs);
+
+    actionRowsReRender && renderAdditionColumn(actionRowsReRender, customColDefs);
 
     actionRows &&
         customColDefs.push({
@@ -193,42 +219,107 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
             <div>{props.children}</div>
             <div className="w-full h-[94%] ag-theme-alpine grid base-grid mt-3">
                 {props.data && (
-                    <AgGridReact
-                        ref={ref}
-                        rowData={props.data}
-                        autoGroupColumnDef={props.autoGroupColumnDef}
-                        columnDefs={customColDefs}
-                        // defaultColDef={{
-                        //     resizable: true,
-                        //     floatingFilter: false,
-                        //     ...props.defaultColDef,
-                        // }}
-                        suppressAutoSize
-                        pagination={pagination}
-                        onGridReady={(params: any) => {
-                            return props?.onGridReady?.(params);
-                        }}
-                        treeData={props.treeData}
-                        animateRows
-                        getDataPath={props.getDataPath}
-                        groupDefaultExpanded={props.groupDefaultExpanded}
-                        // detailCellRenderer
-                        onFirstDataRendered={(params: any) => {
-                            return props?.onFirstDataRendered?.(params);
-                        }}
-                        suppressRowClickSelection={true}
-                        onRowSelected={(event: any) => {
-                            return props?.onRowSelected?.(event);
-                        }}
-                        rowSelection={'multiple'}
-                        gridOptions={props.gridOptions}
-                        rowHeight={50}
-                        {...props.gridConfig}
-                    />
+                    <div className="relative base-grid ">
+                        <AgGridReact
+                            ref={ref}
+                            rowData={props.data}
+                            autoGroupColumnDef={props.autoGroupColumnDef}
+                            columnDefs={customColDefs}
+                            suppressAutoSize
+                            pagination={pagination}
+                            onGridReady={(params: any) => {
+                                return props?.onGridReady?.(params);
+                            }}
+                            treeData={props.treeData}
+                            animateRows
+                            getDataPath={props.getDataPath}
+                            groupDefaultExpanded={props.groupDefaultExpanded}
+                            // detailCellRenderer
+                            onFirstDataRendered={(params: any) => {
+                                return props?.onFirstDataRendered?.(params);
+                            }}
+                            suppressRowClickSelection={true}
+                            onRowSelected={(event: any) => {
+                                return props?.onRowSelected?.(event);
+                            }}
+                            rowSelection={'multiple'}
+                            gridOptions={props.gridOptions}
+                            rowHeight={50}
+                            paginateChildRows={true}
+                            {...props.gridConfig}
+                        />
+
+                        {pagination && (
+                            <BaseIcon
+                                className="absolute font-thin cursor-pointer text-gray-600 bottom-[17px] right-[330px]"
+                                icon={faRotate}
+                                onClick={() => {
+                                    props.reloadData?.();
+                                }}
+                            />
+                        )}
+                    </div>
                 )}
             </div>
         </div>
     );
 });
+
+const renderAdditionColumn = (actionRows: IActionRows[], columnDefs: ColDef[]) => {
+    if (actionRows && actionRows.length !== 0) {
+        const actions = {
+            field: 'actionRows',
+            headerName: 'Hành động',
+            pinned: 'right',
+            width: 100,
+            cellStyle: {
+                textAlign: 'center',
+            },
+            cellRenderer: (params: ICellRendererParams) => {
+                const data = _.get(params, 'data');
+                const rowNode = _.get(params, 'node') as any;
+                return (
+                    <div className="w-full h-full flex items-center justify-center">
+                        {actionRows?.map((item: IActionRows, index) => {
+                            const { isConfirm, onClick, ...actionProps } = item;
+                            return item.isConfirm ? (
+                                <Popconfirm
+                                    key={index}
+                                    placement="left"
+                                    title="Bạn có chắc xóa?"
+                                    okText="Đồng ý"
+                                    cancelText="Hủy"
+                                    onConfirm={() => onClick(params.data)}
+                                >
+                                    <ButtonBase
+                                        startIcon={item?.startIcon}
+                                        variant={item?.variant}
+                                        onClick={() => {
+                                            item.onClick?.(data, rowNode);
+                                        }}
+                                        tooltip={item?.tooltip}
+                                        title={item?.title}
+                                    />
+                                </Popconfirm>
+                            ) : (
+                                <ButtonBase
+                                    startIcon={item?.startIcon}
+                                    variant={item?.variant}
+                                    onClick={() => {
+                                        item.onClick?.(data, rowNode);
+                                    }}
+                                    tooltip={item?.tooltip}
+                                    title={item?.title}
+                                />
+                            );
+                        })}
+                    </div>
+                );
+            },
+        } as ColDef;
+        columnDefs.push(actions);
+        columnDefs.push({ field: nameof<IEntity>(x => x.id), hide: true } as ColDef);
+    }
+};
 
 export default BaseGrid;

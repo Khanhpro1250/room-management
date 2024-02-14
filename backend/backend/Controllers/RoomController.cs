@@ -64,11 +64,19 @@ namespace backend.Controllers
         }
 
         [HttpGet("list-electric-service")]
-        public async Task<ApiResponse<List<RoomElectricServiceDto>>> GetElectricServices(
+        public async Task<ApiResponse<PaginatedList<RoomElectricServiceDto>>> GetElectricServices(
             [FromQuery] ElectricServiceFilterDto filterDto)
         {
             var result = await _roomService.GetElectricServiceRoom(filterDto);
-            return ApiResponse<List<RoomElectricServiceDto>>.Ok(result);
+            return ApiResponse<PaginatedList<RoomElectricServiceDto>>.Ok(result);
+        }
+
+        [HttpPut("service-index/update")]
+        public async Task<ApiResponse<object>> UpdateServiceIndexRoom(
+            [FromBody] RoomServiceIndexCreateUpdateDto updateDto)
+        {
+            await _roomService.UpdateServiceIndex(updateDto);
+            return ApiResponse<object>.Ok();
         }
     }
 }

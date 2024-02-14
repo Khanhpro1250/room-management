@@ -11,7 +11,8 @@ namespace backend.Mapper
             CreateMap<Room, RoomDto>();
 
             CreateMap<CreateUpdateRoomDto, Room>()
-                .ForMember(x => x.FileEntryCollection, otp => otp.Ignore());;
+                .ForMember(x => x.FileEntryCollection, otp => otp.Ignore());
+            CreateMap<RoomServiceIndexCreateUpdateDto, RoomServiceIndex>();
         }
     }
 }

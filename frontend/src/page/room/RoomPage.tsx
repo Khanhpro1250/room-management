@@ -1,7 +1,16 @@
 import { icon } from '@fortawesome/fontawesome-svg-core';
-import { faBed, faEdit, faHouse, faList, faSearch, faTrash, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import {
+    faBed,
+    faBolt,
+    faEdit,
+    faHouse,
+    faList,
+    faSearch,
+    faTrash,
+    faUserGroup,
+} from '@fortawesome/free-solid-svg-icons';
 import { Input, Select, Tabs } from 'antd';
-import _ from 'lodash';
+import _, { debounce } from 'lodash';
 import qs from 'qs';
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -20,6 +29,7 @@ import NotifyUtil from '~/util/NotifyUtil';
 import { HOUSE_DELETE_API, HOUSE_INDEX_API } from '../house/api/house.api';
 import HomeForm from '../house/components/HomeForm';
 import emptyData from '~/assets/layout/emptydata.png';
+import { BaseIcon } from '~/component/Icon/BaseIcon';
 
 const RoomListView = React.lazy(() => import('~/page/room/component/RoomListView'));
 
@@ -43,7 +53,6 @@ const RoomPage: React.FC = () => {
     const currTab = _.first(state.house)?.id;
 
     const { tab = currTab } = qs.parse(location.search, { ignoreQueryPrefix: true });
-    console.log(tab);
 
     const [currentTab, setCurrentTab] = useState(tab);
 
@@ -122,37 +131,56 @@ const RoomPage: React.FC = () => {
         setState({ fetchHouse: false });
     }, [state.fetchHouse]);
 
-    const onFiler = () => {
-        roomListViewRef.current?.onFilter(formRef.current?.getFieldsValue());
-    };
+    const handleOnFilter = debounce(() => {
+        const formValues = formRef.current?.getFieldsValue();
+        roomListViewRef.current?.onFilter(formValues);
+    }, 300);
+
     if (state.loading) return <Loading />;
+    const renderTitle = () => {
+        return (
+            <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+                <div>
+                    <div
+                        className={
+                            'text-sm inline-flex items-center font-bold leading-sm ' +
+                            'uppercase px-[8px] py-[5px] bg-[#73737320] text-[#737373] rounded-md mr-1'
+                        }
+                    >
+                        <BaseIcon icon={faHouse} />
+                    </div>
+                    <span className="font-semibold text-lg">Phòng</span>
+                </div>
+                <div className="flex items-center 2">
+                    <ButtonBase
+                        variant={'primary'}
+                        title={'Khách thuê'}
+                        startIcon={faUserGroup}
+                        size="md"
+                        onClick={() => roomListViewRef.current?.refreshData()}
+                    />
+                    <ButtonBase
+                        variant={'primary'}
+                        title={'Phòng'}
+                        startIcon={faList}
+                        size="md"
+                        onClick={() => roomListViewRef.current?.refreshData()}
+                    />
+                    <ButtonBase
+                        onClick={onCreate}
+                        className={'btn-create'}
+                        variant={'success'}
+                        title={'Thêm nhà'}
+                        startIcon={faHouse}
+                        size="md"
+                    />
+                </div>
+            </div>
+        );
+    };
 
     return (
-        <AppContainer className="body-page h-screen overflow-auto">
-            <div className="flex-1 flex items-center justify-end mb-2">
-                <ButtonBase
-                    variant={'primary'}
-                    title={'Khách thuê'}
-                    startIcon={faUserGroup}
-                    size="md"
-                    onClick={() => roomListViewRef.current?.refreshData()}
-                />
-                <ButtonBase
-                    variant={'primary'}
-                    title={'Phòng'}
-                    startIcon={faList}
-                    size="md"
-                    onClick={() => roomListViewRef.current?.refreshData()}
-                />
-                <ButtonBase
-                    onClick={onCreate}
-                    className={'btn-create'}
-                    variant={'success'}
-                    title={'Thêm nhà'}
-                    startIcon={faHouse}
-                    size="md"
-                />
-            </div>
+        <AppContainer title={renderTitle()} className="h-screen">
             <Fieldset title="Bộ lọc tìm kiếm">
                 <BaseForm
                     ref={formRef}
@@ -161,19 +189,19 @@ const RoomPage: React.FC = () => {
                         {
                             label: 'Mã phòng',
                             name: 'roomCode',
-                            children: <Input placeholder="Nhập mã phòng ..." />,
+                            children: <Input onChange={handleOnFilter} placeholder="Nhập mã phòng ..." />,
                             className: 'col-span-6',
                         },
                         {
                             label: 'Khách thuê',
                             name: 'customerName',
-                            children: <Input placeholder="Nhập tên khách thuê ..." />,
+                            children: <Input onChange={handleOnFilter} placeholder="Nhập tên khách thuê ..." />,
                             className: 'col-span-6',
                         },
                         {
                             label: 'Số hợp đồng',
                             name: 'contractNo',
-                            children: <Input placeholder="Nhập số hợp đồng ..." />,
+                            children: <Input onChange={handleOnFilter} placeholder="Nhập số hợp đồng ..." />,
                             className: 'col-span-6',
                         },
                         {
@@ -181,6 +209,7 @@ const RoomPage: React.FC = () => {
                             name: 'status',
                             children: (
                                 <Select
+                                    onChange={handleOnFilter}
                                     options={[
                                         {
                                             value: 'NEW',
@@ -203,15 +232,6 @@ const RoomPage: React.FC = () => {
                     labelCol={4}
                     isDisplayGrid={true}
                 />
-                <div className="flex justify-center">
-                    <ButtonBase
-                        variant={'primary'}
-                        title={'Tìm kiếm'}
-                        startIcon={faSearch}
-                        size="md"
-                        onClick={onFiler}
-                    />
-                </div>
             </Fieldset>
             <Tabs
                 onChange={key => {
@@ -220,7 +240,7 @@ const RoomPage: React.FC = () => {
                 }}
                 defaultActiveKey={tab ? String(tab) : (currTab as string)}
                 type="card"
-                className="h-full"
+                className="h-full mt-2"
                 tabBarExtraContent={{
                     right: state.house.length && (
                         <div className="flex-1 flex items-center justify-end mb-2">

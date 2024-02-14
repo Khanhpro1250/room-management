@@ -15,6 +15,12 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-.ant-switch-checked{
+.ant-switch-checked {
     background-color: #1890ff !important;
+}
+
+.ant-input-number {
+    input {
+        text-align: right;
+    }
 }

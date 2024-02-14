@@ -2,13 +2,15 @@ import React, { useImperativeHandle, useRef } from 'react';
 import NotificationConstant from '~/configs/contants';
 
 import { InputNumber } from 'antd';
-import _ from 'lodash';
+import _, { debounce } from 'lodash';
 import BaseGrid, { BaseGridColDef, BaseGridRef } from '~/component/Grid/BaseGrid';
 import { requestApi } from '~/lib/axios';
 import { Member } from '~/types/shared/Customer';
 import { Service, ServiceCustomer } from '~/types/shared/Service';
 import NotifyUtil from '~/util/NotifyUtil';
 import { CUSTOMER_UPDATE_SERVICE_CUSTOMER_API } from '../api/customer.api';
+import CustomInputNumber from '~/component/Form/CustomInputNumber';
+import { GridApi } from 'ag-grid';
 interface Props {
     customerId?: string | null;
     readonly?: boolean;
@@ -86,26 +88,22 @@ const ServiceRoom = React.memo(
                 headerCheckboxSelection: !readonly,
                 headerCheckboxSelectionFilteredOnly: !readonly,
                 checkboxSelection: true,
+                flex: 1,
             },
             {
                 headerName: 'Đơn giá',
                 field: nameof.full<Service>(x => x.price),
-
+                minWidth: 200,
                 cellStyle: { textAlign: 'right' },
-                // editable: !readonly,
-                // valueFormatter: (params: any) => {
-                //     return params.value.toLocaleString('vi', { maximumFractionDigits: 2 });
-                // }
+
                 cellRenderer: (params: any) => {
                     return !readonly ? (
-                        <InputNumber
-                            type="number"
-                            onChange={e => {
-                                params.setValue(`${e}`);
-                                onInputChange({ ...params.data, params: e });
-                            }}
-                            style={{ textAlign: 'right', width: '100%' }}
-                            value={params.value}
+                        <CustomInputNumber
+                            onChange={debounce((val: any) => {
+                                params.setValue(val);
+                                onInputChange({ ...params.data, quantity: val });
+                            }, 300)}
+                            defaultValue={params.value}
                         />
                     ) : (
                         <div style={{ textAlign: 'right', width: '100%' }}>
@@ -117,26 +115,23 @@ const ServiceRoom = React.memo(
             {
                 headerName: 'Đơn vị tính',
                 field: nameof.full<Service>(x => x.unit),
+                valueFormatter: (params: any) => {
+                    const unit = JSON.parse(params.value);
+                    return unit;
+                },
             },
             {
                 headerName: 'Số lượng',
                 field: 'quantity',
-
                 cellStyle: { textAlign: 'right' },
-                // editable: !readonly,
-                // valueFormatter: (params: any) => {
-                //     return params.value.toLocaleString('vi', { maximumFractionDigits: 2 });
-                // },
                 cellRenderer: (params: any) => {
                     return !readonly ? (
-                        <InputNumber
-                            style={{ textAlign: 'right', width: '100%' }}
-                            value={params.value}
-                            type="number"
-                            onChange={e => {
-                                params.setValue(`${e}`);
-                                onInputChange({ ...params.data, quantity: e });
-                            }}
+                        <CustomInputNumber
+                            onChange={debounce((val: any) => {
+                                params.setValue(val);
+                                onInputChange({ ...params.data, quantity: val });
+                            }, 300)}
+                            defaultValue={params.value}
                         />
                     ) : (
                         <div style={{ textAlign: 'right', width: '100%' }}>
