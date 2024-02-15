@@ -13,6 +13,9 @@ namespace backend.Models.Entities.Contracts
         public DateTime? EffectDate { get; set; }
         public DateTime? ExpiredDate { get; set; }
 
+        public bool IsEarly { get; set; } = false;
+        public DateTime? CheckOutDate { get; set; }
+
         #region ref
 
         public Room Room { get; set; }
