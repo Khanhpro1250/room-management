@@ -2,9 +2,8 @@
 
 namespace backend.Models.Entities.Rooms;
 
-public class RoomProcess
+public class RoomProcess: AuditedEntity<Guid>
 {
-    public Guid Id { get; set; }
     public Guid RoomId { get; set; }
     public Guid CustomerId { get; set; }
     public string Status { get; set; }
