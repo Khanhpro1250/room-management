@@ -133,6 +133,24 @@ public static class HouseEntityConfig
             entity.HasOne(x => x.Room)
                 .WithMany(x=> x.RoomServiceIndices)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            
+        });
+        
+        modelBuilder.Entity<RoomProcess>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.ToTable(nameof(RoomProcess), SchemaName);
+            entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
+            
+            entity.HasOne(x => x.Customer)
+                .WithMany(x => x.RoomProcesses)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(x => x.Room)
+                .WithMany(x=> x.RoomProcesses)
+                .OnDelete(DeleteBehavior.Restrict);
+            
         });
 
 

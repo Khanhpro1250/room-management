@@ -34,6 +34,8 @@ namespace backend.Models.Entities.Rooms
 
         public List<Customer> Customers { get; set; }
         public List<RoomServiceIndex> RoomServiceIndices { get; set; }
+        
+        public List<RoomProcess> RoomProcesses { get; set; }
 
         #endregion
     }
