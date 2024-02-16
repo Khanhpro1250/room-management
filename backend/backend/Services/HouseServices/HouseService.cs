@@ -9,6 +9,7 @@ using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
 namespace backend.Services.HouseServices;
 
@@ -65,14 +66,17 @@ public class HouseService : IHouseService
         return new PaginatedList<HouseDto>(listHouse, totalCount, 0, -1);
     }
 
-    public async Task<List<ComboOptionDto>> GetComboHouse()
+    public async Task<List<ComboOptionDto>> GetComboHouse(bool isByCurrentUserId = false)
     {
+        var currUserId = _currentUser.Id;
         var queryable = _houseRepository.GetQueryable();
-        var result = await queryable.Select(x => new ComboOptionDto()
-        {
-            Label = x.Name,
-            Value = x.Id
-        }).ToListAsync();
+        var result = await queryable
+            .WhereIf(isByCurrentUserId,x => x.UserId.Equals(currUserId))
+            .Select(x => new ComboOptionDto()
+            {
+                Label = x.Name,
+                Value = x.Id
+            }).ToListAsync();
         return result;
     }
 }

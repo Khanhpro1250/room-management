@@ -7,12 +7,20 @@ interface Props {
 
 export const Status = (props: Props) => {
     const className = {
-        NEW: 'w-full h-[30px] flex justify-center items-center border rounded-md overflow-hidden contrast-100 text-orange-600 border-orange-600',
-        RENTED: 'w-full h-[30px] flex justify-center items-center border rounded-md overflow-hidden contrast-100 text-green-600 border-green-600 ',
+        New: 'h-[18px] w-fit p-[12px] flex justify-center items-center border rounded-[3px] overflow-hidden bg-[#52505020] text-[#525050]',
+        Rented: 'h-[18px] w-fit p-[12px]  flex justify-center items-center border rounded-[3px] overflow-hidden bg-[#248a5220] text-[#248a52]',
+        Renting:
+            'h-[18px] w-fit p-[12px]  flex justify-center items-center border rounded-[3px] overflow-hidden bg-[#4d74a520] text-[#4d74a5]',
+        Deposited:
+            'h-[18px] w-fit p-[12px]  flex justify-center items-center border rounded-[3px] overflow-hidden bg-[#a3a74320] text-[#a3a743]',
+        NoHD: 'h-[18px] w-fit p-[12px]  flex justify-center items-center border rounded-[3px] overflow-hidden bg-[#9b5a3720] text-[#9b5a37]',
+        NotRented:
+            'h-[18px] w-fit p-[12px]  flex justify-center items-center border rounded-[3px] overflow-hidden bg-[#e45f5820] text-[#e45f58]',
+        Return: 'h-[18px] w-fit p-[12px]  flex justify-center items-center border rounded-[3px] overflow-hidden bg-[#e45f5820] text-[#e45f58]',
     }[props.status];
 
     return (
-        <div className="pt-2">
+        <div className="w-full h-full flex items-center justify-center">
             <div className={className}>{props.statusName}</div>
         </div>
     );

@@ -84,7 +84,7 @@ const ServicesListView: React.FC = () => {
             width: 120,
             cellStyle: { textAlign: 'right' },
             cellRenderer: (val: any) => {
-                return Number(val.value ?? 0).toLocaleString('vi', { maximumSignificantDigits: 2 });
+                return Number(val.value ?? 0).toLocaleString('vi', { maximumFractionDigits: 2 });
             },
         },
         {

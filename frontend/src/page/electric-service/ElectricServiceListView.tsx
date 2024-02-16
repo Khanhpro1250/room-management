@@ -7,7 +7,7 @@ import { Service } from '~/types/shared/Service';
 
 import { faBolt, faSave } from '@fortawesome/free-solid-svg-icons';
 import { GridApi } from 'ag-grid-community';
-import { DatePicker, Select } from 'antd';
+import { DatePicker, Input, Select } from 'antd';
 import _, { debounce } from 'lodash';
 import moment from 'moment';
 import { Fieldset } from '~/component/Elements/FieldSet/FieldSet';
@@ -33,50 +33,8 @@ const ElectricServiceListView: React.FC = () => {
         },
     });
 
-    const { data: houseComboResponse, isFetching: isLoadingHouseCombo } = useHouseCombo();
+    const { data: houseComboResponse, isFetching: isLoadingHouseCombo } = useHouseCombo(true);
     const houseCombo = useMemo(() => houseComboResponse?.data?.result ?? [], [isLoadingHouseCombo]);
-
-    const onCreate = () => {
-        // modalRef.current?.onOpen(
-        //     <ServicesForm
-        //         onSubmitSuccessfully={() => {
-        //             modalRef.current?.onClose();
-        //             gridController?.reloadData();
-        //         }}
-        //         onClose={modalRef.current?.onClose}
-        //     />,
-        //     'Tạo mới dịch vụ',
-        //     '50%',
-        // );
-    };
-
-    const onUpdate = (data: Service) => {
-        // modalRef.current?.onOpen(
-        //     <ServicesForm
-        //         onSubmitSuccessfully={() => {
-        //             modalRef.current?.onClose();
-        //             gridController?.reloadData();
-        //         }}
-        //         onClose={modalRef.current?.onClose}
-        //         initialValues={data}
-        //     />,
-        //     'Cập nhật dịch vụ',
-        //     '50%',
-        //     icon(faEdit),
-        // );
-    };
-
-    const onDelete = async (data: Service) => {
-        // const res = await requestApi('delete', `${SERVICE_DELETE_API}/${data.id}`);
-        // if (res.data?.success) {
-        //     NotifyUtil.success(NotificationConstant.TITLE, NotificationConstant.DESCRIPTION_DELETE_SUCCESS);
-        //     gridController?.reloadData();
-        //     return;
-        // } else {
-        // NotifyUtil.error(NotificationConstant.TITLE, res.data?.message ?? 'Có lỗi xảy ra');
-        // return;
-        // }
-    };
 
     const ElectricServiceColDefs: BaseGridColDef[] = [
         {
@@ -184,7 +142,6 @@ const ElectricServiceListView: React.FC = () => {
 
         const formData = {
             id: data?.id,
-            customerId: data?.customerId,
             roomId: data?.roomId,
             month: data?.month,
             year: data?.year,
@@ -197,10 +154,19 @@ const ElectricServiceListView: React.FC = () => {
         const res = await requestApi('put', UPDATE_ELECTRIC, formData);
         if (res.data?.success) {
             NotifyUtil.success(NotificationConstant.TITLE, NotificationConstant.DESCRIPTION_UPDATE_SUCCESS);
+            const formValues = formRef.current?.getFieldsValue() ?? ({} as any);
+            gridController?.setParams({
+                ...formValues,
+                currentDate: formValues.currentDate?.format('YYYY-MM-DD'),
+                serviceType: ServiceType.Electric,
+            });
             gridController?.reloadData();
             return;
         } else {
-            NotifyUtil.error(NotificationConstant.TITLE, res.data?.message ?? 'Có lỗi xảy ra');
+            NotifyUtil.error(
+                NotificationConstant.TITLE,
+                'Vui lòng kiểm tra lại chỉ số điện cũ và mới của các tháng hiện tại và 2 tháng liền kề. Dữ liệu đang bị xung đột ! ( chỉ số cũ không được lớn hơn chỉ số mới )',
+            );
             return;
         }
     };
@@ -215,8 +181,14 @@ const ElectricServiceListView: React.FC = () => {
         ];
     };
 
-    const handleChangeData = debounce((val: any) => {
-        console.log(val);
+    const handleChangeData = debounce(() => {
+        const formValues = formRef.current?.getFieldsValue() ?? ({} as any);
+        gridController?.setParams({
+            ...formValues,
+            currentDate: formValues.currentDate?.format('YYYY-MM-DD'),
+            serviceType: ServiceType.Electric,
+        });
+        gridController?.reloadData();
     }, 300);
 
     const renderTitle = () => {
@@ -244,7 +216,7 @@ const ElectricServiceListView: React.FC = () => {
                     baseFormItem={[
                         {
                             label: 'Tháng/năm',
-                            name: 'dataTime',
+                            name: 'currentDate',
                             children: (
                                 <DatePicker
                                     onChange={handleChangeData}
@@ -259,37 +231,26 @@ const ElectricServiceListView: React.FC = () => {
                         {
                             label: 'Nhà',
                             name: 'houseId',
-                            children: <Select onChange={handleChangeData} options={houseCombo} />,
-                            className: 'col-span-4',
-                        },
-                        {
-                            label: 'Trạng thái',
-                            name: 'status',
                             children: (
                                 <Select
-                                    clearIcon
                                     onChange={handleChangeData}
+                                    defaultValue={null}
                                     options={[
                                         {
-                                            value: 'ALL',
+                                            value: null,
                                             label: 'Tất cả',
                                         },
-                                        {
-                                            value: 'NEW',
-                                            label: 'Còn trống',
-                                        },
-                                        {
-                                            value: 'RENTED',
-                                            label: 'Đã cho thuê',
-                                        },
+                                        ...houseCombo,
                                     ]}
-                                    defaultValue={'ALL'}
-                                    showSearch
-                                    allowClear
-                                    placeholder="Chọn trạng thái..."
                                 />
                             ),
                             className: 'col-span-4',
+                        },
+                        {
+                            label: 'Mã phòng',
+                            name: 'roomCode',
+                            children: <Input onChange={handleChangeData} placeholder="Nhập mã phòng ..." />,
+                            className: 'col-span-4 ',
                         },
                         {
                             label: '',

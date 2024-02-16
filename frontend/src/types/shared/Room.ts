@@ -16,3 +16,15 @@ export interface Room {
     status: string;
     statusName: string;
 }
+
+export interface RoomProcessGridDto {
+    id: string;
+    code: string;
+    customerName: string;
+    houseCode: string;
+    houseName: string;
+    roomCode: string;
+    action: string;
+    actionName: string;
+    createdTime: Date;
+}

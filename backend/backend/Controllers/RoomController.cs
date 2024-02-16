@@ -48,6 +48,13 @@ namespace backend.Controllers
             return ApiResponse<RoomDto>.Ok();
         }
 
+        [HttpPut("return/{id:guid}")]
+        public async Task<ApiResponse<object>> UpdateServiceIndexRoom([FromRoute] Guid id)
+        {
+            await _roomService.ReturnRoom(id);
+            return ApiResponse<object>.Ok();
+        }
+
         [HttpGet("index")]
         public async Task<ApiResponse<PaginatedList<RoomDto>>> GetListRoom([FromQuery] RoomFiterDto filterDto)
         {

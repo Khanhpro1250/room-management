@@ -157,14 +157,7 @@ const RoomPage: React.FC = () => {
                         title={'Khách thuê'}
                         startIcon={faUserGroup}
                         size="md"
-                        onClick={() => roomListViewRef.current?.refreshData()}
-                    />
-                    <ButtonBase
-                        variant={'primary'}
-                        title={'Phòng'}
-                        startIcon={faList}
-                        size="md"
-                        onClick={() => roomListViewRef.current?.refreshData()}
+                        onClick={() => pushDomain('/customer-list')}
                     />
                     <ButtonBase
                         onClick={onCreate}
@@ -200,7 +193,7 @@ const RoomPage: React.FC = () => {
                         },
                         {
                             label: 'Số hợp đồng',
-                            name: 'contractNo',
+                            name: 'contractNumber',
                             children: <Input onChange={handleOnFilter} placeholder="Nhập số hợp đồng ..." />,
                             className: 'col-span-6',
                         },
@@ -212,11 +205,11 @@ const RoomPage: React.FC = () => {
                                     onChange={handleOnFilter}
                                     options={[
                                         {
-                                            value: 'NEW',
+                                            value: 'New',
                                             label: 'Còn trống',
                                         },
                                         {
-                                            value: 'RENTED',
+                                            value: 'Rented',
                                             label: 'Đã cho thuê',
                                         },
                                     ]}
@@ -238,6 +231,7 @@ const RoomPage: React.FC = () => {
                     pushDomain({ search: qs.stringify({ tab: key }) });
                     setCurrentTab(key);
                 }}
+                style={{ height: 220 }}
                 defaultActiveKey={tab ? String(tab) : (currTab as string)}
                 type="card"
                 className="h-full mt-2"

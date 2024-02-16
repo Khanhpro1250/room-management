@@ -1,6 +1,7 @@
 ﻿using backend.Controllers.Dtos;
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.CustomerDtos;
+using backend.DTOs.RoomDtos;
 using backend.Services.CustomerServices;
 using backend.Services.ExportWordPdfServices;
 using backend.Services.RoomServices;
@@ -27,10 +28,10 @@ namespace backend.Controllers
 
 
         [HttpGet("index")]
-        public async Task<ApiResponse<PaginatedList<CustomerDto>>> GetIndex()
+        public async Task<ApiResponse<PaginatedList<CustomerListViewDto>>> GetIndex()
         {
             var result = await _customerService.GetListCustomer(Request.Query.GetPaginatedListQuery());
-            return ApiResponse<PaginatedList<CustomerDto>>.Ok(result);
+            return ApiResponse<PaginatedList<CustomerListViewDto>>.Ok(result);
         }
 
 
@@ -77,6 +78,13 @@ namespace backend.Controllers
         {
             await _customerService.DeleteCustomer(id);
             return ApiResponse.Ok();
+        }
+
+        [HttpGet("histories/{id:guid}")]
+        public async Task<ApiResponse<PaginatedList<RoomProcessDto>>> HandleGetListHistories([FromRoute] Guid id)
+        {
+            var result = await _customerService.GetHistoriesByCustomerId(id);
+            return ApiResponse<PaginatedList<RoomProcessDto>>.Ok(result);
         }
     }
 }

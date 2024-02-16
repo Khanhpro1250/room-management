@@ -50,9 +50,9 @@ public class HouseController : ControllerBase
     }
 
     [HttpGet("combo")]
-    public async Task<ApiResponse<List<ComboOptionDto>>> GetComboAction()
+    public async Task<ApiResponse<List<ComboOptionDto>>> GetComboAction([FromQuery] bool isByCurrentUserId = false)
     {
-        var result = await _houseService.GetComboHouse();
+        var result = await _houseService.GetComboHouse(isByCurrentUserId);
         return ApiResponse<List<ComboOptionDto>>.Ok(result);
     }
 

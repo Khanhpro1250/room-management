@@ -3,7 +3,6 @@
 public class RoomServiceIndexCreateUpdateDto
 {
     public Guid? Id { get; set; }
-    public Guid CustomerId { get; set; }
     public Guid RoomId { get; set; }
     public int Month { get; set; }
     public int Year { get; set; }

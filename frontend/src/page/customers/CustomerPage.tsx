@@ -1,12 +1,19 @@
-import { faArrowRotateBack, faCircleInfo, faCirclePlus, faSave } from '@fortawesome/free-solid-svg-icons';
+import {
+    faAngleDown,
+    faArrowRotateBack,
+    faCircleInfo,
+    faCirclePlus,
+    faDownload,
+    faPlus,
+    faSave,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Tabs } from 'antd';
+import { Dropdown, Menu, Tabs } from 'antd';
 import TabPane from 'antd/lib/tabs/TabPane';
 import qs from 'qs';
 import React, { useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
-import Loading from '~/component/Elements/loading/Loading';
 import Overlay, { OverlayRef } from '~/component/Elements/loading/Overlay';
 import { AppContainer } from '~/component/Layout/AppContainer';
 import { useCustomerInfo } from '~/hook/useCustomerInfo';
@@ -83,10 +90,52 @@ const CustomerPage: React.FC = () => {
         //     return NotifyUtil.warn(NotificationConstant.TITLE, 'Phải thêm thông tin khách thuê trước !');
         // }
     };
-    return isFetching ? (
-        <Loading />
-    ) : (
-        <AppContainer className="body-page h-full overflow-auto relative p-0">
+
+    const renderExtraContent = () => {
+        switch (currentTab) {
+            case 'member':
+                return (
+                    <ButtonBase
+                        size={'sm'}
+                        onClick={() => {
+                            memberFormRef.current?.onAddRow();
+                        }}
+                        className={'btn-create'}
+                        variant={'success'}
+                        title={'Thêm thành viên'}
+                        startIcon={faPlus}
+                    />
+                );
+            case 'contract':
+                const menu = (
+                    <Menu>
+                        <Menu.Item key="download" onClick={() => contractFormRef.current?.onExport?.()}>
+                            <div className="flex items-center justify-start">
+                                <FontAwesomeIcon icon={faDownload} />
+                                <span className="ml-3">Tải hợp đồng </span>
+                            </div>
+                        </Menu.Item>
+                        <Menu.Item key="saveAndDownload" onClick={() => contractFormRef.current?.onSaveAndExport?.()}>
+                            <div className="flex items-center justify-start">
+                                <FontAwesomeIcon icon={faDownload} />
+                                <span className="ml-3">Lưu và tải hợp đồng</span>
+                            </div>
+                        </Menu.Item>
+                    </Menu>
+                );
+                return (
+                    <div className="flex-1 flex items-center justify-end">
+                        <Dropdown overlay={menu}>
+                            <ButtonBase title="Tải xuống" size="md" endIcon={faAngleDown} variant="primary" />
+                        </Dropdown>
+                    </div>
+                );
+            default:
+                return <></>;
+        }
+    };
+    return (
+        <AppContainer loading={isFetching} className="body-page h-full overflow-auto relative p-0">
             <div className="flex items-center sticky top-0 left-0 right-0 bg-white z-10">
                 <FontAwesomeIcon size={'2x'} icon={icon()} className="mr-1.5" />
                 <span className="font-bold text-2xl  text-gray-600">{title()}</span>
@@ -103,6 +152,7 @@ const CustomerPage: React.FC = () => {
             </div>
 
             <Tabs
+                tabBarExtraContent={renderExtraContent()}
                 className="mt-2"
                 type="card"
                 onChange={key => {

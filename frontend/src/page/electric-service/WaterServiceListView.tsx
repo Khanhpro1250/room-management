@@ -7,7 +7,7 @@ import { Service } from '~/types/shared/Service';
 
 import { faSave, faShower } from '@fortawesome/free-solid-svg-icons';
 import { GridApi } from 'ag-grid-community';
-import { DatePicker, Select } from 'antd';
+import { DatePicker, Input, Select } from 'antd';
 import _, { debounce } from 'lodash';
 import moment from 'moment';
 import { Fieldset } from '~/component/Elements/FieldSet/FieldSet';
@@ -35,7 +35,7 @@ const WaterServiceListView: React.FC = () => {
         gridRef: gridRef,
     });
 
-    const { data: houseComboResponse, isFetching: isLoadingHouseCombo } = useHouseCombo();
+    const { data: houseComboResponse, isFetching: isLoadingHouseCombo } = useHouseCombo(true);
     const houseCombo = useMemo(() => houseComboResponse?.data?.result ?? [], [isLoadingHouseCombo]);
 
     const ElectricServiceColDefs: BaseGridColDef[] = [
@@ -61,7 +61,7 @@ const WaterServiceListView: React.FC = () => {
             field: nameof.full<ElectricServiceDto>(x => x.roomCode),
         },
         {
-            headerName: 'Chỉ số nước cũ',
+            headerName: 'chỉ số nước cũ',
             field: nameof.full<ElectricServiceDto>(x => x.oldElectricValue),
             width: 200,
             cellStyle: { textAlign: 'right' },
@@ -82,7 +82,7 @@ const WaterServiceListView: React.FC = () => {
                             if (!!val && Number(val) > newElectricValue) {
                                 return NotifyUtil.error(
                                     NotificationConstant.TITLE,
-                                    'Chỉ số nước cũ không được lớn hơn chỉ số nước mới',
+                                    'chỉ số nước cũ không được lớn hơn chỉ số nước mới',
                                 );
                             }
                         }, 300)}
@@ -92,7 +92,7 @@ const WaterServiceListView: React.FC = () => {
             },
         },
         {
-            headerName: 'Chỉ số nước mới',
+            headerName: 'chỉ số nước mới',
             field: nameof.full<ElectricServiceDto>(x => x.newElectricValue),
             cellStyle: { textAlign: 'right' },
             width: 200,
@@ -113,7 +113,7 @@ const WaterServiceListView: React.FC = () => {
                             if (!!val && Number(val) < oldElectricValue) {
                                 NotifyUtil.error(
                                     NotificationConstant.TITLE,
-                                    'Chỉ số nước cũ không được lớn hơn chỉ số nước mới',
+                                    'chỉ số nước cũ không được lớn hơn chỉ số nước mới',
                                 );
                             }
                         }, 300)}
@@ -139,12 +139,11 @@ const WaterServiceListView: React.FC = () => {
         const oldElectricValue = data.oldElectricValue ?? 0;
         const newElectricValue = data.newElectricValue ?? 0;
         if (!!oldElectricValue && !!newElectricValue && Number(oldElectricValue) > Number(newElectricValue)) {
-            return NotifyUtil.error(NotificationConstant.TITLE, 'Chỉ số nước cũ không được lớn hơn chỉ số nước mới');
+            return NotifyUtil.error(NotificationConstant.TITLE, 'chỉ số nước cũ không được lớn hơn chỉ số nước mới');
         }
 
         const formData = {
             id: data?.id,
-            customerId: data?.customerId,
             roomId: data?.roomId,
             month: data?.month,
             year: data?.year,
@@ -157,10 +156,19 @@ const WaterServiceListView: React.FC = () => {
         const res = await requestApi('put', UPDATE_ELECTRIC, formData);
         if (res.data?.success) {
             NotifyUtil.success(NotificationConstant.TITLE, NotificationConstant.DESCRIPTION_UPDATE_SUCCESS);
+            const formValues = formRef.current?.getFieldsValue() ?? ({} as any);
+            gridController?.setParams({
+                ...formValues,
+                currentDate: formValues.currentDate?.format('YYYY-MM-DD'),
+                serviceType: ServiceType.Water,
+            });
             gridController?.reloadData();
             return;
         } else {
-            NotifyUtil.error(NotificationConstant.TITLE, res.data?.message ?? 'Có lỗi xảy ra');
+            NotifyUtil.error(
+                NotificationConstant.TITLE,
+                'Vui lòng kiểm tra lại chỉ số nước cũ và mới của các tháng hiện tại và 2 tháng liền kề. Dữ liệu đang bị xung đột ! ( chỉ số cũ không được lớn hơn chỉ số mới )',
+            );
             return;
         }
     };
@@ -175,8 +183,14 @@ const WaterServiceListView: React.FC = () => {
         ];
     };
 
-    const handleChangeData = debounce((val: any) => {
-        console.log(val);
+    const handleChangeData = debounce(() => {
+        const formValues = formRef.current?.getFieldsValue() ?? ({} as any);
+        gridController?.setParams({
+            ...formValues,
+            currentDate: formValues.currentDate?.format('YYYY-MM-DD'),
+            serviceType: ServiceType.Water,
+        });
+        gridController?.reloadData();
     }, 300);
 
     const renderTitle = () => {
@@ -190,7 +204,7 @@ const WaterServiceListView: React.FC = () => {
                 >
                     <BaseIcon icon={faShower} />
                 </div>
-                <span className="font-semibold text-lg">Chỉ số nước</span>
+                <span className="font-semibold text-lg">chỉ số nước</span>
             </div>
         );
     };
@@ -204,7 +218,7 @@ const WaterServiceListView: React.FC = () => {
                     baseFormItem={[
                         {
                             label: 'Tháng/năm',
-                            name: 'dataTime',
+                            name: 'currentDate',
                             children: (
                                 <DatePicker
                                     onChange={handleChangeData}
@@ -219,36 +233,25 @@ const WaterServiceListView: React.FC = () => {
                         {
                             label: 'Nhà',
                             name: 'houseId',
-                            children: <Select onChange={handleChangeData} options={houseCombo} />,
+                            children: (
+                                <Select
+                                    onChange={handleChangeData}
+                                    defaultValue={null}
+                                    options={[
+                                        {
+                                            value: null,
+                                            label: 'Tất cả',
+                                        },
+                                        ...houseCombo,
+                                    ]}
+                                />
+                            ),
                             className: 'col-span-4',
                         },
                         {
-                            label: 'Trạng thái',
-                            name: 'status',
-                            children: (
-                                <Select
-                                    clearIcon
-                                    onChange={handleChangeData}
-                                    options={[
-                                        {
-                                            value: 'ALL',
-                                            label: 'Tất cả',
-                                        },
-                                        {
-                                            value: 'NEW',
-                                            label: 'Còn trống',
-                                        },
-                                        {
-                                            value: 'RENTED',
-                                            label: 'Đã cho thuê',
-                                        },
-                                    ]}
-                                    defaultValue={'ALL'}
-                                    showSearch
-                                    allowClear
-                                    placeholder="Chọn trạng thái..."
-                                />
-                            ),
+                            label: 'Mã phòng',
+                            name: 'roomCode',
+                            children: <Input onChange={handleChangeData} placeholder="Nhập mã phòng ..." />,
                             className: 'col-span-4',
                         },
                         {

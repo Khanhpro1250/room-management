@@ -10,6 +10,7 @@ export default class NotificationConstant {
     static TITLE = 'Thông báo';
     static DESCRIPTION_DELETE_FAIL = 'Xóa không thành công!';
     static DESCRIPTION_DELETE_SUCCESS = 'Xóa thành công';
+    static DESCRIPTION_RETURN_SUCCESS = 'Trả phòng thành công';
     static DESCRIPTION_UPDATE_FAIL = 'Cập nhật không thành công!';
     static DESCRIPTION_UPDATE_SUCCESS = 'Cập nhật thành công';
     static DESCRIPTION_CREATE_FAIL = 'Tạo mới không thành công!';
@@ -22,4 +23,9 @@ export default class NotificationConstant {
     static ERROR_MESSAGE_UTIL = 'Dữ liệu không hợp lệ';
 
     static NOT_EMPTY = 'Không được để trống!';
+}
+
+export enum RoomStatus {
+    New = 'New',
+    Rented = 'Rented',
 }

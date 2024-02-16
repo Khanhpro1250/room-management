@@ -16,6 +16,7 @@ import { requestApi } from '~/lib/axios';
 import ApiUtil from '~/util/ApiUtil';
 import NotifyUtil from '~/util/NotifyUtil';
 import { ROOM_CREATE_API, ROOM_UPDATE_API } from '../api/room.api';
+import CustomInputNumber from '~/component/Form/CustomInputNumber';
 
 interface Props {
     parentId?: string;
@@ -130,12 +131,6 @@ const RoomForm: React.FC<Props> = props => {
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                     },
                     {
-                        label: 'Số phòng',
-                        name: nameof.full<Room>(x => x.number),
-                        children: <Input disabled={props.readonly} placeholder="Nhập sô phòng ..." />,
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
-                    },
-                    {
                         label: 'Diện tích',
                         name: nameof.full<Room>(x => x.acreage),
                         children: <Input disabled={props.readonly} placeholder="Nhập diện tích ..." />,
@@ -150,13 +145,8 @@ const RoomForm: React.FC<Props> = props => {
                     {
                         label: 'Giá phòng',
                         name: nameof.full<Room>(x => x.price),
-                        children: <Input disabled={props.readonly} placeholder="Nhập giá phòng ..." />,
+                        children: <CustomInputNumber disabled={props.readonly} placeholder="Nhập giá phòng ..." />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
-                    },
-                    {
-                        label: 'Cọc trước',
-                        name: nameof.full<Room>(x => x.deposit),
-                        children: <Input disabled={props.readonly} placeholder="Nhập số tiền đặt cọc ..." />,
                     },
                     {
                         label: 'Mô tả',

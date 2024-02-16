@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Models;
 
@@ -11,9 +12,10 @@ using backend.Models;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240215073833_ChangeColumnCustomer")]
+    partial class ChangeColumnCustomer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -395,6 +397,9 @@ namespace backend.Migrations
                     b.Property<int>("MaxNumberOfPeople")
                         .HasColumnType("int");
 
+                    b.Property<int>("Number")
+                        .HasColumnType("int");
+
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
@@ -466,17 +471,8 @@ namespace backend.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("CreatedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastModifiedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Month")
                         .HasColumnType("int");
@@ -500,6 +496,8 @@ namespace backend.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
 
                     b.HasIndex("RoomId");
 
@@ -828,6 +826,12 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Entities.Rooms.RoomServiceIndex", b =>
                 {
+                    b.HasOne("backend.Models.Entities.Customers.Customer", "Customer")
+                        .WithMany("RoomServiceIndices")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("backend.Models.Entities.Rooms.Room", "Room")
                         .WithMany("RoomServiceIndices")
                         .HasForeignKey("RoomId")
@@ -839,6 +843,8 @@ namespace backend.Migrations
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Customer");
 
                     b.Navigation("Room");
 
@@ -890,6 +896,8 @@ namespace backend.Migrations
                     b.Navigation("Members");
 
                     b.Navigation("RoomProcesses");
+
+                    b.Navigation("RoomServiceIndices");
 
                     b.Navigation("Services");
                 });

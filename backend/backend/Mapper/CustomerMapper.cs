@@ -9,8 +9,9 @@ namespace backend.Mapper
         public CustomerMapper()
         {
             CreateMap<Customer, CustomerDto>();
+            CreateMap<Customer, CustomerListViewDto>();
             CreateMap<CreateUpdateCustomerDto, Customer>()
-                .ForMember(x=> x.FileEntryCollection, opt=> opt.Ignore());
+                .ForMember(x => x.FileEntryCollection, opt => opt.Ignore());
             CreateMap<MemberDto, Member>();
             CreateMap<Member, MemberDto>();
         }

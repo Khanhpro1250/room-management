@@ -74,6 +74,7 @@ export interface BaseGridProps {
     actionRowsReRender?: IActionRows[];
 }
 export type IActionRows = {
+    isHidden?: (data: any) => boolean;
     type?: ButtonType;
     style?: React.CSSProperties;
     name?: string;
@@ -129,14 +130,15 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                 return (
                     <div className="w-full h-full flex items-center justify-center">
                         {actionRowsList?.hasWithdrawBtn?.(data, rowNode) && (
-                            <ButtonBase
-                                startIcon={faUndo}
-                                variant={'warning'}
-                                onClick={() => {
-                                    actionRowsList.onClickWithdrawBtn?.(data, rowNode);
-                                }}
-                                tooltip="Trả phòng"
-                            />
+                            <Popconfirm
+                                placement="topRight"
+                                title={'Bạn có chắc muốn trả phòng ?'}
+                                onConfirm={e => actionRowsList.onClickWithdrawBtn?.(data, rowNode)}
+                                okText="Đồng ý"
+                                cancelText="Đóng"
+                            >
+                                <ButtonBase startIcon={faUndo} variant={'warning'} tooltip="Trả phòng" />
+                            </Popconfirm>
                         )}
                         {actionRowsList?.hasDetailBtn && (
                             <ButtonBase
@@ -271,7 +273,7 @@ const renderAdditionColumn = (actionRows: IActionRows[], columnDefs: ColDef[]) =
             field: 'actionRows',
             headerName: 'Hành động',
             pinned: 'right',
-            width: 100,
+            width: 150,
             cellStyle: {
                 textAlign: 'center',
             },
@@ -281,7 +283,10 @@ const renderAdditionColumn = (actionRows: IActionRows[], columnDefs: ColDef[]) =
                 return (
                     <div className="w-full h-full flex items-center justify-center">
                         {actionRows?.map((item: IActionRows, index) => {
-                            const { isConfirm, onClick, ...actionProps } = item;
+                            const { isConfirm, onClick, isHidden, ...actionProps } = item;
+                            if (isHidden && isHidden(data)) {
+                                return null;
+                            }
                             return item.isConfirm ? (
                                 <Popconfirm
                                     key={index}
@@ -294,9 +299,6 @@ const renderAdditionColumn = (actionRows: IActionRows[], columnDefs: ColDef[]) =
                                     <ButtonBase
                                         startIcon={item?.startIcon}
                                         variant={item?.variant}
-                                        onClick={() => {
-                                            item.onClick?.(data, rowNode);
-                                        }}
                                         tooltip={item?.tooltip}
                                         title={item?.title}
                                     />

@@ -35,6 +35,8 @@ public class CustomerExportDto
     public string DateOfBirth { get; set; }
     public string IdentityNo { get; set; }
     public string IssueDate { get; set; }
+    
+    public string IssuePlace { get; set; }
     public string PermanentAddress { get; set; }
     public string PhoneNumber { get; set; }
     public string Deposit { get; set; }

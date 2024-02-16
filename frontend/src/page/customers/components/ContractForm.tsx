@@ -28,6 +28,8 @@ interface Props {
 
 export interface ContractFormRef {
     onSave: () => void;
+    onExport: () => void;
+    onSaveAndExport: () => void;
 }
 
 const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.Element => {
@@ -40,7 +42,7 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
         signedDate: props.initialValues?.signedDate ? moment(props.initialValues?.signedDate) : undefined,
     } as Contract;
 
-    const onSubmit = async () => {
+    const onSubmit = async (callback?: any) => {
         const isValidForm = await formRef.current?.isFieldsValidate();
 
         if (!isValidForm) {
@@ -49,6 +51,16 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
         }
 
         const formValues = formRef.current?.getFieldsValue();
+
+        if (formValues?.expiredDate < formValues?.effectDate) {
+            NotifyUtil.error(NotificationConstant.TITLE, 'Ngày kết thúc hợp đồng phải lớn hơn ngày hiệu lực');
+            return;
+        }
+
+        if (formValues?.month <= 0) {
+            NotifyUtil.error(NotificationConstant.TITLE, 'Số tháng phải lớn hơn 0');
+            return;
+        }
 
         const urlParams: Record<
             string,
@@ -79,10 +91,12 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
         });
 
         if (response.data?.success) {
+            await callback?.();
             props.unMask?.();
 
             NotifyUtil.success(NotificationConstant.TITLE, urlParam.message);
             props?.onSubmitSuccessfully?.();
+
             props.onClose?.();
             return;
         } else {
@@ -99,6 +113,16 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
         }
 
         const formValues = formRef.current?.getFieldsValue();
+        if (formValues?.expiredDate < formValues?.effectDate) {
+            NotifyUtil.error(NotificationConstant.TITLE, 'Ngày kết thúc hợp đồng phải lớn hơn ngày hiệu lực');
+            return;
+        }
+
+        if (formValues?.month <= 0) {
+            NotifyUtil.error(NotificationConstant.TITLE, 'Số tháng phải lớn hơn 0');
+            return;
+        }
+
         props.mask?.();
 
         const response = (await requestApi(
@@ -122,6 +146,10 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
         ref,
         () => ({
             onSave: onSubmit,
+            onExport: onExport,
+            onSaveAndExport: async () => {
+                await onSubmit(() => onExport());
+            },
         }),
         [],
     );
@@ -162,6 +190,13 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
                                 // disabled={props.readonly}
                                 placeholder="Ngày hiệu lực"
                                 format={'DD/MM/YYYY'}
+                                onChange={(val: any) => {
+                                    const formValue = formRef.current?.getFieldsValue() as Contract;
+                                    if (formValue.month) {
+                                        const expiredDate = moment(val).add(formValue.month, 'months');
+                                        formRef.current?.setFieldsValue({ expiredDate: expiredDate });
+                                    }
+                                }}
                             />
                         ),
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
@@ -174,6 +209,8 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
                             <Input
                                 onChange={e => {
                                     const val = Number(e.target.value);
+                                    if (val <= 0)
+                                        return NotifyUtil.error(NotificationConstant.TITLE, 'Số tháng phải lớn hơn 0');
                                     const formValue = formRef.current?.getFieldsValue() as Contract;
                                     if (formValue.effectDate) {
                                         const expiredDate = moment(formValue.effectDate).add(val, 'months');
@@ -210,9 +247,6 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
                 labelWidth={200}
                 isDisplayGrid={true}
             />
-            <div className=" flex-1 flex items-center justify-start mb-2">
-                <ButtonBase title="Tải hợp đồng" size="md" startIcon={faDownload} variant="danger" onClick={onExport} />
-            </div>
         </AppModalContainer>
     );
 });

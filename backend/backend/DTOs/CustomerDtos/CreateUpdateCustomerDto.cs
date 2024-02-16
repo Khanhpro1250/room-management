@@ -31,7 +31,7 @@ namespace backend.DTOs.CustomerDtos
 
         public float RoomCharge { get; set; }
 
-        public float Deposit { get; set; }
+        public float? Deposit { get; set; }
 
         public string VehicleNumber { get; set; }
 

@@ -15,6 +15,7 @@ import { Customer } from '~/types/shared/Customer';
 import ApiUtil from '~/util/ApiUtil';
 import NotifyUtil from '~/util/NotifyUtil';
 import { CUSTOMER_CREATE_API, CUSTOMER_UPDATE_API } from '../api/customer.api';
+import CustomInputNumber from '~/component/Form/CustomInputNumber';
 interface Props {
     parentId?: string | null;
     readonly?: boolean;
@@ -151,8 +152,9 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                     {
                         label: 'Giới tính',
                         name: nameof.full<Customer>(x => x.gender),
+                        initialValue: 1,
                         children: (
-                            <Radio.Group defaultValue={1}>
+                            <Radio.Group>
                                 <Radio value={1}>Nam</Radio>
                                 <Radio value={2}>Nữ</Radio>
                             </Radio.Group>
@@ -243,7 +245,13 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                     {
                         label: 'Tiền phòng',
                         name: nameof.full<Customer>(x => x.roomCharge),
-                        children: <Input addonAfter="VND" disabled={props.readonly} placeholder="Nhập tiền phòng" />,
+                        children: (
+                            <CustomInputNumber
+                                addonAfter="VND"
+                                disabled={props.readonly}
+                                placeholder="Nhập tiền phòng"
+                            />
+                        ),
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                         className: 'col-span-6',
                     },
@@ -264,15 +272,15 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                     {
                         label: 'Đặt cọc',
                         name: nameof.full<Customer>(x => x.deposit),
-                        children: <Input addonAfter="VND" disabled={props.readonly} placeholder="Nhập tiền cọc" />,
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
+                        children: (
+                            <CustomInputNumber addonAfter="VND" disabled={props.readonly} placeholder="Nhập tiền cọc" />
+                        ),
                         className: 'col-span-6',
                     },
                     {
                         label: 'Số xe',
                         name: nameof.full<Customer>(x => x.vehicleNumber),
                         children: <Input disabled={props.readonly} placeholder="Nhập số xe" />,
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                         className: 'col-span-6',
                     },
                     {

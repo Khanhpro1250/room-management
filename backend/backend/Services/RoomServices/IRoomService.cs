@@ -14,5 +14,7 @@ namespace backend.Services.RoomServices
 
         Task<PaginatedList<RoomElectricServiceDto>> GetElectricServiceRoom(ElectricServiceFilterDto filterDto);
         Task DeleteRoom(Guid id);
+        
+        Task ReturnRoom(Guid id);
     }
 }

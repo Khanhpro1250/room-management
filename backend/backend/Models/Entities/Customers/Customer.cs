@@ -73,7 +73,7 @@ namespace backend.Models.Entities.Customers
         /// <summary>
         /// Tiền cọc
         /// </summary>
-        public float Deposit { get; set; }
+        public float? Deposit { get; set; }
 
         /// <summary>
         /// Biển số xe
@@ -85,10 +85,6 @@ namespace backend.Models.Entities.Customers
         /// </summary>
         public string PaymentPeriod { get; set; }
 
-        /// <summary>
-        /// Thanh toán mỗi lần / đơn vị  tháng
-        /// </summary>
-        public int PaymentOneTime { get; set; }
 
         /// <summary>
         /// Ghi chú
@@ -96,17 +92,7 @@ namespace backend.Models.Entities.Customers
         public string Note { get; set; }
 
         public Guid RoomId { get; set; }
-
-        /// <summary>
-        /// Trạng thái ( active; inactive ) đang thuê / đã thuê
-        /// </summary>
-        public bool Status { get; set; }
-
-        /// <summary>
-        /// Hình ảnh
-        /// </summary>
-        // [JsonProperty("fileUrls")] 
-        public string FileUrls { get; set; }
+        
 
         public Guid? FileEntryCollectionId { get; set; }
 
@@ -124,8 +110,6 @@ namespace backend.Models.Entities.Customers
 
         // [JsonProperty("services")] 
         public List<ServiceCustomer> Services { get; set; }
-
-        public List<RoomServiceIndex> RoomServiceIndices { get; set; }
         public List<RoomProcess> RoomProcesses { get; set; }
 
         #endregion

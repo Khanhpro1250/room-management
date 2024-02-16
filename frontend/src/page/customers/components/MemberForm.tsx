@@ -27,6 +27,7 @@ interface Props {
 
 export interface MemberFormRef {
     onSave: () => void;
+    onAddRow: () => void;
 }
 const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Element => {
     const modalRef = useRef<ModalRef>(null);
@@ -231,6 +232,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
         ref,
         () => ({
             onSave: onSubmit,
+            onAddRow,
         }),
         [],
     );
@@ -252,9 +254,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
                     onClickDeleteBtn: onDeleteRow,
                 }}
                 ref={gridRef}
-            >
-                <GridToolbar justIcon size="md" hasCreateButton onClickCreateButton={onAddRow} />
-            </BaseGrid>
+            />
         </div>
     );
 });

@@ -1,8 +1,14 @@
 import * as React from 'react';
+import Loading from '../Elements/loading/Loading';
 
-type Props = React.PropsWithChildren<any>;
+interface Props extends React.PropsWithChildren<any> {
+    className?: string;
+    style?: React.CSSProperties;
+    loading?: boolean;
+}
 export const AppModalContainer: React.FC<Props> = (props: Props) => {
-
+    const { loading } = props;
+    if (loading) return <Loading />;
     return (
         <div
             style={{
@@ -14,9 +20,10 @@ export const AppModalContainer: React.FC<Props> = (props: Props) => {
                 flex: 1,
                 borderRadius: 5,
                 // overflow: 'auto',
-                ...props.style || {}
+                ...(props.style || {}),
             }}
-            className={props.className}>
+            className={props.className}
+        >
             {props.children}
         </div>
     );

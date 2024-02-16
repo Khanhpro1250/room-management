@@ -4,6 +4,7 @@ using backend.Controllers.Dtos;
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.ContractDtos;
 using backend.Models.Entities.Contracts;
+using backend.Models.Entities.Rooms;
 using backend.Models.Repositorties.ContractRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Services.UserServices;
@@ -19,21 +20,31 @@ namespace backend.Services.ContractServices
         private readonly IRoomRepository _roomRepository;
         private readonly ICurrentUser _currentUser;
         private readonly IUserService _userService;
+        private readonly IRoomProcessRepository _roomProcessRepository;
 
         public ContractService(IContractRepository contractRepository, IMapper mapper, IRoomRepository roomRepository,
-            ICurrentUser currentUser, IUserService userService)
+            ICurrentUser currentUser, IUserService userService, IRoomProcessRepository roomProcessRepository)
         {
             _contractRepository = contractRepository;
             _mapper = mapper;
             _roomRepository = roomRepository;
             _currentUser = currentUser;
             _userService = userService;
+            _roomProcessRepository = roomProcessRepository;
         }
 
         public async Task<ContractDto> CreateContract(CreateUpdateContractDto contract)
         {
             var contractEntity = _mapper.Map<CreateUpdateContractDto, Contract>(contract);
+            var roomProcess = new RoomProcess()
+            {
+                RoomId = contract.RoomId,
+                CustomerId = contract.CustomerId,
+                Action = "Rent"
+            };
             var result = await _contractRepository.AddAsync(contractEntity, true);
+            await _roomProcessRepository.AddAsync(roomProcess, true);
+
             return _mapper.Map<Contract, ContractDto>(result);
         }
 
@@ -76,11 +87,10 @@ namespace backend.Services.ContractServices
         public async Task<ContractDto> UpdateContract(CreateUpdateContractDto contract, Guid id)
         {
             var findContract = await _contractRepository.GetQueryable()
-                                   .AsNoTracking()
                                    .FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
                                throw new Exception("Không tìm thấy hợp đồng");
 
-            var contractEntity = _mapper.Map<CreateUpdateContractDto, Contract>(contract);
+            var contractEntity = _mapper.Map<CreateUpdateContractDto, Contract>(contract, findContract);
             var result = await _contractRepository.UpdateAsync(contractEntity, true);
             return _mapper.Map<Contract, ContractDto>(result);
         }
@@ -125,6 +135,7 @@ namespace backend.Services.ContractServices
 
         public async Task<ExportContractDto> GetDataExportContract(CreateUpdateContractDto contractDto)
         {
+            //Todo: check điều kiện xuất dữ liệu customer
             var roomQueryable = _roomRepository.GetQueryable();
             var user = await _userService.GetUserById(_currentUser.Id);
             var room = await roomQueryable.AsNoTracking()
@@ -132,7 +143,7 @@ namespace backend.Services.ContractServices
                            .ThenInclude(x => x.Contracts)
                            .FirstOrDefaultAsync(x => x.Id.Equals(contractDto.RoomId)) ??
                        throw new Exception("Không tìm thấy phòng");
-            var customer = room?.Customers.FirstOrDefault(x => x.Status.Equals(true));
+            var customer = room?.Customers.FirstOrDefault(x=> x.Id.Equals(contractDto.CustomerId));
             var result = new ExportContractDto()
             {
                 CurrentDay = contractDto.SignedDate.Day.ToString(),
@@ -148,6 +159,7 @@ namespace backend.Services.ContractServices
                     DateOfBirth = customer?.Birthday?.ToString("dd/MM/yyyy"),
                     IdentityNo = customer?.IdentityNo,
                     IssueDate = customer?.IssueDate?.ToString("dd/MM/yyyy"),
+                    IssuePlace = customer?.IssuePlace,
                     PermanentAddress = customer?.PermanentAddress,
                     PhoneNumber = customer?.PhoneNumber1,
                     Deposit = MoneyConverter.ToLocaleDotString(customer?.Deposit ?? 0),

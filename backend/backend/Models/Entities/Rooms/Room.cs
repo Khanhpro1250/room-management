@@ -1,6 +1,4 @@
-﻿using backend.Models.Entities.Contracts;
-using backend.Models.Entities.Customers;
-using backend.Models.Entities.Files;
+﻿using backend.Models.Entities.Customers;
 using backend.Models.Entities.Files;
 using backend.Models.Entities.Houses;
 
@@ -11,7 +9,6 @@ namespace backend.Models.Entities.Rooms
         public string RoomTypeId { get; set; }
         public string RoomCode { get; set; }
         public Guid HouseId { get; set; }
-        public int Number { get; set; }
         public string Acreage { get; set; }
         public int MaxNumberOfPeople { get; set; }
         public float Price { get; set; }
@@ -38,5 +35,12 @@ namespace backend.Models.Entities.Rooms
         public List<RoomProcess> RoomProcesses { get; set; }
 
         #endregion
+    }
+    
+    public enum RoomStatus
+    {
+        New,
+        Rented,
+        Deposited,
     }
 }

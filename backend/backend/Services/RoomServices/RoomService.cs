@@ -10,11 +10,10 @@ using backend.Models.Entities.Customers;
 using backend.Models.Entities.Rooms;
 using backend.Models.Entities.Services;
 using backend.Models.Repositorties.ContractRepositories;
-using backend.Models.Repositorties.HouseRerositories;
+using backend.Models.Repositorties.CustomerRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Models.Repositorties.ServiceRepositories;
 using backend.Services.CloudinaryServices;
-using backend.Services.ContractServices;
 using backend.Services.CustomerServices;
 using backend.Services.FileServices;
 using backend.Services.ServiceServices;
@@ -37,12 +36,15 @@ public class RoomService : IRoomService
     private readonly IFileService _fileService;
     private readonly IServiceRepository _serviceRepository;
     private readonly IRoomServiceIndexRepository _roomServiceIndexRepository;
+    private readonly IRoomProcessRepository _roomProcessRepository;
+    private readonly ICustomerRepository _customerRepository;
 
 
     public RoomService(IRoomRepository roomRepository, IMapper mapper, ICloudinaryService cloudinaryService,
         ICustomerService customerService, IServiceService serviceService, ICurrentUser currentUser,
         IContractRepository contractRepository, IFileService fileService, IServiceRepository serviceRepository,
-        IRoomServiceIndexRepository roomServiceIndexRepository)
+        IRoomServiceIndexRepository roomServiceIndexRepository, IRoomProcessRepository roomProcessRepository,
+        ICustomerRepository customerRepository)
     {
         _roomRepository = roomRepository;
         _mapper = mapper;
@@ -54,6 +56,8 @@ public class RoomService : IRoomService
         _fileService = fileService;
         _serviceRepository = serviceRepository;
         _roomServiceIndexRepository = roomServiceIndexRepository;
+        _roomProcessRepository = roomProcessRepository;
+        _customerRepository = customerRepository;
     }
 
     public async Task<RoomDto> CreateRoom(CreateUpdateRoomDto room)
@@ -61,10 +65,10 @@ public class RoomService : IRoomService
         var roomEntity = _mapper.Map<CreateUpdateRoomDto, Room>(room);
         roomEntity.CreatedBy = _currentUser.Id.ToString();
         roomEntity.CreatedTime = DateTime.Now;
+        roomEntity.Status = nameof(RoomStatus.New);
 
         if (room.FileEntryCollection.Any())
         {
-            // var fileCollectionId = await CreateFileCollection(request, cancellationToken);
             var fileCollectionId = await _fileService.CreateFileCollection(room.FileEntryCollection,
                 BucketConstant.UploadFiles);
 
@@ -91,29 +95,85 @@ public class RoomService : IRoomService
             .WhereIf(!String.IsNullOrEmpty(filterDto.RoomCode), x => x.RoomCode.Contains(filterDto.RoomCode))
             .WhereIf(filterDto.HouseId.HasValue, x => x.HouseId.Equals(filterDto.HouseId))
             .WhereIf(!_currentUser.IsAdmin, x => x.CreatedBy.Contains(currentUserId.ToString()))
-            .WhereIf(!String.IsNullOrEmpty(filterDto.Status) && filterDto.Status == "NEW", x => x.Customers.Any())
-            .WhereIf(!String.IsNullOrEmpty(filterDto.Status) && filterDto.Status == "RENTED", x => !x.Customers.Any())
-            .WhereIf(!String.IsNullOrEmpty(filterDto.CustomerName),
-                x => x.Customers.Any(y => y.Status && y.FullName.Contains(filterDto.CustomerName)))
             .Include(x => x.Customers)
+            .ThenInclude(x => x.Contracts)
             .Include(x => x.FileEntryCollection.FileEntries)
             .QueryablePaging(filterDto.PaginatedListQuery)
             .ToListAsync();
 
-        var count = await queryable.CountAsync();
+        if (!String.IsNullOrEmpty(filterDto.Status) && filterDto.Status == nameof(RoomStatus.New))
+        {
+            listRoom = listRoom.Where(x => x.Customers == null ||
+                                           !x.Customers.Any() ||
+                                           x.Customers.Any(y =>
+                                               y.Contracts.MaxBy(z => z.CreatedTime).ExpiredDate < DateTime.Now))
+                .ToList();
+        }
 
+        if (!String.IsNullOrEmpty(filterDto.Status) && filterDto.Status == nameof(RoomStatus.Rented))
+        {
+            listRoom = listRoom.Where(x => x.Customers != null &&
+                                           x.Customers.Any() &&
+                                           x.Customers.Any(y =>
+                                               y.Contracts != null &&
+                                               y.Contracts.Any() &&
+                                               y.Contracts.MaxBy(z => z.CreatedTime).ExpiredDate >= DateTime.Now &&
+                                               y.Contracts.MaxBy(z => z.CreatedTime).EffectDate <= DateTime.Now))
+                .ToList();
+        }
+
+        if (!String.IsNullOrEmpty(filterDto.CustomerName))
+        {
+            listRoom = listRoom.Where(x => x.Customers != null &&
+                                           x.Customers.Any() &&
+                                           x.Customers.Any(y =>
+                                               y.Contracts != null &&
+                                               y.Contracts.Any() &&
+                                               y.Contracts.MaxBy(z => z.CreatedTime).ExpiredDate >= DateTime.Now &&
+                                               y.Contracts.MaxBy(z => z.CreatedTime).EffectDate <= DateTime.Now)
+                                           && x.Customers.Any(y => y.FullName.Contains(filterDto.CustomerName)
+                                           )).ToList();
+        }
+
+        if (!String.IsNullOrEmpty(filterDto.ContractNumber))
+        {
+            listRoom = listRoom.Where(x => x.Customers != null &&
+                                           x.Customers.Any() &&
+                                           x.Customers.Any(y =>
+                                               y.Contracts != null &&
+                                               y.Contracts.Any() &&
+                                               y.Contracts.MaxBy(z => z.CreatedTime).ExpiredDate >= DateTime.Now &&
+                                               y.Contracts.MaxBy(z => z.CreatedTime).EffectDate <= DateTime.Now &&
+                                               y.Contracts.Any(z => z.ContractNumber.Contains(filterDto.ContractNumber))
+                                           )).ToList();
+        }
+
+
+        var count = await queryable.CountAsync();
+        var contracts = listRoom.SelectMany(x => x.Customers).SelectMany(x => x.Contracts).ToList();
         var result = new List<RoomDto>();
         foreach (var item in listRoom)
         {
             var roomDto = _mapper.Map<Room, RoomDto>(item);
-            if (item.Customers.Any())
+            var contract = contracts
+                .Where(x => x.EffectDate <= DateTime.Now)
+                .Where(x => x.ExpiredDate >= DateTime.Now)
+                .Where(x => !x.IsEarly)
+                .FirstOrDefault(x => x.RoomId.Equals(item.Id));
+            if (contract is not null)
             {
-                roomDto.Status = "RENTED";
+                roomDto.Status = nameof(RoomStatus.Rented);
                 roomDto.StatusName = "Đã cho thuê";
+            }
+            else if (item.Customers is not null && item.Customers.Any() &&
+                     item.Customers.MaxBy(x => x.CreatedTime)?.Deposit is not null)
+            {
+                roomDto.Status = nameof(RoomStatus.Deposited);
+                roomDto.StatusName = "Đã đặt cọc";
             }
             else
             {
-                roomDto.Status = "NEW";
+                roomDto.Status = nameof(RoomStatus.New);
                 roomDto.StatusName = "Còn trống";
             }
 
@@ -149,11 +209,7 @@ public class RoomService : IRoomService
             oldRoom.FileEntryCollectionId,
             room.FileEntryCollection, listDeletedFileIds, BucketConstant.UploadFiles);
         var result = await _roomRepository.UpdateAsync(newEntity, true);
-        // var listFileDelete = oldRoom.FileUrls.Split(',').Except(room.FileUrls).ToList();
-        // if (listFileDelete.Any())
-        // {
-        //     await _cloudinaryService.DeleteFileCloudinary(listFileDelete);
-        // }
+
 
         return _mapper.Map<Room, RoomDto>(result);
     }
@@ -171,10 +227,19 @@ public class RoomService : IRoomService
             .ThenInclude(x => x.Services)
             .Include(x => x.Customers)
             .ThenInclude(x => x.FileEntryCollection.FileEntries)
+            .Include(x => x.Customers)
+            .ThenInclude(x => x.Contracts)
             .AsNoTrackingWithIdentityResolution()
             .Include(x => x.Customers)
             .FirstOrDefaultAsync(x => x.Id.Equals(roomId));
-        var customer = room?.Customers.FirstOrDefault(x => x.Status.Equals(true));
+
+        //Todo: Kiểm tra lại cách lấy cus && contract
+        var customers = room.Customers.ToList();
+        var customer = customers
+            .FirstOrDefault(x =>
+                (x.Contracts.Any(y => y.EffectDate <= DateTime.Now && y.ExpiredDate >= DateTime.Now)) ||
+                x.Contracts == null || x.Contracts.Count == 0);
+
         ContractDto contract = null;
         if (customer is not null)
         {
@@ -217,19 +282,25 @@ public class RoomService : IRoomService
             .Include(x => x.Customers)
             .Where(x => x.House.UserId.Equals(currentUserId))
             .WhereIf(filterDto.HouseId.HasValue, x => x.HouseId.Equals(filterDto.HouseId))
-            .WhereIf(filterDto.Status != Status.All, x => x.Status.Equals(nameof(filterDto.Status)))
+            .WhereIf(!string.IsNullOrEmpty(filterDto.RoomCode), x => x.RoomCode.Contains(filterDto.RoomCode))
             .ToListAsync();
+
 
         var roomServiceIndices = rooms.SelectMany(x => x.RoomServiceIndices)
             .Where(x => x.Month.Equals(filterDto.CurrentDate.Month) && x.Year.Equals(filterDto.CurrentDate.Year))
             .Where(x => x.ServiceId.Equals(service.Id))
             .ToList();
-        
-        var oleRoomServiceIndices = rooms.SelectMany(x => x.RoomServiceIndices)
+
+        var prevRoomServiceIndices = rooms.SelectMany(x => x.RoomServiceIndices)
             .Where(x => x.Month.Equals(filterDto.CurrentDate.Month - 1) && x.Year.Equals(filterDto.CurrentDate.Year))
             .Where(x => x.ServiceId.Equals(service.Id))
-            .ToList();  
-        
+            .ToList();
+
+        var nextRoomServiceIndices = rooms.SelectMany(x => x.RoomServiceIndices)
+            .Where(x => x.Month.Equals(filterDto.CurrentDate.Month + 1) && x.Year.Equals(filterDto.CurrentDate.Year))
+            .Where(x => x.ServiceId.Equals(service.Id))
+            .ToList();
+
 
         var result = new List<RoomElectricServiceDto>();
         if (roomServiceIndices.Any())
@@ -238,10 +309,8 @@ public class RoomService : IRoomService
             {
                 Id = x.Id,
                 RoomId = x.RoomId,
-                CustomerId = x.CustomerId,
                 RoomCode = x.Room.RoomCode,
                 HouseName = x.Room.House.Name,
-                CustomerName = x.Customer.FullName,
                 Month = x?.Month ?? DateTime.Now.Month,
                 Year = x?.Year ?? DateTime.Now.Year,
                 OldElectricValue = x.OldElectricValue,
@@ -250,47 +319,136 @@ public class RoomService : IRoomService
                 ServiceId = x.ServiceId
             }).ToList();
         }
-        else if ((roomServiceIndices is null || !roomServiceIndices.Any()) &&
-                 (filterDto.CurrentDate.Year == DateTime.Now.Year && filterDto.CurrentDate.Month == DateTime.Now.Month))
-        {
-            result = rooms.Select(x =>
+
+        // else if ((roomServiceIndices is null || !roomServiceIndices.Any())
+        //          // && (filterDto.CurrentDate.Year == DateTime.Now.Year && filterDto.CurrentDate.Month == DateTime.Now.Month)
+        //         )
+        // {
+        result.AddRange(rooms
+            .Where(x => x.RoomServiceIndices == null || !x.RoomServiceIndices.Any()
+                                                     || !x.RoomServiceIndices.Any(y =>
+                                                         y.ServiceId.Equals(service.Id) &&
+                                                         y.Month.Equals(filterDto.CurrentDate.Month) &&
+                                                         y.Year.Equals(filterDto.CurrentDate.Year))
+            )
+            .Select(x =>
             {
-                var oldElectricValue = oleRoomServiceIndices.FirstOrDefault(y => y.RoomId.Equals(x.Id));
+                var oldElectricValue = prevRoomServiceIndices.FirstOrDefault(y => y.RoomId.Equals(x.Id));
+                var nextElectricValue = nextRoomServiceIndices.FirstOrDefault(y => y.RoomId.Equals(x.Id));
                 return new RoomElectricServiceDto
                 {
                     RoomId = x.Id,
-                    CustomerId = x.Customers.FirstOrDefault()?.Id ?? Guid.Empty,
                     RoomCode = x.RoomCode,
                     HouseName = x.House.Name,
                     CustomerName = x.Customers.FirstOrDefault()?.FullName ?? "",
                     Month = filterDto.CurrentDate.Month,
                     Year = filterDto.CurrentDate.Year,
                     OldElectricValue = oldElectricValue?.NewElectricValue ?? 0,
-                    NewElectricValue = 0,
+                    NewElectricValue = nextElectricValue?.OldElectricValue ?? 0,
                     UsedElectricValue = 0,
                     ServiceId = service.Id
                 };
-            }).ToList();
-        }
+            }).ToList());
+        // }
 
 
-        return new PaginatedList<RoomElectricServiceDto>(result, count, filterDto.Offset,
+        return new PaginatedList<RoomElectricServiceDto>(result.OrderByDescending(x => x.CreatedTime).ToList(), count,
+            filterDto.Offset,
             filterDto.Limit);
     }
 
     public async Task UpdateServiceIndex(RoomServiceIndexCreateUpdateDto updateDto)
     {
+        var queryable = _roomServiceIndexRepository.GetQueryable();
+        var prevValues = await queryable
+            .Where(x => x.Month.Equals(updateDto.Month - 1) && x.Year.Equals(updateDto.Year))
+            .Where(x => x.ServiceId.Equals(updateDto.ServiceId))
+            .FirstOrDefaultAsync(x => x.RoomId.Equals(updateDto.RoomId));
+
+        var nextValues = await queryable
+            .Where(x => x.Month.Equals(updateDto.Month + 1) && x.Year.Equals(updateDto.Year))
+            .Where(x => x.ServiceId.Equals(updateDto.ServiceId))
+            .FirstOrDefaultAsync(x => x.RoomId.Equals(updateDto.RoomId));
+
+        RoomServiceIndex roomServiceIndex = null;
         if (updateDto.Id.HasValue)
         {
-            var queryable = _roomServiceIndexRepository.GetQueryable();
-            var roomServiceIndex = await queryable.FirstOrDefaultAsync(x => x.Id.Equals(updateDto.Id));
+            roomServiceIndex = await queryable.FirstOrDefaultAsync(x => x.Id.Equals(updateDto.Id));
             _mapper.Map<RoomServiceIndexCreateUpdateDto, RoomServiceIndex>(updateDto, roomServiceIndex);
-            await _roomServiceIndexRepository.UpdateAsync(roomServiceIndex, true);
         }
         else
         {
-            var roomServiceIndex = _mapper.Map<RoomServiceIndexCreateUpdateDto, RoomServiceIndex>(updateDto);
-            await _roomServiceIndexRepository.AddAsync(roomServiceIndex, true);
+            roomServiceIndex = _mapper.Map<RoomServiceIndexCreateUpdateDto, RoomServiceIndex>(updateDto);
+        }
+
+        if (prevValues != null && updateDto.OldElectricValue.HasValue &&
+            prevValues.NewElectricValue != updateDto.OldElectricValue)
+        {
+            prevValues.NewElectricValue = updateDto.OldElectricValue ?? 0;
+            if (prevValues.NewElectricValue - prevValues.OldElectricValue < 0)
+            {
+                throw new Exception("Chỉ số cũ không hợp lệ");
+            }
+
+            prevValues.UsedElectricValue = prevValues.NewElectricValue - prevValues.OldElectricValue;
+            await _roomServiceIndexRepository.UpdateAsync(prevValues, true);
+        }
+
+        if (nextValues != null && updateDto.NewElectricValue.HasValue &&
+            nextValues.OldElectricValue != updateDto.NewElectricValue)
+        {
+            nextValues.OldElectricValue = updateDto.NewElectricValue ?? 0;
+            if (nextValues.NewElectricValue - nextValues.OldElectricValue < 0)
+            {
+                throw new Exception("Chỉ số mới không hợp lệ");
+            }
+
+            nextValues.UsedElectricValue = nextValues.NewElectricValue - nextValues.OldElectricValue;
+            await _roomServiceIndexRepository.UpdateAsync(nextValues, true);
+        }
+
+        await _roomServiceIndexRepository.UpdateAsync(roomServiceIndex, true);
+    }
+
+    public async Task ReturnRoom(Guid id)
+    {
+        var room = await _roomRepository.GetQueryable().FirstOrDefaultAsync(x => x.Id.Equals(id));
+        if (room is null)
+        {
+            throw new Exception("Không tìm thấy phòng");
+        }
+
+        var contract = await _contractRepository.GetQueryable()
+            .Include(x => x.Customer)
+            .Where(x => x.EffectDate.HasValue && x.EffectDate.Value <= DateTime.Now)
+            .Where(x => x.ExpiredDate.HasValue && x.ExpiredDate.Value >= DateTime.Now)
+            .Where(x => !x.IsEarly)
+            .FirstOrDefaultAsync(x => x.RoomId.Equals(id));
+        if (contract is not null)
+        {
+            room.Status = nameof(RoomStatus.New);
+            var roomProcess = new RoomProcess()
+            {
+                RoomId = room.Id,
+                CustomerId = contract.CustomerId,
+                Action = "Return",
+            };
+
+
+            if (DateTime.Now.Date < contract!.ExpiredDate!.Value.Date)
+            {
+                contract.IsEarly = true;
+            }
+
+            contract.CheckOutDate = DateTime.Now;
+
+            var customer = contract.Customer;
+
+
+            await _roomRepository.UpdateAsync(room, true);
+            await _contractRepository.UpdateAsync(contract, true);
+            await _customerRepository.UpdateAsync(customer, true);
+            await _roomProcessRepository.AddAsync(roomProcess, true);
         }
     }
 }

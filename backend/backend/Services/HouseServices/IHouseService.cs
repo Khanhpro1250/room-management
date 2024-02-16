@@ -11,5 +11,5 @@ public interface IHouseService
     
     Task DeleteHouse(Guid id);
     Task<PaginatedList<HouseDto>> GetListHouse(PaginatedListQuery paginatedListQuery);
-    Task<List<ComboOptionDto>> GetComboHouse();
+    Task<List<ComboOptionDto>> GetComboHouse(bool isByCurrentUserId = false);
 }

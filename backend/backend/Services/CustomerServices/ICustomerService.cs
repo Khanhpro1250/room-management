@@ -1,12 +1,13 @@
 ﻿using backend.Controllers.Dtos;
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.CustomerDtos;
+using backend.DTOs.RoomDtos;
 
 namespace backend.Services.CustomerServices
 {
     public interface ICustomerService
     {
-        Task<PaginatedList<CustomerDto>> GetListCustomer(PaginatedListQuery paginatedListQuery);
+        Task<PaginatedList<CustomerListViewDto>> GetListCustomer(PaginatedListQuery paginatedListQuery);
         Task<CustomerDto> GetCustomerById(Guid customerId);
         Task<CustomerDto> GetCustomerByRoomId(Guid roomId);
         Task<List<CustomerDto>> GetCustomerByRoomIds(List<Guid> roomIds);
@@ -19,5 +20,7 @@ namespace backend.Services.CustomerServices
         Task DeleteCustomer(Guid id);
         
         Task<List<Guid>> GetRoomIdByCustomerName(string name);
+        
+        Task<PaginatedList<RoomProcessDto>> GetHistoriesByCustomerId(Guid customerId);
     }
 }

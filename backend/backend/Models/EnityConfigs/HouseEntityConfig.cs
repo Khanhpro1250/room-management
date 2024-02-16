@@ -126,10 +126,6 @@ public static class HouseEntityConfig
                 .HasForeignKey(x => x.ServiceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(x => x.Customer)
-                .WithMany(x => x.RoomServiceIndices)
-                .OnDelete(DeleteBehavior.Restrict);
-
             entity.HasOne(x => x.Room)
                 .WithMany(x=> x.RoomServiceIndices)
                 .OnDelete(DeleteBehavior.Cascade);

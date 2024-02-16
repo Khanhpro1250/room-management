@@ -1,7 +1,6 @@
 import React from 'react';
 import { matchRoutes, RouteMatch, RouteObject, useRoutes } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
-import WaterServiceListView from '~/page/electric-service/WaterServiceListView';
 
 //layout
 const LayoutPage = React.lazy(() => import('~/component/Layout/LayoutPage'));
@@ -19,6 +18,8 @@ const RoomPage = React.lazy(() => import('~/page/room/RoomPage'));
 const CustomerPage = React.lazy(() => import('~/page/customers/CustomerPage'));
 const ServicesListView = React.lazy(() => import('~/page/services/ServicesListView'));
 const ElectricServiceListView = React.lazy(() => import('~/page/electric-service/ElectricServiceListView'));
+const WaterServiceListView = React.lazy(() => import('~/page/electric-service/WaterServiceListView'));
+const CustomerListView = React.lazy(() => import('~/page/customers/CustomerListView'));
 
 //home
 
@@ -63,6 +64,10 @@ const routeList = [
             {
                 path: 'room-manage',
                 element: <RoomPage />,
+            },
+            {
+                path: 'customer-list',
+                element: <CustomerListView />,
             },
             {
                 path: 'customer',

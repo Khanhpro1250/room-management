@@ -9,11 +9,11 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Loading from '~/component/Elements/loading/Loading';
-import NotificationConstant from '~/configs/contants';
+import NotificationConstant, { RoomStatus } from '~/configs/contants';
 import { requestApi } from '~/lib/axios';
 import { Room } from '~/types/shared';
 import NotifyUtil from '~/util/NotifyUtil';
-import { ROOM_DELETE_API, ROOM_INDEX_API } from '../api/room.api';
+import { ROOM_DELETE_API, ROOM_INDEX_API, ROOM_RETURN_API } from '../api/room.api';
 import RoomForm from './RoomForm';
 import { Status } from '~/component/Grid/Components/Status';
 
@@ -44,34 +44,37 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         {
             headerName: 'Mã phòng',
             field: nameof.full<Room>(x => x.roomCode),
-            minWidth: 200,
-            flex: 1,
+            width: 150,
         },
         {
-            headerName: 'Số phòng',
-            field: nameof.full<Room>(x => x.number),
-            // width: 150,
-        },
-        {
-            headerName: 'Diện tích',
+            headerName: 'Diện tích (m2)',
             field: nameof.full<Room>(x => x.acreage),
-            // width: 120,
+            cellStyle: { textAlign: 'right' },
+            width: 120,
+            cellRenderer: (val: any) => {
+                return Number(val.value ?? 0).toLocaleString('vi', { maximumFractionDigits: 2 });
+            },
         },
         {
             headerName: 'Số người ở tối đa',
             field: nameof.full<Room>(x => x.maxNumberOfPeople),
-            // width: 150,
-
+            width: 130,
             cellStyle: { textAlign: 'right' },
         },
         {
-            headerName: 'Tiền cọc',
-            field: nameof.full<Room>(x => x.deposit),
+            headerName: 'Giá',
+            field: nameof.full<Room>(x => x.price),
             minWidth: 120,
             cellStyle: { textAlign: 'right' },
             cellRenderer: (val: any) => {
-                return Number(val.value ?? 0).toLocaleString('vi', { maximumSignificantDigits: 2 });
+                return Number(val.value ?? 0).toLocaleString('vi', { maximumFractionDigits: 2 });
             },
+        },
+        {
+            headerName: 'Mô tả',
+            field: nameof.full<Room>(x => x.description),
+            minWidth: 250,
+            flex: 1,
         },
         {
             headerName: 'Trạng thái',
@@ -79,11 +82,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
             // minWidth: 120,
             cellStyle: { textAlign: 'center' },
             cellRenderer: (params: any) => {
-                return (
-                    <div>
-                        <Status status={params.value} statusName={params.data.statusName} />
-                    </div>
-                );
+                return <Status status={params.value} statusName={params.data.statusName} />;
             },
         },
     ];
@@ -93,7 +92,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         () => ({
             onFilter: (formValues: any) => onFilter(formValues),
             refreshData: () => gridController?.reloadData(),
-            onCreate,            
+            onCreate,
         }),
         [],
     );
@@ -130,22 +129,16 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         );
     };
 
-    const onDetail = (data: Room) => {
-        modalRef.current?.onOpen(
-            <RoomForm
-                onSubmitSuccessfully={() => {
-                    modalRef.current?.onClose();
-                    gridController?.reloadData();
-                }}
-                onClose={modalRef.current?.onClose}
-                parentId={houseId}
-                initialValues={data}
-                readonly={true}
-            />,
-            'Tạo mới nhà',
-            '50%',
-            icon(faEdit),
-        );
+    const onReturnRoom = async (data: Room) => {
+        const res = await requestApi('put', `${ROOM_RETURN_API}/${data.id}`);
+        if (res.data?.success) {
+            NotifyUtil.success(NotificationConstant.TITLE, NotificationConstant.DESCRIPTION_RETURN_SUCCESS);
+            gridController?.reloadData();
+            return;
+        } else {
+            NotifyUtil.error(NotificationConstant.TITLE, res.data?.message ?? 'Có lỗi xảy ra');
+            return;
+        }
     };
 
     const onFilter = (formValues: any) => {
@@ -177,6 +170,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                         ref={gridRef}
                         pinAction
                         numberRows={true}
+                        reloadData={gridController?.reloadData}
                         rowHeight={40}
                         pagination={true}
                         actionRowsList={{
@@ -184,13 +178,13 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                             hasEditBtn: true,
                             hasDeleteBtn: true,
                             hasWithdrawBtn(data, rowNode) {
-                                return data.status === 'RENTED';
+                                return data.status === RoomStatus.Rented;
                             },
                             hasAddCustomerBtn(data) {
-                                return data.status === 'NEW';
+                                return data.status === RoomStatus.New;
                             },
                             hasEditCustomerBtn(data, rowNode) {
-                                return data.status === 'RENTED';
+                                return data.status !== RoomStatus.New;
                             },
                             onClickEditCustomerBtn: (data: Room) => {
                                 navigate(`/customer?roomId=${data.id}`);
@@ -198,6 +192,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                             onClickCustomerBtn: (data: Room) => {
                                 navigate(`/customer?roomId=${data.id}`);
                             },
+                            onClickWithdrawBtn: onReturnRoom,
                             // onClickDetailBtn: onDetail,
                             onClickEditBtn: onUpdate,
                             onClickDeleteBtn: onDelete,

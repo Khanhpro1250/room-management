@@ -112,8 +112,6 @@ const MenuListView: React.FC = () => {
         };
     }, []);
 
-    console.log(gridController);
-
     return (
         <AppContainer>
             {gridController?.loading ? (
