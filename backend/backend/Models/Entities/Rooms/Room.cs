@@ -20,9 +20,9 @@ namespace backend.Models.Entities.Rooms
         public string Status { get; set; }
         public float Deposit { get; set; }
         public string InteriorIds { get; set; }
-        
+
         public Guid? FileEntryCollectionId { get; set; }
-    
+
         public FileEntryCollection FileEntryCollection { get; set; }
 
         #region ref
@@ -31,12 +31,14 @@ namespace backend.Models.Entities.Rooms
 
         public List<Customer> Customers { get; set; }
         public List<RoomServiceIndex> RoomServiceIndices { get; set; }
-        
+
         public List<RoomProcess> RoomProcesses { get; set; }
+        
+        public List<IncurredCost> IncurredCosts { get; set; }
 
         #endregion
     }
-    
+
     public enum RoomStatus
     {
         New,
