@@ -8,6 +8,8 @@ public class CalculateChargeDetail
     public Guid CalculateChargeId { get; set; }
     public Guid? RoomServiceIndexId { get; set; }
 
+    public decimal RoomCost { get; set; }
+
     public Guid? ServiceId { get; set; }
     public Guid? IncurredcostId { get; set; }
 
