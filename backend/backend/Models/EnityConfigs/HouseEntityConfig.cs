@@ -197,6 +197,17 @@ public static class HouseEntityConfig
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<CollectMoneyProcess>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.ToTable(nameof(CollectMoneyProcess), SchemaName);
+            entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
+
+            entity.HasOne(x => x.CalculateCharge)
+                .WithMany(x=> x.CollectMoneyProcesses)
+                .HasForeignKey(x=> x.CalculateChargeId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
 
         return modelBuilder;
     }

@@ -15,5 +15,6 @@ public class CalculateCharge: AuditedEntity<Guid>
     public Room Room { get; set; }
     public Customer Customer { get; set; }
     
+    public List<CollectMoneyProcess> CollectMoneyProcesses { get; set; }
     public List<CalculateChargeDetail> CalculateChargeDetails { get; set; }
 }
