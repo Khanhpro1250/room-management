@@ -195,6 +195,11 @@ public static class HouseEntityConfig
                 .WithMany()
                 .HasForeignKey(x => x.IncurredcostId)
                 .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasOne(x => x.Service)
+                .WithMany()
+                .HasForeignKey(x => x.ServiceId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<CollectMoneyProcess>(entity =>
