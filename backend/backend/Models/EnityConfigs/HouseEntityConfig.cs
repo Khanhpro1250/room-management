@@ -151,10 +151,50 @@ public static class HouseEntityConfig
             entity.HasKey(x => x.Id);
             entity.ToTable(nameof(IncurredCost), SchemaName);
             entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
-            
+
             entity.HasOne(x => x.Room)
                 .WithMany(x => x.IncurredCosts)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CalculateCharge>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.ToTable(nameof(CalculateCharge), SchemaName);
+            entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
+
+            entity.HasOne(x => x.Room)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(x => x.Customer)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<CalculateChargeDetail>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.ToTable(nameof(CalculateChargeDetail), SchemaName);
+            entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
+
+            entity.Property(x => x.RoomServiceIndexId).IsRequired(false);
+            entity.Property(x => x.IncurredcostId).IsRequired(false);
+
+            entity.HasOne(x => x.CalculateCharge)
+                .WithMany(x => x.CalculateChargeDetails)
+                .HasForeignKey(x => x.CalculateChargeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(x => x.RoomServiceIndex)
+                .WithMany()
+                .HasForeignKey(x => x.RoomServiceIndexId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(x => x.IncurredCost)
+                .WithMany()
+                .HasForeignKey(x => x.IncurredcostId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
 
