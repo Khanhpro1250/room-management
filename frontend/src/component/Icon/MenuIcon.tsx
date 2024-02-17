@@ -29,7 +29,7 @@ export const MenuIcon: React.FC<Props> = ({ icon, name }) => {
         <div
             className={'text-base w-8 h-8 flex items-center justify-center rounded mr-1.5'}
             style={{
-                background: `#${strbg}`,
+                background: '#115799',
             }}
         >
             <BaseIcon icon={icon || 'home'} color={'#fff'} />

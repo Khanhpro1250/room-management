@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using backend.DTOs.RoomDtos;
 using backend.DTOs.ServiceDtos;
+using backend.Models.Entities.Rooms;
 using backend.Models.Entities.Services;
 
 namespace backend.Mapper
@@ -12,6 +14,9 @@ namespace backend.Mapper
             CreateMap<CreateUpdateServiceDto, Service>();
             CreateMap<ServiceCustomerDto, ServiceCustomer>();
             CreateMap<ServiceCustomer, ServiceCustomerDto>();
+            
+            CreateMap<IncurredCost, IncurredCostDto>();
+            CreateMap<UpdateIncurredCostDto,IncurredCost>();
         }
     }
 }

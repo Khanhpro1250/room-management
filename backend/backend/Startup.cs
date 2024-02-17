@@ -168,6 +168,7 @@ public class Startup
         services.AddTransient<IOtpRepository, OtpRepostiory>();
         services.AddTransient<IRoomServiceIndexRepository, RoomServiceIndexRepository>();
         services.AddTransient<IRoomProcessRepository, RoomProcessRepository>();
+        services.AddTransient<IIncurredCostRepository, IncurredCostRepository>();
 
 
         // AddScoped adService

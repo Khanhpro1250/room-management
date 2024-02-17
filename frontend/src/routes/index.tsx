@@ -19,6 +19,7 @@ const CustomerPage = React.lazy(() => import('~/page/customers/CustomerPage'));
 const ServicesListView = React.lazy(() => import('~/page/services/ServicesListView'));
 const ElectricServiceListView = React.lazy(() => import('~/page/electric-service/ElectricServiceListView'));
 const WaterServiceListView = React.lazy(() => import('~/page/electric-service/WaterServiceListView'));
+const IncurredCostListView = React.lazy(() => import('~/page/electric-service/IncurredCostListView'));
 const CustomerListView = React.lazy(() => import('~/page/customers/CustomerListView'));
 
 //home
@@ -84,6 +85,10 @@ const routeList = [
             {
                 path: 'number-water',
                 element: <WaterServiceListView />,
+            },
+            {
+                path: 'incurred-cost',
+                element: <IncurredCostListView />,
             },
         ],
     },

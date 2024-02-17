@@ -40,6 +40,7 @@ public class HouseService : IHouseService
             await _houseRepository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
             throw new Exception("Không tìm thấy nhà");
         var house = _mapper.Map<CreateUpdateHouseDto, House>(houseDto);
+        house.LastModifiedTime = DateTime.Now;
         var result = await _houseRepository.UpdateAsync(house, true);
 
         return _mapper.Map<House, HouseDto>(result);

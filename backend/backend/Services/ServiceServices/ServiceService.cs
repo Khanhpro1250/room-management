@@ -5,6 +5,7 @@ using backend.Controllers.Dtos.Responese;
 using backend.DTOs.ServiceDtos;
 using backend.Models.Entities.Services;
 using backend.Models.Repositorties.ServiceRepositories;
+using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,16 +15,20 @@ namespace backend.Services.ServiceServices
     {
         private readonly IServiceRepository _serviceRopository;
         private readonly IMapper _mapper;
+        private readonly ICurrentUser _currentUser;
 
-        public ServiceService(IServiceRepository serviceRepository, IMapper mapper)
+        public ServiceService(IServiceRepository serviceRepository, IMapper mapper, ICurrentUser currentUser)
         {
             _serviceRopository = serviceRepository;
             _mapper = mapper;
+            _currentUser = currentUser;
         }
 
         public async Task<ServiceDto> CreateService(CreateUpdateServiceDto service)
         {
             var serviceEntity = _mapper.Map<CreateUpdateServiceDto, Service>(service);
+            serviceEntity.CreatedTime = DateTime.Now;
+            serviceEntity.CreatedBy = _currentUser.Id.ToString();
             var result = await _serviceRopository.AddAsync(serviceEntity, true);
             return _mapper.Map<Service, ServiceDto>(result);
         }
@@ -85,6 +90,8 @@ namespace backend.Services.ServiceServices
                                   .FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
                               throw new Exception("Không tìm thấy dịch vụ");
             var serviceEntity = _mapper.Map<CreateUpdateServiceDto, Service>(service);
+            serviceEntity.LastModifiedTime = DateTime.Now;
+            serviceEntity.LastModifiedBy = _currentUser.Id.ToString();
             var result = await _serviceRopository.UpdateAsync(serviceEntity, true);
             return _mapper.Map<Service, ServiceDto>(result);
         }

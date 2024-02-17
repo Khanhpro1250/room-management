@@ -36,6 +36,8 @@ namespace backend.Services.ContractServices
         public async Task<ContractDto> CreateContract(CreateUpdateContractDto contract)
         {
             var contractEntity = _mapper.Map<CreateUpdateContractDto, Contract>(contract);
+            contractEntity.CreatedTime = DateTime.Now;
+            contractEntity.CreatedBy = _currentUser.Id.ToString();
             var roomProcess = new RoomProcess()
             {
                 RoomId = contract.RoomId,
@@ -91,6 +93,8 @@ namespace backend.Services.ContractServices
                                throw new Exception("Không tìm thấy hợp đồng");
 
             var contractEntity = _mapper.Map<CreateUpdateContractDto, Contract>(contract, findContract);
+            contractEntity.LastModifiedTime = DateTime.Now;
+            contractEntity.LastModifiedBy = _currentUser.Id.ToString();
             var result = await _contractRepository.UpdateAsync(contractEntity, true);
             return _mapper.Map<Contract, ContractDto>(result);
         }

@@ -248,12 +248,14 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                             gridOptions={props.gridOptions}
                             rowHeight={50}
                             paginateChildRows={true}
+                            paginationPageSize={20}
+                            paginationAutoPageSize
                             {...props.gridConfig}
                         />
 
                         {pagination && (
                             <BaseIcon
-                                className="absolute font-thin cursor-pointer text-gray-600 bottom-[17px] right-[330px]"
+                                className="absolute font-thin cursor-pointer text-gray-600 bottom-[17px] right-[340px]"
                                 icon={faRotate}
                                 onClick={() => {
                                     props.reloadData?.();

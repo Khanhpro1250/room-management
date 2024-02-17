@@ -285,6 +285,7 @@ const ElectricServiceListView: React.FC = () => {
                 numberRows={true}
                 pagination={true}
                 actionRows={false}
+                reloadData={gridController?.reloadData}
                 actionRowsReRender={getActionRows()}
             />
 

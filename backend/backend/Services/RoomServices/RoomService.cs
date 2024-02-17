@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using backend.Contanst;
+using backend.Controllers.Dtos;
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.ContractDtos;
 using backend.DTOs.CustomerDtos;
@@ -20,7 +21,6 @@ using backend.Services.ServiceServices;
 using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver.Linq;
 
 namespace backend.Services.RoomServices;
 
@@ -38,13 +38,14 @@ public class RoomService : IRoomService
     private readonly IRoomServiceIndexRepository _roomServiceIndexRepository;
     private readonly IRoomProcessRepository _roomProcessRepository;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IIncurredCostRepository _incurredCostRepository;
 
 
     public RoomService(IRoomRepository roomRepository, IMapper mapper, ICloudinaryService cloudinaryService,
         ICustomerService customerService, IServiceService serviceService, ICurrentUser currentUser,
         IContractRepository contractRepository, IFileService fileService, IServiceRepository serviceRepository,
         IRoomServiceIndexRepository roomServiceIndexRepository, IRoomProcessRepository roomProcessRepository,
-        ICustomerRepository customerRepository)
+        ICustomerRepository customerRepository, IIncurredCostRepository incurredCostRepository)
     {
         _roomRepository = roomRepository;
         _mapper = mapper;
@@ -58,6 +59,7 @@ public class RoomService : IRoomService
         _roomServiceIndexRepository = roomServiceIndexRepository;
         _roomProcessRepository = roomProcessRepository;
         _customerRepository = customerRepository;
+        _incurredCostRepository = incurredCostRepository;
     }
 
     public async Task<RoomDto> CreateRoom(CreateUpdateRoomDto room)
@@ -81,8 +83,25 @@ public class RoomService : IRoomService
 
     public async Task DeleteRoom(Guid id)
     {
-        var room = await _roomRepository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id));
+        var room = await _roomRepository.GetQueryable().FirstOrDefaultAsync(x => x.Id.Equals(id));
         await _roomRepository.DeleteAsync(room, true);
+    }
+
+    public async Task<List<RoomComboOptionDto>> GetComboRoom(Guid? houseId = null)
+    {
+        var currentId = _currentUser.Id;
+        var queryable = _roomRepository.GetQueryable();
+        var result = await queryable
+            .WhereIf(houseId.HasValue, x => x.HouseId.Equals(houseId))
+            .Where(x => x.House.UserId.Equals(currentId))
+            .Select(x => new RoomComboOptionDto()
+            {
+                Label = x.RoomCode,
+                Value = x.Id,
+                HouseId = x.HouseId
+            })
+            .ToListAsync();
+        return result;
     }
 
     public async Task<PaginatedList<RoomDto>> GetListRoom(RoomFiterDto filterDto)
@@ -98,7 +117,6 @@ public class RoomService : IRoomService
             .Include(x => x.Customers)
             .ThenInclude(x => x.Contracts)
             .Include(x => x.FileEntryCollection.FileEntries)
-            .QueryablePaging(filterDto.PaginatedListQuery)
             .ToListAsync();
 
         if (!String.IsNullOrEmpty(filterDto.Status) && filterDto.Status == nameof(RoomStatus.New))
@@ -375,10 +393,14 @@ public class RoomService : IRoomService
         {
             roomServiceIndex = await queryable.FirstOrDefaultAsync(x => x.Id.Equals(updateDto.Id));
             _mapper.Map<RoomServiceIndexCreateUpdateDto, RoomServiceIndex>(updateDto, roomServiceIndex);
+            roomServiceIndex.LastModifiedBy = _currentUser.Id.ToString();
+            roomServiceIndex.LastModifiedTime = DateTime.Now;
         }
         else
         {
             roomServiceIndex = _mapper.Map<RoomServiceIndexCreateUpdateDto, RoomServiceIndex>(updateDto);
+            roomServiceIndex.CreatedBy = _currentUser.Id.ToString();
+            roomServiceIndex.CreatedTime = DateTime.Now;
         }
 
         if (prevValues != null && updateDto.OldElectricValue.HasValue &&
@@ -391,6 +413,8 @@ public class RoomService : IRoomService
             }
 
             prevValues.UsedElectricValue = prevValues.NewElectricValue - prevValues.OldElectricValue;
+            prevValues.LastModifiedTime = DateTime.Now;
+            prevValues.LastModifiedBy = _currentUser.Id.ToString();
             await _roomServiceIndexRepository.UpdateAsync(prevValues, true);
         }
 
@@ -404,6 +428,8 @@ public class RoomService : IRoomService
             }
 
             nextValues.UsedElectricValue = nextValues.NewElectricValue - nextValues.OldElectricValue;
+            nextValues.LastModifiedTime = DateTime.Now;
+            nextValues.LastModifiedBy = _currentUser.Id.ToString();
             await _roomServiceIndexRepository.UpdateAsync(nextValues, true);
         }
 
@@ -450,5 +476,116 @@ public class RoomService : IRoomService
             await _customerRepository.UpdateAsync(customer, true);
             await _roomProcessRepository.AddAsync(roomProcess, true);
         }
+    }
+
+    public async Task<PaginatedList<IncurredCostDto>> GetIncurredCosts(IncurredCostFilterDto filterDto)
+    {
+        var queryable = _incurredCostRepository.GetQueryable();
+
+        queryable = queryable
+            .WhereIf(filterDto.HouseId.HasValue, x => x.Room.HouseId.Equals(filterDto.HouseId))
+            .WhereIf(filterDto.RoomId.HasValue, x => x.RoomId.Equals(filterDto.RoomId))
+            .WhereIf(!string.IsNullOrEmpty(filterDto.RoomCode), x => x.Room.RoomCode.Contains(filterDto.RoomCode))
+            .WhereIf(filterDto.Type.HasValue, x => x.Type.Equals(filterDto.Type))
+            .WhereIf(filterDto.FromDate.HasValue,
+                x => x.Date >= new DateTime(filterDto.FromDate.Value.Year, filterDto.FromDate.Value.Month, 1).Date)
+            .WhereIf(filterDto.ToDate.HasValue,
+                x => x.Date.Date <= new DateTime(filterDto.ToDate.Value.Year, filterDto.ToDate.Value.Month, 1).Date);
+
+        var count = await queryable.CountAsync();
+
+        var listIncurreds = await queryable
+            .Include(x => x.Room)
+            .Include(x => x.Room.House)
+            .ToListAsync();
+
+        var result = listIncurreds.Select(x => new IncurredCostDto
+            {
+                Id = x.Id,
+                HouseId = x.Room.HouseId,
+                RoomId = x.RoomId,
+                RoomCode = x.Room.RoomCode,
+                HouseName = x.Room.House.Name,
+                Cost = x.Cost,
+                Description = x.Description,
+                Date = x.Date,
+                Type = x.Type,
+                IsPaid = x.IsPaid,
+                CreatedBy = x.CreatedBy,
+                CreatedTime = x.CreatedTime,
+            })
+            .OrderByDescending(x => x.Date)
+            .ThenByDescending(x => x.CreatedTime)
+            .ThenByDescending(x => x.HouseName)
+            .ToList();
+
+        return new PaginatedList<IncurredCostDto>(result, count, filterDto.PaginatedListQuery.Offset,
+            filterDto.PaginatedListQuery.Limit);
+    }
+
+    public async Task CreateIncurredCost(CreateIncurredCostDto incurredCostDto)
+    {
+        var currentUserId = _currentUser.Id;
+        if (incurredCostDto.RoomId == "All")
+        {
+            var rooms = await _roomRepository.GetQueryable()
+                .Where(x => x.House.UserId.Equals(currentUserId))
+                .WhereIf(!incurredCostDto.HouseId.Contains("All"),
+                    x => x.HouseId.Equals(Guid.Parse(incurredCostDto.HouseId)))
+                .ToListAsync();
+            var newEntities = rooms.Select(x =>
+            {
+                var newEntity = new IncurredCost
+                {
+                    CreatedBy = _currentUser.Id.ToString(),
+                    CreatedTime = DateTime.Now,
+                    RoomId = x.Id,
+                    Cost = incurredCostDto.Cost,
+                    Description = incurredCostDto.Description,
+                    Date = new DateTime(incurredCostDto.Date.Year, incurredCostDto.Date.Month, 1),
+                    Type = incurredCostDto.Type
+                };
+                return newEntity;
+            }).ToList();
+            await _incurredCostRepository.AddRangeAsync(newEntities, true);
+        }
+        else
+        {
+            var newEntity = new IncurredCost
+            {
+                CreatedBy = _currentUser.Id.ToString(),
+                CreatedTime = DateTime.Now,
+                RoomId = Guid.Parse(incurredCostDto.RoomId),
+                Cost = incurredCostDto.Cost,
+                Description = incurredCostDto.Description,
+                Date = new DateTime(incurredCostDto.Date.Year, incurredCostDto.Date.Month, 1),
+                Type = incurredCostDto.Type
+            };
+            await _incurredCostRepository.AddAsync(newEntity, true);
+        }
+    }
+
+    public async Task<IncurredCostDto> UpdateIncurredCost(UpdateIncurredCostDto incurredCostDto)
+    {
+        var oldEntity = await _incurredCostRepository.GetQueryable()
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(x => x.Id.Equals(incurredCostDto.Id)) ??
+                        throw new Exception("Không tìm thấy chi phí phát sinh");
+
+        var newEntity = _mapper.Map<UpdateIncurredCostDto, IncurredCost>(incurredCostDto);
+        newEntity.Date = new DateTime(newEntity.Date.Year, newEntity.Date.Month, 1);
+        newEntity.LastModifiedBy = _currentUser.Id.ToString();
+        newEntity.LastModifiedTime = DateTime.Now;
+
+        var result = await _incurredCostRepository.UpdateAsync(newEntity, true);
+        return _mapper.Map<IncurredCost, IncurredCostDto>(result);
+    }
+
+    public Task DeleteIncurredCost(Guid id)
+    {
+        var queryable = _incurredCostRepository.GetQueryable();
+        var incurredCost = queryable.FirstOrDefault(x => x.Id.Equals(id)) ??
+                           throw new Exception("Không tìm thấy chi phí phát sinh");
+        return _incurredCostRepository.DeleteAsync(incurredCost, true);
     }
 }

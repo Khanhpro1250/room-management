@@ -32,6 +32,13 @@ namespace backend.Controllers
             return ApiResponse<RoomDto>.Ok(result);
         }
 
+        [HttpGet("combo")]
+        public async Task<ApiResponse<List<RoomComboOptionDto>>> GetRoomCombo([FromQuery] Guid? houseId)
+        {
+            var result = await _roomService.GetComboRoom(houseId);
+            return ApiResponse<List<RoomComboOptionDto>>.Ok(result);
+        }
+
         [HttpPut("update/{roomId:guid}")]
         public async Task<ApiResponse<RoomDto>> UpdateRoom([FromRoute] Guid roomId,
             [FromForm] CreateUpdateRoomDto room)
@@ -70,6 +77,8 @@ namespace backend.Controllers
             return ApiResponse<DataWithRoomDto>.Ok(result);
         }
 
+        #region service-index
+
         [HttpGet("list-electric-service")]
         public async Task<ApiResponse<PaginatedList<RoomElectricServiceDto>>> GetElectricServices(
             [FromQuery] ElectricServiceFilterDto filterDto)
@@ -85,5 +94,44 @@ namespace backend.Controllers
             await _roomService.UpdateServiceIndex(updateDto);
             return ApiResponse<object>.Ok();
         }
+
+        #endregion
+
+        #region incurred-cost
+
+        [HttpGet("incurred-cost/index")]
+        public async Task<ApiResponse<PaginatedList<IncurredCostDto>>> GetIncurredCosts(
+            [FromQuery] IncurredCostFilterDto filterDto)
+        {
+            filterDto.PaginatedListQuery = Request.Query.GetPaginatedListQuery();
+            var result = await _roomService.GetIncurredCosts(filterDto);
+            return ApiResponse<PaginatedList<IncurredCostDto>>.Ok(result);
+        }
+
+        [HttpPost("incurred-cost/create")]
+        public async Task<ApiResponse> CreateIncurredCost(
+            [FromBody] CreateIncurredCostDto incurredCostDto)
+        {
+            await _roomService.CreateIncurredCost(incurredCostDto);
+            return ApiResponse.Ok();
+        }
+
+        [HttpPut("incurred-cost/update/{id:guid}")]
+        public async Task<ApiResponse<IncurredCostDto>> UpdateIncurredCost([FromRoute] Guid id,
+            [FromBody] UpdateIncurredCostDto incurredCostDto)
+        {
+            incurredCostDto.Id = id;
+            var result = await _roomService.UpdateIncurredCost(incurredCostDto);
+            return ApiResponse<IncurredCostDto>.Ok(result);
+        }
+
+        [HttpDelete("incurred-cost/delete/{id:guid}")]
+        public async Task<ApiResponse> DeleteIncurredCost([FromRoute] Guid id)
+        {
+             await _roomService.DeleteIncurredCost(id);
+            return ApiResponse.Ok();
+        }
+
+        #endregion
     }
 }
