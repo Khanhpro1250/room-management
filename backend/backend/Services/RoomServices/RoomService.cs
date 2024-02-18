@@ -250,8 +250,7 @@ public class RoomService : IRoomService
             .AsNoTrackingWithIdentityResolution()
             .Include(x => x.Customers)
             .FirstOrDefaultAsync(x => x.Id.Equals(roomId));
-
-        //Todo: Kiểm tra lại cách lấy cus && contract
+        
         var customers = room.Customers.ToList();
         var customer = customers
             .FirstOrDefault(x =>

@@ -92,4 +92,11 @@ public struct DateTimeSpanExtension
 
         return span;
     }
+    
+    public static DateTime GetEndOfMonth(DateTime date)
+    {
+        DateTime nextMonth = date.AddMonths(1);
+        DateTime endOfMonth = new DateTime(nextMonth.Year, nextMonth.Month, 1).AddDays(-1);
+        return endOfMonth;
+    }
 }

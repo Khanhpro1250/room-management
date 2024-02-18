@@ -1,6 +1,7 @@
 ﻿using backend.Controllers.Dtos;
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.RoomDtos;
+using backend.Services.ExportWordPdfServices;
 using backend.Services.RoomServices;
 using backend.Utils;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,14 @@ namespace backend.Controllers
     public class RoomController : ControllerBase
     {
         private readonly IRoomService _roomService;
+        private readonly ICalculateChargeService _calculateChargeService;
+        private readonly IExportService _exportService;
 
-        public RoomController(IRoomService roomService)
+        public RoomController(IRoomService roomService, ICalculateChargeService calculateChargeService, IExportService exportService)
         {
             _roomService = roomService;
+            _calculateChargeService = calculateChargeService;
+            _exportService = exportService;
         }
 
         [HttpPost("create")]
@@ -128,10 +133,60 @@ namespace backend.Controllers
         [HttpDelete("incurred-cost/delete/{id:guid}")]
         public async Task<ApiResponse> DeleteIncurredCost([FromRoute] Guid id)
         {
-             await _roomService.DeleteIncurredCost(id);
+            await _roomService.DeleteIncurredCost(id);
             return ApiResponse.Ok();
         }
 
+        #endregion
+
+        #region Calculate Charge
+
+        [HttpGet("calculate-charge/index")]
+        public async Task<ApiResponse<PaginatedList<CalculateChargeGridDto>>> GetCalculateCharges(
+            [FromQuery] CalculateChargeFilterDto filterDto)
+        {
+            var result = await _calculateChargeService.GetListCalculateCharge(filterDto);
+            return ApiResponse<PaginatedList<CalculateChargeGridDto>>.Ok(result);
+        }
+
+        [HttpPost("calculate-charge/calculate")]
+        public async Task<ApiResponse> GenerateCalculateCharges(
+            [FromBody] CalculateRoomRequestDto calculateRoomRequestDto)
+        {
+            await _calculateChargeService.CalculateChargeRooms(calculateRoomRequestDto);
+            return ApiResponse.Ok();
+        }
+
+        [HttpPut("calculate-charge/update/{id:guid}")]
+        public async Task<ApiResponse> UpdateCalculateCharges([FromRoute] Guid id,
+            [FromBody] UpdateCalculateChargeDto calculateRoomRequestDto)
+        {
+            calculateRoomRequestDto.Id = id;
+            await _calculateChargeService.UpdateCalculateCharge(calculateRoomRequestDto);
+            return ApiResponse.Ok();
+        }
+
+        [HttpGet("calculate-charge/detail/{id:guid}")]
+        public async Task<ApiResponse<CalculateChargeDto>> GetDetailCalculateCharges([FromRoute] Guid id)
+        {
+            var result = await _calculateChargeService.GetDetailCalculateCharge(id);
+            return ApiResponse<CalculateChargeDto>.Ok(result);
+        }
+        
+        [HttpDelete("calculate-charge/delete/{id:guid}")]
+        public async Task<ApiResponse> DeleteCalculateCharges([FromRoute] Guid id)
+        {
+            await _calculateChargeService.DeleteCalculateCharge(id);
+            return ApiResponse.Ok();
+        }
+
+        [HttpGet("calculate-charge/export/{id:guid}")]
+        public async Task<FileStreamResult> ExportBillAction([FromRoute] Guid id)
+        {
+            var dataReplace =  await _calculateChargeService.GetDetailCalculateCharge(id);
+            var wookbook = await _exportService.ExportWord(dataReplace,null,"https://res.cloudinary.com/khanh15032001/raw/upload/v1708226990/documents/fnbuqvmvhn9ql1egoc7f.docx");
+            return WorkbookUtil.DocumentToFileStream(wookbook,"Hoa-don-tien-nha.pdf");
+        }
         #endregion
     }
 }

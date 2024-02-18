@@ -28,6 +28,7 @@ interface IState {
 
 interface BaseModalProps extends ModalProps {
     hideTitle?: boolean;
+    hideIcon?: boolean;
 }
 
 const ModalBase = forwardRef((props: BaseModalProps, ref) => {
@@ -83,12 +84,12 @@ const ModalBase = forwardRef((props: BaseModalProps, ref) => {
     return (
         // @ts-ignore
         <Modal
-            wrapClassName="modal-base"
+            wrapClassName={`modal-base ${props.wrapClassName}`}
             visible={state.visible}
             title={
                 props.hideTitle ? null : (
                     <div className="flex items-center uppercase">
-                        <FontAwesomeIcon icon={state.icon || faPlus} className="mr-1.5" />
+                        {props.hideIcon ? null : <FontAwesomeIcon icon={state.icon} className="mr-2" />}
                         <div>{state.title}</div>
                     </div>
                 )

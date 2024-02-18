@@ -30,6 +30,7 @@ export interface BaseGridColDef extends ColDef, Partial<ColGroupDef> {}
 ModuleRegistry.registerModules([ClientSideRowModelModule, RowGroupingModule]);
 
 export interface BaseGridProps {
+    actionWidth?: number;
     pinAction?: boolean;
     columnDefs: BaseGridColDef[];
     gridOptions?: GridConfig | undefined;
@@ -113,7 +114,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
 
     customColDefs.push(...props.columnDefs);
 
-    actionRowsReRender && renderAdditionColumn(actionRowsReRender, customColDefs);
+    actionRowsReRender && renderAdditionColumn(actionRowsReRender, customColDefs, props.actionWidth);
 
     actionRows &&
         customColDefs.push({
@@ -269,13 +270,13 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
     );
 });
 
-const renderAdditionColumn = (actionRows: IActionRows[], columnDefs: ColDef[]) => {
+const renderAdditionColumn = (actionRows: IActionRows[], columnDefs: ColDef[], actionWidth?: number): void => {
     if (actionRows && actionRows.length !== 0) {
         const actions = {
             field: 'actionRows',
             headerName: 'Hành động',
             pinned: 'right',
-            width: 150,
+            width: actionWidth ?? 150,
             cellStyle: {
                 textAlign: 'center',
             },

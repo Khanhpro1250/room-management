@@ -43,6 +43,7 @@ const IncurredCostForm: React.FC<Props> = props => {
             return;
         }
         const newRoomCombo = roomCombo.filter(x => x.houseId === houseId);
+        formRef.current?.setFieldsValue({ roomId: 'All' });
         setRoomCombos(newRoomCombo);
     };
 

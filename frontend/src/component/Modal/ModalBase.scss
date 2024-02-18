@@ -22,3 +22,17 @@ $modal-header-bg: #315f89;
         color: #fff;
     }
 }
+.white-bg-modal {
+    .ant-modal-header {
+        background-color: #fff !important;
+        .ant-modal-title {
+            color: #087cc4 !important;
+        }
+    }
+    .ant-modal-body {
+        padding: 12px 24px;
+    }
+    .ant-modal-close-x {
+        color: #087cc4 !important;
+    }
+}

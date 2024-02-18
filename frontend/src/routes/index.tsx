@@ -21,6 +21,7 @@ const ElectricServiceListView = React.lazy(() => import('~/page/electric-service
 const WaterServiceListView = React.lazy(() => import('~/page/electric-service/WaterServiceListView'));
 const IncurredCostListView = React.lazy(() => import('~/page/electric-service/IncurredCostListView'));
 const CustomerListView = React.lazy(() => import('~/page/customers/CustomerListView'));
+const CalculateChargeListView = React.lazy(() => import('~/page/CalculateCharge/CalculateChargeListView'));
 
 //home
 
@@ -89,6 +90,10 @@ const routeList = [
             {
                 path: 'incurred-cost',
                 element: <IncurredCostListView />,
+            },
+            {
+                path: 'calculate-charge',
+                element: <CalculateChargeListView />,
             },
         ],
     },

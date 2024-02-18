@@ -10,6 +10,8 @@ public class CalculateCharge : AuditedEntity<Guid>
     public decimal TotalPaid { get; set; }
     public decimal TotalUnpaid { get; set; }
     public DateTime DateCalculate { get; set; }
+    
+    public DateTime? LastDateCollectMoney { get; set; }
 
     public Room Room { get; set; }
     public Customer Customer { get; set; }

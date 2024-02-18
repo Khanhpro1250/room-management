@@ -1,5 +1,4 @@
-﻿using backend.Models.Entities.Customers;
-using backend.Models.Entities.Services;
+﻿using backend.Models.Entities.Services;
 
 namespace backend.Models.Entities.Rooms;
 

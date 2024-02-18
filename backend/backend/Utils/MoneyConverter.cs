@@ -35,6 +35,35 @@ public class MoneyConverter
 
         return result.ToString().Trim();
     }
+    
+    public static string ConvertToMoneyString(decimal number)
+    {
+        if (number == 0)
+        {
+            return "không đồng";
+        }
+
+        string[] units = { "", "nghìn", "triệu", "tỷ", "nghìn tỷ" };
+
+        int unitIndex = 0;
+        var result = new StringBuilder();
+
+        while (number > 0)
+        {
+            int group = (int)(number % 1000);
+            number /= 1000;
+
+            if (group > 0)
+            {
+                string groupStr = ConvertGroupToString(group);
+                result.Insert(0, groupStr + " " + units[unitIndex] + " ");
+            }
+
+            unitIndex++;
+        }
+
+        return result.ToString().Trim();
+    }
 
     private static string ConvertGroupToString(int group)
     {
@@ -78,6 +107,14 @@ public class MoneyConverter
     }
 
     public static string ToLocaleDotString(double value)
+    {
+        var formattedNumber = value.ToString("N0", new CultureInfo("en-US"));
+        formattedNumber = formattedNumber.Replace(",", ".");
+
+        return formattedNumber;
+    }
+    
+    public static string ToLocaleDotString(decimal value)
     {
         var formattedNumber = value.ToString("N0", new CultureInfo("en-US"));
         formattedNumber = formattedNumber.Replace(",", ".");

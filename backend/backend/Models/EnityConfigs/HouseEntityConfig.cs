@@ -179,7 +179,7 @@ public static class HouseEntityConfig
             entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
 
             entity.Property(x => x.RoomServiceIndexId).IsRequired(false);
-            entity.Property(x => x.IncurredcostId).IsRequired(false);
+            entity.Property(x => x.IncurredCostId).IsRequired(false);
 
             entity.HasOne(x => x.CalculateCharge)
                 .WithMany(x => x.CalculateChargeDetails)
@@ -193,7 +193,7 @@ public static class HouseEntityConfig
 
             entity.HasOne(x => x.IncurredCost)
                 .WithMany()
-                .HasForeignKey(x => x.IncurredcostId)
+                .HasForeignKey(x => x.IncurredCostId)
                 .OnDelete(DeleteBehavior.Restrict);
             
             entity.HasOne(x => x.Service)

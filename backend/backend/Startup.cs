@@ -169,6 +169,8 @@ public class Startup
         services.AddTransient<IRoomServiceIndexRepository, RoomServiceIndexRepository>();
         services.AddTransient<IRoomProcessRepository, RoomProcessRepository>();
         services.AddTransient<IIncurredCostRepository, IncurredCostRepository>();
+        services.AddTransient<ICalculateChargeRepository, CalculateChargeRepository>();
+        services.AddTransient<ICalculateChargeDetailRepository, CalculateChargeDetailRepository>();
 
 
         // AddScoped adService
@@ -187,6 +189,7 @@ public class Startup
         services.AddScoped<ICurrentUser, CurrentUser>();
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IOtpService, OtpService>();
+        services.AddScoped<ICalculateChargeService, CalculateChargeService>();
         services.AddScoped<ClaimsPrincipal>(provider => provider.GetService<IHttpContextAccessor>()?.HttpContext?.User);
         services.AddScoped<User>();
         services.AddScoped<IDbContextProvider<ApplicationDbContext>, DbContextProvider<ApplicationDbContext>>();
