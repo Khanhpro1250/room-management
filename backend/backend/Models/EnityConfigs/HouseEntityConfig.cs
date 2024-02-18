@@ -139,11 +139,11 @@ public static class HouseEntityConfig
 
             entity.HasOne(x => x.Customer)
                 .WithMany(x => x.RoomProcesses)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(x => x.Room)
                 .WithMany(x => x.RoomProcesses)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<IncurredCost>(entity =>

@@ -37,7 +37,9 @@ public class CalculateChargeService : ICalculateChargeService
     public async Task<PaginatedList<CalculateChargeGridDto>> GetListCalculateCharge(CalculateChargeFilterDto filterDto)
     {
         var queryable = _calculateChargeRepository.GetQueryable();
+        var currentUserId = _currentUser.Id;
         queryable = queryable
+                .Where(x => x.Room.House.UserId.Equals(currentUserId))
                 .WhereIf(filterDto.HouseId.HasValue, x => x.Room.HouseId == filterDto.HouseId)
                 .WhereIf(filterDto.RoomId.HasValue, x => x.RoomId == filterDto.RoomId)
                 .WhereIf(!string.IsNullOrEmpty(filterDto.RoomCode), x => x.Room.RoomCode.Contains(filterDto.RoomCode))

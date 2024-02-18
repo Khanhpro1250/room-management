@@ -24,3 +24,33 @@ code {
         text-align: right;
     }
 }
+
+.legend-dashboard {
+    padding: 5px;
+    color: #fff;
+    font-weight: 500;
+
+    .button-legend {
+        padding: 5px;
+        width: 100px;
+        text-align: center;
+        height: 30px;
+        border-radius: 5px;
+    }
+
+    .area-button-hcm {
+        background-color: #f7941d;
+    }
+
+    .area-button-hn {
+        background-color: #03897b;
+    }
+
+    .area-button-no-area {
+        background-color: #d2d1ca;
+    }
+
+    .de-active {
+        background-color: #cccccc !important;
+    }
+}

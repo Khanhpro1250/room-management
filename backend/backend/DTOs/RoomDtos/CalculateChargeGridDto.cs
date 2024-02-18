@@ -5,6 +5,7 @@ public class CalculateChargeGridDto
     public Guid Id { get; set; }
     public string RoomCode { get; set; }
     public string HouseName { get; set; }
+    public Guid HouseId { get; set; }
     public string CustomerName { get; set; }
     public decimal TotalCost { get; set; }
     public decimal TotalPaid { get; set; }

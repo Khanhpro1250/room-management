@@ -22,6 +22,7 @@ const WaterServiceListView = React.lazy(() => import('~/page/electric-service/Wa
 const IncurredCostListView = React.lazy(() => import('~/page/electric-service/IncurredCostListView'));
 const CustomerListView = React.lazy(() => import('~/page/customers/CustomerListView'));
 const CalculateChargeListView = React.lazy(() => import('~/page/CalculateCharge/CalculateChargeListView'));
+const ReportDashboard = React.lazy(() => import('~/page/dashboard/ReportDashboard'));
 
 //home
 
@@ -32,7 +33,11 @@ const routeList = [
         children: [
             {
                 path: '/',
-                element: <RoomPage />,
+                element: <ReportDashboard />,
+            },
+            {
+                path: '/dashboard',
+                element: <ReportDashboard />,
             },
             {
                 path: 'system',

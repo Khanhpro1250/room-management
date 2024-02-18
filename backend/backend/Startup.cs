@@ -22,6 +22,7 @@ using backend.Services.FileServices;
 using backend.Services.HouseServices;
 using backend.Services.MenuService;
 using backend.Services.NotificationServices;
+using backend.Services.ReportServices;
 using backend.Services.RequestServices;
 using backend.Services.RoleServices;
 using backend.Services.RoomServices;
@@ -189,6 +190,7 @@ public class Startup
         services.AddScoped<ICurrentUser, CurrentUser>();
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IOtpService, OtpService>();
+        services.AddScoped<IReportService, ReportService>();
         services.AddScoped<ICalculateChargeService, CalculateChargeService>();
         services.AddScoped<ClaimsPrincipal>(provider => provider.GetService<IHttpContextAccessor>()?.HttpContext?.User);
         services.AddScoped<User>();
