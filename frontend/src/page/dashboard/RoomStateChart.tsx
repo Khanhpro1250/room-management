@@ -1,10 +1,13 @@
-import { useRef } from 'react';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { useMemo, useRef } from 'react';
 import { ReactECharts, ReactEChartsRef } from '~/component/Echart/ReactECharts';
+import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 import { useMergeState } from '~/hook/useMergeState';
-
-interface IProps {
-    data: any;
-}
+import DomToImage from 'dom-to-image';
+import { useReportRoomState } from './hooks/useReportRoomState';
+import Loading from '~/component/Elements/loading/Loading';
+import { Select } from 'antd';
+interface IProps {}
 interface IState {
     deActiveButton: Array<string>;
 }
@@ -15,29 +18,8 @@ const RoomStateChart = (props: IProps) => {
     });
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const mockData = [
-        {
-            id: 'a20757dc-fe3f-47bf-a5a5-bbef522dde95',
-            roomCode: '123',
-            houseName: 'Nhà 1',
-            statusCode: 'NEW',
-            statusName: 'Phòng trống',
-        },
-        {
-            id: 'cb2528e9-acfe-4481-b228-f198ddeb4c53',
-            roomCode: '123123',
-            houseName: 'Khanh Huynh',
-            statusCode: 'NEW',
-            statusName: 'Phòng trống',
-        },
-        {
-            id: 'f7b929a7-e544-497e-9203-f27d35ee7435',
-            roomCode: 'P01',
-            houseName: 'Nhà 1',
-            statusCode: 'RENT',
-            statusName: 'Đang thuê',
-        },
-    ];
+    const { data: dataResponse, isFetching: isLoadingDataState } = useReportRoomState();
+    const dataRoomState = useMemo(() => dataResponse?.data?.result ?? [], [dataResponse]);
 
     const onClick = (code: string) => {
         const { deActiveButton } = state;
@@ -71,8 +53,6 @@ const RoomStateChart = (props: IProps) => {
             };
         });
 
-        console.log(dataRender);
-
         const dataColorRender = status?.map((item: any) => {
             switch (item.code) {
                 case 'NEW':
@@ -84,16 +64,26 @@ const RoomStateChart = (props: IProps) => {
             }
         });
 
-        console.log(dataColorRender);
+        if (isLoadingDataState) return <Loading />;
 
         return (
             <ReactECharts
                 ref={chartRef}
                 option={{
+                    title: {
+                        top: 'center',
+                        left: 'center',
+                        text: 'Trạng thái phòng',
+                        textStyle: {
+                            fontSize: 18,
+                            fontWeight: 'bold',
+                            fontFamily: 'lato, helvetica, arial, verdana, sans-serif, "FontAwesome"',
+                        },
+                    },
+
                     tooltip: {
                         trigger: 'item',
                         formatter: (params: any) => {
-                            console.log('params', params);
                             return `${params.data.disPlayName} Chiếm ${params.percent}% : ${Math.round(
                                 params.value ?? 0,
                             ).toLocaleString('vi', { maximumFractionDigits: 0 })}`;
@@ -110,6 +100,7 @@ const RoomStateChart = (props: IProps) => {
                     },
                     series: [
                         {
+                            name: 'Trạng thái phòng trọ',
                             type: 'pie',
                             avoidLabelOverlap: false,
                             label: {
@@ -118,6 +109,8 @@ const RoomStateChart = (props: IProps) => {
                                 position: 'inside',
                                 color: '#fff',
                             },
+                            radius: ['30%', '80%'],
+                            center: ['50%', '50%'],
                             emphasis: {},
                             data: dataRender,
                             color: dataColorRender,
@@ -177,14 +170,41 @@ const RoomStateChart = (props: IProps) => {
     };
 
     return (
-        <div className="mt-2 border p-4">
-            <div className="text-2xl text-[#0e335890] font-bold mb-2 ">Trạng thái phòng</div>
-            <hr />
-            <div className="dashboard-unit flex" ref={containerRef}>
-                <div className="w-full sm:w-full h-full flex-col flex justify-center items-center">
-                    {renderEChart(mockData)}
+        <div ref={containerRef} className="mt-2 border p-4">
+            <div className="relative flex">
+                <div className="text-2xl text-[#0e335890] font-bold mb-2 ">Trạng thái phòng</div>
+                <ButtonBase
+                    tooltip="Xuất hình ảnh"
+                    variant="info"
+                    className="absolute top-[3px] right-0"
+                    startIcon={faDownload}
+                    onClick={() => {
+                        exportDom('trang-thai-phong');
+                    }}
+                />
+                <div className="ml-2 w-[40%]">
+                    <Select
+                        className="w-full test-class"
+                        placeholder="Chọn tháng"
+                        options={[
+                            {
+                                value: 'month',
+                                label: 'Tháng',
+                            },
+                            {
+                                value: 'year',
+                                label: 'Năm',
+                            },
+                        ]}
+                    />
                 </div>
-                <div className="legend-dashboard h-[100px] flex flex-wrap ">{renderLegend(mockData)}</div>
+            </div>
+            <hr />
+            <div className="dashboard-unit flex">
+                <div className="w-full sm:w-full h-full flex-col flex justify-center items-center">
+                    {renderEChart(dataRoomState)}
+                </div>
+                <div className="legend-dashboard h-[100px] flex flex-wrap ">{renderLegend(dataRoomState)}</div>
             </div>
         </div>
     );

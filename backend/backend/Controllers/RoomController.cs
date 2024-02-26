@@ -16,7 +16,8 @@ namespace backend.Controllers
         private readonly ICalculateChargeService _calculateChargeService;
         private readonly IExportService _exportService;
 
-        public RoomController(IRoomService roomService, ICalculateChargeService calculateChargeService, IExportService exportService)
+        public RoomController(IRoomService roomService, ICalculateChargeService calculateChargeService,
+            IExportService exportService)
         {
             _roomService = roomService;
             _calculateChargeService = calculateChargeService;
@@ -172,7 +173,7 @@ namespace backend.Controllers
             var result = await _calculateChargeService.GetDetailCalculateCharge(id);
             return ApiResponse<CalculateChargeDto>.Ok(result);
         }
-        
+
         [HttpDelete("calculate-charge/delete/{id:guid}")]
         public async Task<ApiResponse> DeleteCalculateCharges([FromRoute] Guid id)
         {
@@ -180,13 +181,23 @@ namespace backend.Controllers
             return ApiResponse.Ok();
         }
 
+        [HttpGet("calculate-charge/sent-bill/{id:guid}")]
+        public async Task<ApiResponse> SentBuildCalculateCharges([FromRoute] Guid id)
+        {
+            await _calculateChargeService.SendBillCalculateCharge(id);
+            
+            return ApiResponse.Ok();
+        }
+
         [HttpGet("calculate-charge/export/{id:guid}")]
         public async Task<FileStreamResult> ExportBillAction([FromRoute] Guid id)
         {
-            var dataReplace =  await _calculateChargeService.GetDetailCalculateCharge(id);
-            var wookbook = await _exportService.ExportWord(dataReplace,null,"https://res.cloudinary.com/khanh15032001/raw/upload/v1708226990/documents/fnbuqvmvhn9ql1egoc7f.docx");
-            return WorkbookUtil.DocumentToFileStream(wookbook,"Hoa-don-tien-nha.pdf");
+            var dataReplace = await _calculateChargeService.GetDetailCalculateCharge(id);
+            var wookbook = await _exportService.ExportWord(dataReplace, null,
+                "https://res.cloudinary.com/khanh15032001/raw/upload/v1708226990/documents/fnbuqvmvhn9ql1egoc7f.docx");
+            return WorkbookUtil.DocumentToFileStream(wookbook, "Hoa-don-tien-nha.pdf");
         }
+
         #endregion
     }
 }

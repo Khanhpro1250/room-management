@@ -1,5 +1,4 @@
-﻿using Aspose.Words.Lists;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using backend.Controllers.Dtos.Responese;
 using backend.DTOs.RoomDtos;
@@ -8,10 +7,10 @@ using backend.Models.Entities.Rooms;
 using backend.Models.Entities.Services;
 using backend.Models.Repositorties.HouseRerositories;
 using backend.Models.Repositorties.RoomRepositories;
+using backend.Services.SendMailServices;
 using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver.Linq;
 using Symbol;
 
 namespace backend.Services.RoomServices;
@@ -23,15 +22,17 @@ public class CalculateChargeService : ICalculateChargeService
     private readonly IMapper _mapper;
     private readonly IHouseRepository _houseRepository;
     private readonly ICurrentUser _currentUser;
+    private readonly ISendMailService _sendMailService;
 
     public CalculateChargeService(ICalculateChargeRepository calculateChargeRepository, IRoomRepository roomRepository,
-        IMapper mapper, IHouseRepository houseRepository, ICurrentUser currentUser)
+        IMapper mapper, IHouseRepository houseRepository, ICurrentUser currentUser, ISendMailService sendMailService)
     {
         _calculateChargeRepository = calculateChargeRepository;
         _roomRepository = roomRepository;
         _mapper = mapper;
         _houseRepository = houseRepository;
         _currentUser = currentUser;
+        _sendMailService = sendMailService;
     }
 
     public async Task<PaginatedList<CalculateChargeGridDto>> GetListCalculateCharge(CalculateChargeFilterDto filterDto)
@@ -445,6 +446,7 @@ public class CalculateChargeService : ICalculateChargeService
         {
             HouseName = calculateCharge.Room.House.Name,
             CustomerName = calculateCharge.Customer.FullName,
+            CustomerEmail = calculateCharge.Customer.Email,
             HouseAddress = calculateCharge.Room.House.Location,
             RoomCode = calculateCharge.Room.RoomCode,
             Month = calculateCharge.DateCalculate.Month,
@@ -461,5 +463,69 @@ public class CalculateChargeService : ICalculateChargeService
         };
 
         return result;
+    }
+
+    public async Task SendBillCalculateCharge(Guid id)
+    {
+        var getData = await GetDetailCalculateCharge(id);
+        var caculateDetails = getData.CalculateChargeDetails;
+        var details = "";
+        foreach (var item in caculateDetails)
+        {
+            var index = caculateDetails.IndexOf(item) + 1;
+            var detailItem = $@"<div style=""margin-bottom: 0.25rem;"">
+                <div style=""font-size: 0.6rem; color: #0d1e66;float: left;"">{index}. {item.Title} {(!string.IsNullOrEmpty(item.Description) ? $"( {item.Description} )" : "")}</div>             
+<div style=""font-size: 0.75rem; color: #0d1e66;float:right"">{item.Cost}</div>
+<div style=""clear: both;""></div>   
+              </div>";
+            details += detailItem;
+        }
+
+        var htmlContent = $@"<!DOCTYPE html>
+<html lang=""en"">
+<head>
+  <meta charset=""UTF-8"">
+  <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+</head>
+<body style=""margin: 0; padding: 0;background-color: #a4abae80"">
+  <div style=""padding: 0.5rem;"">
+    <div>
+      <span style=""font-size: 0.75rem; color: #0d1e66; font-weight: bold;"">Nhà: {getData?.HouseName}</span>
+    </div>
+    <div style=""margin-bottom: 0.25rem;"">
+      <div style=""font-size: 0.75rem; color: #0d1e66; font-weight: bold;float: left;"">{getData?.HouseAddress}</div>
+      <div style=""font-size: 0.75rem; color: #0d1e66; float: right;"">{getData?.DateCalculate}</div>
+<div style=""clear: both;""></div>  
+    </div>
+    <div>
+      <div style=""text-transform: uppercase; font-size: 1.25rem; color: #0d1e66; font-weight: bold; margin-top: 0.5rem; text-align: center;"">Hóa đơn tiền nhà</div>
+      <div>
+        <div style=""font-size: 0.75rem; color: #0d1e66; font-weight: bold; margin-top: 0.5rem; text-align: center;"">Tháng {getData?.Month}/{getData?.Year}</div>
+        <div style=""font-size: 0.75rem; color: #0d1e66; text-align: center;"">(từ ngày {getData?.CalculateFromDate} đến ngày {getData?.CalculateToDate})</div>
+      </div>
+    </div>
+    <div style=""margin-bottom: 0.5rem;"">
+      <div style=""font-size: 0.75rem; margin-bottom: 0.25rem; color: #0d1e66; font-weight: bold;"">Họ và tên: {getData?.CustomerName}</div>
+      <div style=""font-size: 0.75rem; margin-bottom: 0.25rem; color: #0d1e66; font-weight: bold;"">Phòng: {getData?.RoomCode}</div>
+      <div style=""font-size: 0.75rem; margin-bottom: 0.25rem; color: #0d1e66; font-weight: bold;"">Ngày vào: {getData?.DateCustomerMoveIn}</div>
+    </div>
+    <hr />
+    <div className=""mt-2 mb-2"">
+    {details}
+    </div>
+    <hr />
+     <div style=""margin-bottom: 0.5rem;"">
+      <div style=""font-size: 1.5rem; color: #0d1e66; font-weight: bold; float: left;"">Tổng cộng</div>
+      <div style=""font-size: 1.5rem; color: #0d1e66; font-weight: bold; float: right;"">{getData.TotalCost}</div>
+      <div style=""clear: both;""></div>
+      <div style=""float: right;""><i style=""font-size: 0.75rem; color: #0d1e66;"">( Bằng chữ : {getData.TotalCostWord})</i></div>
+      <div style=""clear: both;""></div>
+    </div>
+  </div>
+</body>
+</html>
+";
+        await _sendMailService.SendMail(getData?.CustomerEmail ?? "khanhpro1250@gmail.com",
+            $"[{getData.CustomerName}] Tiền trọ tháng {getData?.Month}/{getData?.Year}", htmlContent);
     }
 }

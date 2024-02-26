@@ -1,12 +1,15 @@
-import { faClose } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDown, faClose, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import React, { useMemo, useRef } from 'react';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 
+import { Dropdown, Menu } from 'antd';
 import DomToImage from 'dom-to-image';
 import { AppModalContainer } from '~/component/Layout/AppModalContainer';
+import NotificationConstant from '~/configs/contants';
+import { requestApi } from '~/lib/axios';
+import NotifyUtil from '~/util/NotifyUtil';
+import { CALCULATE_SENT_BILL } from '../api/calculate.api';
 import { useGetDetailCalculateChargeBill } from '../api/useGetDetailCalculateChargeBill';
-import moment from 'moment';
-
 interface Props {
     initialValues?: any;
     onClose?: () => void;
@@ -34,6 +37,38 @@ const ViewCalculateMoneyBill: React.FC<Props> = props => {
                     console.error('oops, something went wrong!', error);
                 });
     };
+
+    const onSent = async (data: any) => {
+        const res = await requestApi('get', `${CALCULATE_SENT_BILL}/${props.initialValues?.id}`);
+        if (res.data?.success) {
+            NotifyUtil.success(NotificationConstant.TITLE, 'Hóa đơn đã được gửi đến' + data.customerName);
+            return;
+        } else {
+            NotifyUtil.error(NotificationConstant.TITLE, res.data?.message ?? 'Có lỗi xảy ra');
+            return;
+        }
+    };
+
+    const menu = (
+        <Menu>
+            <Menu.Item
+                className="hover:bg-slate-300"
+                onClick={() => {
+                    exportDom('Hoa-don');
+                }}
+                key="img"
+            >
+                <div className="flex items-center justify-start">
+                    <span>Ảnh hóa đơn</span>
+                </div>
+            </Menu.Item>
+            <Menu.Item onClick={props.onExport} className="hover:bg-slate-300" key="pdf">
+                <div className="flex items-center justify-start">
+                    <span>File pdf</span>
+                </div>
+            </Menu.Item>
+        </Menu>
+    );
 
     return (
         <AppModalContainer loading={isFetching}>
@@ -92,14 +127,10 @@ const ViewCalculateMoneyBill: React.FC<Props> = props => {
                 </div>
             </div>
             <div className="flex items-center justify-center w-full">
-                <ButtonBase
-                    title="Tải file ảnh"
-                    variant="info"
-                    onClick={() => {
-                        exportDom('Hoa-don');
-                    }}
-                />
-                <ButtonBase title="Tải file PDF" onClick={props.onExport} />
+                <Dropdown overlay={menu}>
+                    <ButtonBase title="Tải file" endIcon={faAngleDown} variant="primary" />
+                </Dropdown>
+                <ButtonBase startIcon={faPaperPlane} title="Gửi hóa đơn" onClick={() => onSent(data)} />
                 <ButtonBase title="Đóng" startIcon={faClose} variant="danger" onClick={props.onClose} />
             </div>
         </AppModalContainer>

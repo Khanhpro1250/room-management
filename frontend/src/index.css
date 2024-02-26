@@ -54,3 +54,9 @@ code {
         background-color: #cccccc !important;
     }
 }
+
+.ant-select-selection-search-input {
+    border: unset; /* Remove border */
+    box-shadow: none; /* Remove box shadow */
+    outline: none; /* Remove outline */
+}

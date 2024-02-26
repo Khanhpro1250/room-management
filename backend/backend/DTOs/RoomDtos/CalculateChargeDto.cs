@@ -4,6 +4,8 @@ public class CalculateChargeDto
 {
     public string HouseName { get; set; }
     public string CustomerName { get; set; }
+    
+    public string CustomerEmail { get; set; }
     public string HouseAddress { get; set; }
     public int Month { get; set; }
     public int Year { get; set; }
@@ -22,6 +24,6 @@ public class CalculateChargeDetailDto
     public string Title { get; set; }
     public string Cost { get; set; }
     public string Description { get; set; }
-    
+
     public bool IsHasDescription { get; set; }
 }

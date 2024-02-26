@@ -13,4 +13,5 @@ public interface ICalculateChargeService
 
     Task UpdateCalculateCharge(UpdateCalculateChargeDto calculateChargeDto);
     Task<CalculateChargeDto> GetDetailCalculateCharge(Guid id);
+    Task SendBillCalculateCharge(Guid id);
 }
