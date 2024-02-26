@@ -1,5 +1,6 @@
 ﻿using backend.Models.Entities.Contracts;
 using backend.Models.Entities.Customers;
+using backend.Models.Entities.Deposits;
 using backend.Models.Entities.Houses;
 using backend.Models.Entities.Rooms;
 using backend.Models.Entities.Services;
@@ -195,7 +196,7 @@ public static class HouseEntityConfig
                 .WithMany()
                 .HasForeignKey(x => x.IncurredCostId)
                 .OnDelete(DeleteBehavior.Restrict);
-            
+
             entity.HasOne(x => x.Service)
                 .WithMany()
                 .HasForeignKey(x => x.ServiceId)
@@ -209,9 +210,21 @@ public static class HouseEntityConfig
             entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
 
             entity.HasOne(x => x.CalculateCharge)
-                .WithMany(x=> x.CollectMoneyProcesses)
-                .HasForeignKey(x=> x.CalculateChargeId)
+                .WithMany(x => x.CollectMoneyProcesses)
+                .HasForeignKey(x => x.CalculateChargeId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Deposit>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.ToTable(nameof(Deposit), SchemaName);
+            entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
+
+            entity.HasOne(x => x.Room)
+                .WithMany()
+                .HasForeignKey(x => x.RoomId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         return modelBuilder;
