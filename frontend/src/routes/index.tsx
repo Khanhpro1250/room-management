@@ -1,7 +1,6 @@
 import React from 'react';
 import { matchRoutes, RouteMatch, RouteObject, useRoutes } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
-
 //layout
 const LayoutPage = React.lazy(() => import('~/component/Layout/LayoutPage'));
 const LoginView = React.lazy(() => import('~/component/Layout/LoginView'));
@@ -13,7 +12,6 @@ const NotFound = React.lazy(() => import('~/component/Layout/NotFound'));
 const MenuListView = React.lazy(() => import('~/page/system/menu/MenuListView'));
 const RoleListView = React.lazy(() => import('~/page/system/role/RoleListView'));
 const UserListView = React.lazy(() => import('~/page/system/user/UserListView'));
-const HouseListView = React.lazy(() => import('~/page/house/HouseListView'));
 const RoomPage = React.lazy(() => import('~/page/room/RoomPage'));
 const CustomerPage = React.lazy(() => import('~/page/customers/CustomerPage'));
 const ServicesListView = React.lazy(() => import('~/page/services/ServicesListView'));
@@ -23,6 +21,7 @@ const IncurredCostListView = React.lazy(() => import('~/page/electric-service/In
 const CustomerListView = React.lazy(() => import('~/page/customers/CustomerListView'));
 const CalculateChargeListView = React.lazy(() => import('~/page/CalculateCharge/CalculateChargeListView'));
 const ReportDashboard = React.lazy(() => import('~/page/dashboard/ReportDashboard'));
+const DepositListView = React.lazy(() => import('~/page/deposits/DepositListView'));
 
 //home
 
@@ -99,6 +98,10 @@ const routeList = [
             {
                 path: 'calculate-charge',
                 element: <CalculateChargeListView />,
+            },
+            {
+                path: 'deposit',
+                element: <DepositListView />,
             },
         ],
     },

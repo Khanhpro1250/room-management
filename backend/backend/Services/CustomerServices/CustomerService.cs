@@ -15,7 +15,6 @@ using backend.Services.FileServices;
 using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver.Linq;
 
 namespace backend.Services.CustomerServices
 {
@@ -126,7 +125,7 @@ namespace backend.Services.CustomerServices
             var currentUserId = _currentUser.Id;
             var count = await queryable.CountAsync();
             var listCustomer = await queryable
-                .Where(x=> x.CreatedBy.Contains(currentUserId.ToString()))
+                .Where(x => x.CreatedBy.Contains(currentUserId.ToString()))
                 .Include(x => x.Contracts)
                 .QueryablePaging(paginatedListQuery)
                 .ToListAsync();
@@ -188,7 +187,7 @@ namespace backend.Services.CustomerServices
                                    .FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
                                throw new Exception("Không tìm thấy Customer");
             var isAbleToCreateProcess = findCustomer.Deposit is null && customer.Deposit.HasValue;
-            
+
             var customerEntity = _mapper.Map<CreateUpdateCustomerDto, Customer>(customer, findCustomer);
             customerEntity.LastModifiedBy = _currentUser.Id.ToString();
             customerEntity.LastModifiedTime = DateTime.Now;

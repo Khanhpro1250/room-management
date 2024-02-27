@@ -12,6 +12,7 @@ using backend.Models.Entities.Rooms;
 using backend.Models.Entities.Services;
 using backend.Models.Repositorties.ContractRepositories;
 using backend.Models.Repositorties.CustomerRepositories;
+using backend.Models.Repositorties.DepositRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Models.Repositorties.ServiceRepositories;
 using backend.Services.CloudinaryServices;
@@ -21,6 +22,7 @@ using backend.Services.ServiceServices;
 using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver.Linq;
 
 namespace backend.Services.RoomServices;
 
@@ -39,13 +41,15 @@ public class RoomService : IRoomService
     private readonly IRoomProcessRepository _roomProcessRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly IIncurredCostRepository _incurredCostRepository;
+    private readonly IDepositRepository _depositRepository;
 
 
     public RoomService(IRoomRepository roomRepository, IMapper mapper, ICloudinaryService cloudinaryService,
         ICustomerService customerService, IServiceService serviceService, ICurrentUser currentUser,
         IContractRepository contractRepository, IFileService fileService, IServiceRepository serviceRepository,
         IRoomServiceIndexRepository roomServiceIndexRepository, IRoomProcessRepository roomProcessRepository,
-        ICustomerRepository customerRepository, IIncurredCostRepository incurredCostRepository)
+        ICustomerRepository customerRepository, IIncurredCostRepository incurredCostRepository,
+        IDepositRepository depositRepository)
     {
         _roomRepository = roomRepository;
         _mapper = mapper;
@@ -60,6 +64,7 @@ public class RoomService : IRoomService
         _roomProcessRepository = roomProcessRepository;
         _customerRepository = customerRepository;
         _incurredCostRepository = incurredCostRepository;
+        _depositRepository = depositRepository;
     }
 
     public async Task<RoomDto> CreateRoom(CreateUpdateRoomDto room)
@@ -87,20 +92,43 @@ public class RoomService : IRoomService
         await _roomRepository.DeleteAsync(room, true);
     }
 
-    public async Task<List<RoomComboOptionDto>> GetComboRoom(Guid? houseId = null)
+    public async Task<List<RoomComboOptionDto>> GetComboRoom(FilterComboRoomDto filter)
     {
         var currentId = _currentUser.Id;
         var queryable = _roomRepository.GetQueryable();
-        var result = await queryable
-            .WhereIf(houseId.HasValue, x => x.HouseId.Equals(houseId))
+        var listRooms = await queryable
+            .WhereIf(filter.HouseId.HasValue, x => x.HouseId.Equals(filter.HouseId))
             .Where(x => x.House.UserId.Equals(currentId))
-            .Select(x => new RoomComboOptionDto()
-            {
-                Label = x.RoomCode,
-                Value = x.Id,
-                HouseId = x.HouseId
-            })
+            .Include(x => x.Customers)
+            .ThenInclude(x => x.Contracts)
             .ToListAsync();
+
+        if (filter.IsComboDeposit)
+        {
+            var depositRoomIds = await _depositRepository.GetQueryable()
+                .Where(x => x.Status == "DEPOSIT")
+                .Where(x => x.ExpectedDate.HasValue && x.ExpectedDate.Value.Date >= DateTime.Now.Date)
+                .Where(x => x.DepositDate.Date <= DateTime.Now.Date)
+                .WhereIf(filter.RoomId.HasValue, x => !x.RoomId.Equals(filter.RoomId))
+                .Select(x => x.RoomId).ToListAsync();
+            listRooms = listRooms
+                .Where(x => !depositRoomIds.Contains(x.Id))
+                .Where(x => x.Customers == null ||
+                            !x.Customers.Any() ||
+                            x.Customers.MaxBy(y => y.CreatedTime)?.Deposit is null ||
+                            x.Customers.SelectMany(y => y.Contracts).MaxBy(y => y.CreatedTime)
+                                .ExpiredDate < DateTime.Now
+                ).ToList();
+        }
+
+
+        var result = listRooms.Select(x => new RoomComboOptionDto()
+        {
+            Label = x.RoomCode,
+            Value = x.Id,
+            HouseId = x.HouseId
+        }).ToList();
+
         return result;
     }
 
@@ -123,10 +151,12 @@ public class RoomService : IRoomService
         {
             listRoom = listRoom.Where(x => x.Customers == null ||
                                            !x.Customers.Any() ||
-                                           x.Customers.Any(y =>
-                                               y.Contracts.MaxBy(z => z.CreatedTime).ExpiredDate < DateTime.Now))
+                                           x.Customers.MaxBy(y => y.CreatedTime)?.Deposit is null ||
+                                           x.Customers.SelectMany(y => y.Contracts).MaxBy(y => y.CreatedTime)
+                                               .ExpiredDate < DateTime.Now)
                 .ToList();
         }
+
 
         if (!String.IsNullOrEmpty(filterDto.Status) && filterDto.Status == nameof(RoomStatus.Rented))
         {
@@ -250,11 +280,12 @@ public class RoomService : IRoomService
             .AsNoTrackingWithIdentityResolution()
             .Include(x => x.Customers)
             .FirstOrDefaultAsync(x => x.Id.Equals(roomId));
-        
+
         var customers = room.Customers.ToList();
         var customer = customers
             .FirstOrDefault(x =>
                 (x.Contracts.Any(y => y.EffectDate <= DateTime.Now && y.ExpiredDate >= DateTime.Now)) ||
+                (x.Contracts.Any(y => y.EffectDate > DateTime.Now && y.ExpiredDate > DateTime.Now)) ||
                 x.Contracts == null || x.Contracts.Count == 0);
 
         ContractDto contract = null;

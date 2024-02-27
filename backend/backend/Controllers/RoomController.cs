@@ -39,9 +39,9 @@ namespace backend.Controllers
         }
 
         [HttpGet("combo")]
-        public async Task<ApiResponse<List<RoomComboOptionDto>>> GetRoomCombo([FromQuery] Guid? houseId)
+        public async Task<ApiResponse<List<RoomComboOptionDto>>> GetRoomCombo([FromQuery] FilterComboRoomDto filter)
         {
-            var result = await _roomService.GetComboRoom(houseId);
+            var result = await _roomService.GetComboRoom(filter);
             return ApiResponse<List<RoomComboOptionDto>>.Ok(result);
         }
 

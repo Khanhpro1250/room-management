@@ -63,6 +63,11 @@ const CalculateChargeListView: React.FC = () => {
             width: 200,
         },
         {
+            headerName: 'Phòng',
+            field: nameof.full<CalculateChargeGrid>(x => x.roomCode),
+            width: 200,
+        },
+        {
             headerName: 'Tên khách',
             field: nameof.full<CalculateChargeGrid>(x => x.customerName),
             minWidth: 200,
@@ -118,6 +123,11 @@ const CalculateChargeListView: React.FC = () => {
                 houseCombo={houseCombo}
                 onSubmitSuccessfully={() => {
                     modalRef.current?.onClose();
+                    const formValues = formRef.current?.getFieldsValue() ?? ({} as any);
+                    gridController?.setParams({
+                        ...formValues,
+                        dateTime: formValues.dateTime?.startOf('month').format('YYYY-MM-DD'),
+                    });
                     gridController?.reloadData();
                 }}
                 onClose={modalRef.current?.onClose}
@@ -134,6 +144,11 @@ const CalculateChargeListView: React.FC = () => {
                 initialValues={data}
                 onSubmitSuccessfully={() => {
                     modalRef.current?.onClose();
+                    const formValues = formRef.current?.getFieldsValue() ?? ({} as any);
+                    gridController?.setParams({
+                        ...formValues,
+                        dateTime: formValues.dateTime?.startOf('month').format('YYYY-MM-DD'),
+                    });
                     gridController?.reloadData();
                 }}
                 onClose={modalRef.current?.onClose}
@@ -165,6 +180,11 @@ const CalculateChargeListView: React.FC = () => {
                 onExport={() => onExport(data)}
                 onSubmitSuccessfully={() => {
                     modalViewRef.current?.onClose();
+                    const formValues = formRef.current?.getFieldsValue() ?? ({} as any);
+                    gridController?.setParams({
+                        ...formValues,
+                        dateTime: formValues.dateTime?.startOf('month').format('YYYY-MM-DD'),
+                    });
                     gridController?.reloadData();
                 }}
                 onClose={modalViewRef.current?.onClose}
@@ -198,6 +218,11 @@ const CalculateChargeListView: React.FC = () => {
         const res = await requestApi('delete', `${DELETE_CALCULATE_CHARGE}/${data.id}`);
         if (res.data?.success) {
             NotifyUtil.success(NotificationConstant.TITLE, NotificationConstant.DESCRIPTION_DELETE_SUCCESS);
+            const formValues = formRef.current?.getFieldsValue() ?? ({} as any);
+            gridController?.setParams({
+                ...formValues,
+                dateTime: formValues.dateTime?.startOf('month').format('YYYY-MM-DD'),
+            });
             gridController?.reloadData();
             return;
         } else {

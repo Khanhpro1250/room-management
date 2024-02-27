@@ -15,7 +15,7 @@ namespace backend.Services.RoomServices
 
         Task<PaginatedList<RoomElectricServiceDto>> GetElectricServiceRoom(ElectricServiceFilterDto filterDto);
         Task DeleteRoom(Guid id);
-        Task<List<RoomComboOptionDto>> GetComboRoom(Guid? houseId = null);
+        Task<List<RoomComboOptionDto>> GetComboRoom(FilterComboRoomDto filter);
         Task ReturnRoom(Guid id);
         Task<PaginatedList<IncurredCostDto>> GetIncurredCosts(IncurredCostFilterDto filterDto);
         Task CreateIncurredCost(CreateIncurredCostDto incurredCostDto);

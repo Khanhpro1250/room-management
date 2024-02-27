@@ -14,6 +14,8 @@ import { CalculateRequestDto } from '../types/calculate';
 import { CALCULATE_CALCULATE_CHARGE, UPDATE_CALCULATE_CHARGE } from '../api/calculate.api';
 import { ComboOption } from '~/types/shared';
 import moment from 'moment';
+import Checkbox from 'antd/lib/checkbox/Checkbox';
+import Overlay, { OverlayRef } from '~/component/Elements/loading/Overlay';
 
 interface Props {
     initialValues?: Partial<Service>;
@@ -24,7 +26,7 @@ interface Props {
 
 const CalculateMoneyForm: React.FC<Props> = props => {
     const formRef = useRef<BaseFormRef>(null);
-
+    const overlayRef = useRef<OverlayRef>(null);
     const { data: roomComboResponse, isFetching: isLoadingRoomCombo } = useRoomCombo(undefined);
     const roomCombo = useMemo(() => roomComboResponse?.data?.result ?? [], [isLoadingRoomCombo]);
 
@@ -76,10 +78,9 @@ const CalculateMoneyForm: React.FC<Props> = props => {
         };
 
         const urlParam = props.initialValues ? urlParams.update : urlParams.create;
-
+        overlayRef.current?.open?.();
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
-            unit: JSON.stringify(formValues?.unit),
         });
 
         if (response.data?.success) {
@@ -88,6 +89,7 @@ const CalculateMoneyForm: React.FC<Props> = props => {
             props.onClose?.();
             return;
         }
+        overlayRef.current?.close?.();
     };
 
     return (
@@ -95,8 +97,6 @@ const CalculateMoneyForm: React.FC<Props> = props => {
             <BaseForm
                 initialValues={{
                     ...props.initialValues,
-                    status: props.initialValues?.status ?? true,
-                    unit: props.initialValues?.unit ? JSON.parse(props.initialValues?.unit) : [],
                 }}
                 ref={formRef}
                 baseFormItem={[
@@ -145,9 +145,20 @@ const CalculateMoneyForm: React.FC<Props> = props => {
                         ),
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                     },
+                    {
+                        label: 'Tính lại các nhà trong tháng',
+                        name: nameof.full<CalculateRequestDto>(x => x.isRecalculate),
+                        children: (
+                            <Checkbox
+                                onChange={e => {
+                                    formRef.current?.setFieldsValue({ isRecalculate: e.target.checked });
+                                }}
+                            />
+                        ),
+                        className: 'col-span-6',
+                    },
                 ]}
-                labelAlign="left"
-                labelCol={4}
+                labelWidth={200}
                 renderBtnBottom={() => {
                     return (
                         <div className="flex items-center justify-center w-full">
@@ -157,6 +168,7 @@ const CalculateMoneyForm: React.FC<Props> = props => {
                     );
                 }}
             />
+            <Overlay ref={overlayRef} />
         </AppModalContainer>
     );
 };

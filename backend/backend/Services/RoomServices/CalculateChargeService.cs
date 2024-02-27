@@ -109,14 +109,14 @@ public class CalculateChargeService : ICalculateChargeService
         }
 
         var calculteChangeQueryable = _calculateChargeRepository.GetQueryable();
-
+        
         var calculateForDeletes = await calculteChangeQueryable
             .Include(x => x.CalculateChargeDetails)
             .Where(x => calculateCharges.Select(y => y.RoomId).Contains(x.RoomId))
             .Where(x => x.DateCalculate.Date.Month == calculateRoomRequestDto.DateCalculate.Month &&
                         x.DateCalculate.Date.Year == calculateRoomRequestDto.DateCalculate.Year)
             .ToListAsync();
-        if (calculateForDeletes.Any())
+        if (calculateForDeletes.Any() && calculateRoomRequestDto.IsRecalculate)
         {
             foreach (var calculateForDelete in calculateForDeletes)
             {
@@ -133,9 +133,11 @@ public class CalculateChargeService : ICalculateChargeService
         var customers = room.Customers.ToList();
 
         var customer = customers
-            .FirstOrDefault(x =>
-                (x.Contracts.Any(y => y.EffectDate <= dateCalculate && y.ExpiredDate >= dateCalculate)) ||
-                x.Contracts == null || x.Contracts.Count == 0);
+            .FirstOrDefault(x => x.Contracts.Any(y => y.EffectDate <= dateCalculate && y.ExpiredDate >= dateCalculate));
+        if (customer is null)
+        {
+            return listCharges;
+        }
 
         var roomServiceIndices = room?.RoomServiceIndices
             ?.Where(x => x.Month.Equals(dateCalculate.Month) && x.Year.Equals(dateCalculate.Year)).ToList();
@@ -226,13 +228,12 @@ public class CalculateChargeService : ICalculateChargeService
         return Task.CompletedTask;
     }
 
-    private Task
-        CalculateElectricCharge(RoomServiceIndex roomElectricServiceIndice,
+    private Task CalculateElectricCharge(RoomServiceIndex roomElectricServiceIndice,
             Customer customer, List<RoomServiceCalculateDto> roomServiceCalculateDtos)
     {
-        var customerService = customer.Services.FirstOrDefault(x => x.Service.Type.Equals("DIEN"));
+        var customerService = customer?.Services?.FirstOrDefault(x => x.Service.Type.Equals("DIEN"));
         if (customerService is null)
-            return null;
+            return Task.CompletedTask;
         var result = new RoomServiceCalculateDto()
         {
             RoomServiceIndexId = roomElectricServiceIndice.Id,
@@ -246,9 +247,9 @@ public class CalculateChargeService : ICalculateChargeService
     private Task CalculateWaterCharge(RoomServiceIndex roomWaterServiceIndice,
         Customer customer, List<RoomServiceCalculateDto> roomServiceCalculateDtos)
     {
-        var customerService = customer.Services.FirstOrDefault(x => x.Service.Type.Equals("NUOC"));
+        var customerService = customer?.Services?.FirstOrDefault(x => x.Service.Type.Equals("NUOC"));
         if (customerService is null)
-            return null;
+            return Task.CompletedTask;
         var result = new RoomServiceCalculateDto()
         {
             RoomServiceIndexId = roomWaterServiceIndice.Id,
@@ -394,13 +395,10 @@ public class CalculateChargeService : ICalculateChargeService
                 if (item.RoomServiceIndex.Service.Type.Equals("DIEN") ||
                     item.RoomServiceIndex.Service.Type.Equals("NUOC"))
                 {
-                    var customerService =
-                        calculateCharge.Customer.Services.FirstOrDefault(x =>
-                            x.ServiceId == item.RoomServiceIndex.ServiceId);
                     title = item.RoomServiceIndex.Service.Name;
                     description =
                         $"CS cũ: {item.RoomServiceIndex.OldElectricValue} - CS mới: {item.RoomServiceIndex.NewElectricValue} - SD: {item.RoomServiceIndex.UsedElectricValue} ";
-                    cost = (decimal)(customerService?.Price ?? 0) * item.RoomServiceIndex.UsedElectricValue;
+                    cost = (decimal)(item.RoomServiceIndex.Service?.Price ?? 0) * item.RoomServiceIndex.UsedElectricValue;
                 }
             }
             else if (item.ServiceId.HasValue)

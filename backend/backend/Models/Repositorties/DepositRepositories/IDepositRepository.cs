@@ -1,16 +1,11 @@
-﻿using backend.Models.Entities.Customers;
-using backend.Models.Entities.Deposits;
-using MongoDB.Driver;
+﻿using backend.Models.Entities.Deposits;
+using Microsoft.EntityFrameworkCore;
 
-namespace backend.Models.Repositorties.DepositRepositories
+namespace backend.Models.Repositorties.DepositRepositories;
+
+public interface IDepositRepository: IRepository<Deposit>
 {
-    public interface IDepositRepository
-    {
-        // Task<List<Deposit>> GetListDeposit();
-        // Task<Deposit> GetDepositById(string depositId);
-        // Task<Deposit> CreateDeposit(Deposit deposit);
-        // Task<Deposit> UpdateDeposit(Deposit deposit, string id);
-        // IMongoCollection<Deposit> GetQueryable();
-        // Task DeleteDeposit(string id);
-    }
+       
+    DbSet<Deposit> GetRepository();
+    IQueryable<Deposit> GetQueryable();
 }

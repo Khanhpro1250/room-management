@@ -1,15 +1,13 @@
-﻿using backend.Controllers.Dtos.Responese;
-using backend.DTOs.CustomerDtos;
+﻿using backend.Controllers.Dtos;
+using backend.Controllers.Dtos.Responese;
 using backend.DTOs.DepositDtos;
 
-namespace backend.Services.DepositServices
+namespace backend.Services.DepositServices;
+
+public interface IDepositService
 {
-    public interface IDepositService
-    {
-        // Task<PaginatedList<DepositDto>> GetListDeposit();
-        // Task<DepositDto> GetDepositById(string customerId);
-        // Task<DepositDto> CreateDeposit(CreateUpdateDepositDto deposit);
-        // Task<DepositDto> UpdateDeposit(CreateUpdateDepositDto deposit, string id);
-        // Task DeleteDeposit(string id);
-    }
+    Task<PaginatedList<DepositDto>> GetListDeposit(PaginatedListQuery paginatedListQuery);
+    Task CreateDeposit(CreateUpdateDepositDto deposit);
+    Task UpdateDeposit(CreateUpdateDepositDto deposit, Guid id);
+    Task DeleteDeposit(Guid id);
 }

@@ -14,6 +14,7 @@ export interface CalculateRequestDto {
     roomId: string;
     houseId: string;
     dateCalculate: Date;
+    isRecalculate: boolean;
 }
 
 export interface CollectMoneyDto {

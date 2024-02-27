@@ -242,19 +242,19 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                         className: 'col-span-6',
                     },
-                    {
-                        label: 'Tiền phòng',
-                        name: nameof.full<Customer>(x => x.roomCharge),
-                        children: (
-                            <CustomInputNumber
-                                addonAfter="VND"
-                                disabled={props.readonly}
-                                placeholder="Nhập tiền phòng"
-                            />
-                        ),
-                        rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
-                        className: 'col-span-6',
-                    },
+                    // {
+                    //     label: 'Tiền phòng',
+                    //     name: nameof.full<Customer>(x => x.roomCharge),
+                    //     children: (
+                    //         <CustomInputNumber
+                    //             addonAfter="VND"
+                    //             disabled={props.readonly}
+                    //             placeholder="Nhập tiền phòng"
+                    //         />
+                    //     ),
+                    //     rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
+                    //     className: 'col-span-6',
+                    // },
                     {
                         label: 'Ngày thuê',
                         name: nameof.full<Customer>(x => x.rentalStartTime),

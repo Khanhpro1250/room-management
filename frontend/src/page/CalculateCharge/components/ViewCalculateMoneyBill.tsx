@@ -4,6 +4,7 @@ import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 
 import { Dropdown, Menu } from 'antd';
 import DomToImage from 'dom-to-image';
+import Overlay, { OverlayRef } from '~/component/Elements/loading/Overlay';
 import { AppModalContainer } from '~/component/Layout/AppModalContainer';
 import NotificationConstant from '~/configs/contants';
 import { requestApi } from '~/lib/axios';
@@ -20,7 +21,7 @@ interface Props {
 const ViewCalculateMoneyBill: React.FC<Props> = props => {
     const containerRef = useRef<HTMLDivElement>(null);
     const { data: calculateChargeRes, isFetching } = useGetDetailCalculateChargeBill(props.initialValues?.id);
-
+    const overlayRef = useRef<OverlayRef>(null);
     const data = useMemo(() => calculateChargeRes?.data?.result, [isFetching]);
 
     const exportDom = (filename: string) => {
@@ -39,12 +40,15 @@ const ViewCalculateMoneyBill: React.FC<Props> = props => {
     };
 
     const onSent = async (data: any) => {
+        overlayRef.current?.open?.();
         const res = await requestApi('get', `${CALCULATE_SENT_BILL}/${props.initialValues?.id}`);
         if (res.data?.success) {
-            NotifyUtil.success(NotificationConstant.TITLE, 'Hóa đơn đã được gửi đến' + data.customerName);
+            NotifyUtil.success(NotificationConstant.TITLE, 'Hóa đơn đã được gửi đến ' + data.customerName);
+            overlayRef.current?.close?.();
             return;
         } else {
             NotifyUtil.error(NotificationConstant.TITLE, res.data?.message ?? 'Có lỗi xảy ra');
+            overlayRef.current?.close?.();
             return;
         }
     };
@@ -62,7 +66,15 @@ const ViewCalculateMoneyBill: React.FC<Props> = props => {
                     <span>Ảnh hóa đơn</span>
                 </div>
             </Menu.Item>
-            <Menu.Item onClick={props.onExport} className="hover:bg-slate-300" key="pdf">
+            <Menu.Item
+                onClick={() => {
+                    overlayRef.current?.open?.();
+                    props.onExport?.();
+                    overlayRef.current?.close?.();
+                }}
+                className="hover:bg-slate-300"
+                key="pdf"
+            >
                 <div className="flex items-center justify-start">
                     <span>File pdf</span>
                 </div>
@@ -114,7 +126,7 @@ const ViewCalculateMoneyBill: React.FC<Props> = props => {
                         })}
                     </div>
                     <hr />
-                    <div className="mb-4">
+                    <div className="mb-6">
                         <div className="flex justify-between mt-2">
                             <div className="uppercase text-2xl text-sky-950 font-bold  ">Tổng cộng</div>
 
@@ -122,6 +134,23 @@ const ViewCalculateMoneyBill: React.FC<Props> = props => {
                         </div>
                         <div className="flex float-end">
                             <i className="text-xs text-sky-950">( Bằng chữ : {data?.totalCostWord} )</i>
+                        </div>
+                    </div>
+                    <hr className="mt-2" />
+                    <div className="mt-2 mb-4">
+                        <div className="text-sm mb-1  text-sky-950 font-bold">Thông tin số tài khoản </div>
+                        <div className="flex mb-2">
+                            <div className="text-xs font-bold text-sky-950 mr-2">Ngân hàng: </div>
+                            <div className="text-xs text-sky-950">Vietcombank</div>
+                        </div>
+                        <div className="flex mb-2">
+                            <div className="text-xs font-bold text-sky-950 mr-2">Số tài khoản: </div>
+                            <div className="text-xs text-sky-950 mr-1">01231239869912</div>
+                            <div className="text-xs text-sky-950 ">- [ Huỳnh Công Khanh ]</div>
+                        </div>
+                        <div className="flex mb-2">
+                            <div className="text-xs font-bold text-sky-950 mr-2">Số điện thoại liên hệ: </div>
+                            <div className="text-xs text-sky-950">01231239869912</div>
                         </div>
                     </div>
                 </div>
@@ -133,6 +162,7 @@ const ViewCalculateMoneyBill: React.FC<Props> = props => {
                 <ButtonBase startIcon={faPaperPlane} title="Gửi hóa đơn" onClick={() => onSent(data)} />
                 <ButtonBase title="Đóng" startIcon={faClose} variant="danger" onClick={props.onClose} />
             </div>
+            <Overlay ref={overlayRef} />
         </AppModalContainer>
     );
 };

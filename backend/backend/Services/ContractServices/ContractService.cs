@@ -6,6 +6,7 @@ using backend.DTOs.ContractDtos;
 using backend.Models.Entities.Contracts;
 using backend.Models.Entities.Rooms;
 using backend.Models.Repositorties.ContractRepositories;
+using backend.Models.Repositorties.CustomerRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Services.UserServices;
 using backend.Utils;
@@ -21,9 +22,11 @@ namespace backend.Services.ContractServices
         private readonly ICurrentUser _currentUser;
         private readonly IUserService _userService;
         private readonly IRoomProcessRepository _roomProcessRepository;
+        private readonly ICustomerRepository _customerRepository;
 
         public ContractService(IContractRepository contractRepository, IMapper mapper, IRoomRepository roomRepository,
-            ICurrentUser currentUser, IUserService userService, IRoomProcessRepository roomProcessRepository)
+            ICurrentUser currentUser, IUserService userService, IRoomProcessRepository roomProcessRepository,
+            ICustomerRepository customerRepository)
         {
             _contractRepository = contractRepository;
             _mapper = mapper;
@@ -31,6 +34,7 @@ namespace backend.Services.ContractServices
             _currentUser = currentUser;
             _userService = userService;
             _roomProcessRepository = roomProcessRepository;
+            _customerRepository = customerRepository;
         }
 
         public async Task<ContractDto> CreateContract(CreateUpdateContractDto contract)
@@ -147,7 +151,7 @@ namespace backend.Services.ContractServices
                            .ThenInclude(x => x.Contracts)
                            .FirstOrDefaultAsync(x => x.Id.Equals(contractDto.RoomId)) ??
                        throw new Exception("Không tìm thấy phòng");
-            var customer = room?.Customers.FirstOrDefault(x=> x.Id.Equals(contractDto.CustomerId));
+            var customer = room?.Customers.FirstOrDefault(x => x.Id.Equals(contractDto.CustomerId));
             var result = new ExportContractDto()
             {
                 CurrentDay = contractDto.SignedDate.Day.ToString(),

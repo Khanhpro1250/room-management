@@ -200,10 +200,15 @@ const RoomPage: React.FC = () => {
                         {
                             label: 'Trạng thái',
                             name: 'status',
+                            initialValue: 'All',
                             children: (
                                 <Select
                                     onChange={handleOnFilter}
                                     options={[
+                                        {
+                                            value: 'All',
+                                            label: 'Tất cả',
+                                        },
                                         {
                                             value: 'New',
                                             label: 'Còn trống',

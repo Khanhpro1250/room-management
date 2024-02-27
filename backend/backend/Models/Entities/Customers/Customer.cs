@@ -92,9 +92,14 @@ namespace backend.Models.Entities.Customers
         public string Note { get; set; }
 
         public Guid RoomId { get; set; }
-        
+
 
         public Guid? FileEntryCollectionId { get; set; }
+
+        /// <summary>
+        /// Status : DRAF, ACTIVE, DEACTIVE
+        /// </summary>
+        public string Status { get; set; }
 
         public FileEntryCollection FileEntryCollection { get; set; }
 

@@ -33,10 +33,12 @@ const ServiceRoom = React.memo(
 
         const listServices = (props.listServices || []).map((item: Service) => {
             const service = (props.initialValues || []).find((x: ServiceCustomer) => x.serviceId === item.id);
+            const price = ['DIEN', 'NUOC'].includes(item.type) ? item.price : service?.price ?? item.price;
             return {
                 serviceId: item.id,
                 name: item.name,
-                price: service?.price ?? item.price,
+                type: item.type,
+                price: price,
                 unit: item.unit,
                 quantity: service?.quantity ?? 1,
                 selected: !_.isUndefined(service),
@@ -95,9 +97,9 @@ const ServiceRoom = React.memo(
                 field: nameof.full<Service>(x => x.price),
                 minWidth: 200,
                 cellStyle: { textAlign: 'right' },
-
                 cellRenderer: (params: any) => {
-                    return !readonly ? (
+                    const isNoEdit = ['DIEN', 'NUOC'].includes(params.data.type);
+                    return !isNoEdit ? (
                         <CustomInputNumber
                             onChange={debounce((val: any) => {
                                 params.setValue(val);
@@ -125,7 +127,8 @@ const ServiceRoom = React.memo(
                 field: 'quantity',
                 cellStyle: { textAlign: 'right' },
                 cellRenderer: (params: any) => {
-                    return !readonly ? (
+                    const isNoEdit = ['DIEN', 'NUOC'].includes(params.data.type);
+                    return !isNoEdit ? (
                         <CustomInputNumber
                             onChange={debounce((val: any) => {
                                 params.setValue(val);
@@ -151,33 +154,47 @@ const ServiceRoom = React.memo(
         );
 
         return (
-            <BaseGrid
-                ref={gridRef}
-                onGridReady={params => {
-                    const gridApi = params.api;
-                    gridApi.forEachNode(node => {
-                        if (node.data.selected) {
-                            node.setSelected(true);
-                        }
-                    });
-                }}
-                key={props.customerId}
-                columnDefs={ServiceColDefs}
-                data={listServices}
-                numberRows={false}
-                pagination={false}
-                actionRows={false}
-                actionRowsWidth={120}
-                pinAction
-                // gridOptions={{
-                //     rowClassRules: {
-                //         'ag-row-selected': (params: any) => {
-                //             console.log(params.node.selected === true && readonly);
-                //             return readonly;
-                //         },
-                //     },
-                // }}
-            />
+            <>
+                <div className={'border border-gray-600 p-3 '}>
+                    <strong>Lưu ý:</strong>
+                    <p>
+                        Vui lòng chọn dịch vụ cho khách thuê.
+                        <br /> Nếu khách có chọn dịch vụ thì khi tính tiền phòng phần mềm sẽ tự tính các khoản phí vào
+                        hóa đơn;
+                        <br /> Ngược lại nếu không chọn phần mềm sẽ bỏ qua.
+                        <br /> Đối với dịch vụ là loại điện/ nước thì sẽ tính theo chỉ số điện/ nước.
+                        <br /> Đối với các dịch vụ khác sẽ tính theo số lượng (ví dụ phòng có 2 xe đạp nhập số lượng là
+                        2)
+                    </p>
+                </div>
+                <BaseGrid
+                    ref={gridRef}
+                    onGridReady={params => {
+                        const gridApi = params.api;
+                        gridApi.forEachNode(node => {
+                            if (node.data.selected) {
+                                node.setSelected(true);
+                            }
+                        });
+                    }}
+                    key={props.customerId}
+                    columnDefs={ServiceColDefs}
+                    data={listServices}
+                    numberRows={false}
+                    pagination={false}
+                    actionRows={false}
+                    actionRowsWidth={120}
+                    pinAction
+                    // gridOptions={{
+                    //     rowClassRules: {
+                    //         'ag-row-selected': (params: any) => {
+                    //             console.log(params.node.selected === true && readonly);
+                    //             return readonly;
+                    //         },
+                    //     },
+                    // }}
+                />
+            </>
         );
     }),
 );

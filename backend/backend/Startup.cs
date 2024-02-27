@@ -4,6 +4,7 @@ using backend.Models.Entities;
 using backend.Models.Entities.UserAccount;
 using backend.Models.Repositorties.ContractRepositories;
 using backend.Models.Repositorties.CustomerRepositories;
+using backend.Models.Repositorties.DepositRepositories;
 using backend.Models.Repositorties.FileRepositories;
 using backend.Models.Repositorties.HouseRerositories;
 using backend.Models.Repositorties.MenuRepositories;
@@ -172,6 +173,7 @@ public class Startup
         services.AddTransient<IIncurredCostRepository, IncurredCostRepository>();
         services.AddTransient<ICalculateChargeRepository, CalculateChargeRepository>();
         services.AddTransient<ICalculateChargeDetailRepository, CalculateChargeDetailRepository>();
+        services.AddTransient<IDepositRepository, DepositRepository>();
 
 
         // AddScoped adService
