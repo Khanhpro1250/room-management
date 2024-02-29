@@ -82,11 +82,19 @@ public class UserService : IUserService
     public async Task<UserDto> UpdateUser(CreateUpdateUserDtos user, Guid id)
     {
         var findUser =
-            await _userAccountRepository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
+            await _userAccountRepository.GetQueryable().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
             throw new Exception("User không tồn tại");
-        var userEntity = _mapper.Map<CreateUpdateUserDtos, User>(user);
+        var userEntity = _mapper.Map<CreateUpdateUserDtos, User>(user, findUser);
         var result = await _userAccountRepository.UpdateAsync(userEntity, true);
         return _mapper.Map<User, UserDto>(result);
+    }
+
+    public async Task UpdateUserProfile(UpdateUserProfileDto user)
+    {
+        var findUser = await _userAccountRepository.GetQueryable().FirstOrDefaultAsync(x => x.Id.Equals(user.Id)) ??
+                       throw new Exception("User không tồn tại");
+        var userEntity = _mapper.Map<UpdateUserProfileDto, User>(user, findUser);
+        await _userAccountRepository.UpdateAsync(userEntity, true);
     }
 
     public async Task<UserDto> RegisterUser(CreateUpdateUserDtos user)

@@ -7,6 +7,7 @@ using backend.Models.Entities.Contracts;
 using backend.Models.Entities.Rooms;
 using backend.Models.Repositorties.ContractRepositories;
 using backend.Models.Repositorties.CustomerRepositories;
+using backend.Models.Repositorties.DepositRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Services.UserServices;
 using backend.Utils;
@@ -23,10 +24,11 @@ namespace backend.Services.ContractServices
         private readonly IUserService _userService;
         private readonly IRoomProcessRepository _roomProcessRepository;
         private readonly ICustomerRepository _customerRepository;
+        private readonly IDepositRepository _depositRepository;
 
         public ContractService(IContractRepository contractRepository, IMapper mapper, IRoomRepository roomRepository,
             ICurrentUser currentUser, IUserService userService, IRoomProcessRepository roomProcessRepository,
-            ICustomerRepository customerRepository)
+            ICustomerRepository customerRepository, IDepositRepository depositRepository)
         {
             _contractRepository = contractRepository;
             _mapper = mapper;
@@ -35,6 +37,7 @@ namespace backend.Services.ContractServices
             _userService = userService;
             _roomProcessRepository = roomProcessRepository;
             _customerRepository = customerRepository;
+            _depositRepository = depositRepository;
         }
 
         public async Task<ContractDto> CreateContract(CreateUpdateContractDto contract)
@@ -54,11 +57,37 @@ namespace backend.Services.ContractServices
             return _mapper.Map<Contract, ContractDto>(result);
         }
 
+        private async Task UpdateDepositState(Guid customerId, Guid roomId)
+        {
+            var customer = await _customerRepository.GetQueryable()
+                .FirstOrDefaultAsync(x => x.Id.Equals(customerId));
+            var deposit = await _depositRepository.GetQueryable()
+                .FirstOrDefaultAsync(x => x.RoomId.Equals(roomId));
+            if (deposit is not null)
+            {
+                if (customer.RentalStartTime.HasValue && deposit.ExpectedDate.HasValue &&
+                    customer.RentalStartTime.Value.Date <= deposit.ExpectedDate.Value.Date &&
+                    (deposit.PhoneNumber.Contains(customer.PhoneNumber1) ||
+                     deposit.PhoneNumber.Contains(customer?.PhoneNumber2 ?? "")))
+                {
+                    deposit.Status = "CheckedIn";
+                    await _depositRepository.UpdateAsync(deposit, true);
+                }
+            }
+        }
+
         public async Task DeleteContract(Guid id)
         {
             var findContract = await _contractRepository.GetQueryable().FirstOrDefaultAsync(x => x.Id.Equals(id)) ??
                                throw new Exception("Không tìm thấy hợp đồng");
             await _contractRepository.DeleteAsync(findContract, true);
+            var roomProcess = new RoomProcess()
+            {
+                RoomId = findContract.RoomId,
+                CustomerId = findContract.CustomerId,
+                Action = "Cancel"
+            };
+            await _roomProcessRepository.AddAsync(roomProcess, true);
         }
 
 

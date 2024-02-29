@@ -220,10 +220,16 @@ public static class HouseEntityConfig
             entity.HasKey(x => x.Id);
             entity.ToTable(nameof(Deposit), SchemaName);
             entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
+            entity.Property(x => x.CustomerId).IsRequired(false);
 
             entity.HasOne(x => x.Room)
                 .WithMany()
                 .HasForeignKey(x => x.RoomId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(x => x.Customer)
+                .WithMany()
+                .HasForeignKey(x => x.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 

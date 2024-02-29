@@ -12,8 +12,6 @@ import ReportRevenueChart from './ReportRevenueChart';
 type Props = {};
 
 const ReportDashboard: React.FC<Props> = (props: Props) => {
-    const formRef = useRef<BaseFormRef>(null);
-
     const renderTitle = () => {
         return (
             <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
@@ -33,7 +31,7 @@ const ReportDashboard: React.FC<Props> = (props: Props) => {
     };
     return (
         <AppContainer title={renderTitle()}>
-            <div className={'container-dash-board'}>
+            <div className={'container-dash-board pb-6'}>
                 {/* <Fieldset title="Bộ lọc tìm kiếm">
                     <BaseForm
                         ref={formRef}
@@ -83,9 +81,15 @@ const ReportDashboard: React.FC<Props> = (props: Props) => {
                         isDisplayGrid={true}
                     />
                 </Fieldset> */}
-                <div className="container-body !p-[1px] !pr-1 grid grid-cols-12 gap-4">
+                <div className="container-body !pr-1 grid grid-cols-12 gap-4">
                     <div className="col-span-6">
                         <RoomStateChart />
+                    </div>
+                    <div className="col-span-6">
+                        <ReportRevenueChart />
+                    </div>
+                    <div className="col-span-6">
+                        <ReportRevenueChart />
                     </div>
                     <div className="col-span-6">
                         <ReportRevenueChart />

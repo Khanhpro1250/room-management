@@ -30,11 +30,6 @@ const CustomerListView: React.FC = () => {
     const navigate = useNavigate();
     const gridController = useBaseGrid<Service>({
         url: CUSTOMER_INDEX_API,
-        // params: {
-        //     month: moment().month() + 1,
-        //     year: moment().year(),
-        //     serviceType: ServiceType.Water,
-        // },
         gridRef: gridRef,
     });
 
@@ -124,10 +119,6 @@ const CustomerListView: React.FC = () => {
         }
     };
 
-    const handleChangeData = debounce((val: any) => {
-        console.log(val);
-    }, 300);
-
     const renderTitle = () => {
         return (
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -146,67 +137,6 @@ const CustomerListView: React.FC = () => {
 
     return (
         <AppContainer title={renderTitle()} loading={gridController?.loading}>
-            <Fieldset title="Bộ lọc tìm kiếm">
-                <BaseForm
-                    ref={formRef}
-                    className="mb-2 w-full"
-                    baseFormItem={[
-                        {
-                            label: 'Tháng/năm',
-                            name: 'dataTime',
-                            children: (
-                                <DatePicker
-                                    onChange={handleChangeData}
-                                    className="w-full"
-                                    format={'MM/yyyy'}
-                                    picker="month"
-                                    defaultValue={moment()}
-                                />
-                            ),
-                            className: 'col-span-4',
-                        },
-                        {
-                            label: 'Nhà',
-                            name: 'houseId',
-                            // children: <Select onChange={handleChangeData} options={houseCombo} />,
-                            className: 'col-span-4',
-                        },
-                        {
-                            label: 'Trạng thái',
-                            name: 'status',
-                            children: (
-                                <Select
-                                    clearIcon
-                                    onChange={handleChangeData}
-                                    options={[
-                                        {
-                                            value: 'ALL',
-                                            label: 'Tất cả',
-                                        },
-                                        {
-                                            value: 'NEW',
-                                            label: 'Còn trống',
-                                        },
-                                        {
-                                            value: 'RENTED',
-                                            label: 'Đã cho thuê',
-                                        },
-                                    ]}
-                                    defaultValue={'ALL'}
-                                    showSearch
-                                    allowClear
-                                    placeholder="Chọn trạng thái..."
-                                />
-                            ),
-                            className: 'col-span-4',
-                        },
-                    ]}
-                    labelAlign="left"
-                    labelCol={2}
-                    isDisplayGrid={true}
-                />
-            </Fieldset>
-
             <BaseGrid
                 columnDefs={CustomerListViewColumnDefs}
                 data={gridController?.data || []}

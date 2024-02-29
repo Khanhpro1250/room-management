@@ -72,6 +72,16 @@ public class DepositService : IDepositService
         var queryable = _depositRepository.GetQueryable();
         var deposit = await queryable.FirstOrDefaultAsync(x => x.Id == id) ?? throw new Exception("Deposit not found");
         _mapper.Map(depositDto, deposit);
+        if (deposit.DepositDate.Date < DateTime.Now.Date && deposit.ExpectedDate!.Value.Date < DateTime.Now.Date &&
+            deposit.Status == "DEPOSIT")
+        {
+            deposit.Status = "EXPIRED";
+        }
+        else
+        {
+            deposit.Status = "DEPOSIT";
+        }
+
         deposit.LastModifiedTime = DateTime.Now;
         deposit.LastModifiedBy = _currentUser.Id.ToString();
         await _depositRepository.UpdateAsync(deposit, true);

@@ -15,6 +15,7 @@ using backend.Services.FileServices;
 using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver.Linq;
 
 namespace backend.Services.CustomerServices
 {
@@ -68,18 +69,7 @@ namespace backend.Services.CustomerServices
                 customerEntity.FileEntryCollectionId = fileCollectionId;
             }
 
-
             var result = await _customerRepository.AddAsync(customerEntity, true);
-            if (customerEntity.Deposit.HasValue)
-            {
-                await _roomProcessRepository.AddAsync(new RoomProcess()
-                {
-                    RoomId = customerEntity.RoomId,
-                    CustomerId = customerEntity.Id,
-                    Action = "Deposited",
-                }, true);
-            }
-
             return _mapper.Map<Customer, CustomerDto>(result);
         }
 
@@ -169,6 +159,27 @@ namespace backend.Services.CustomerServices
             }
 
             return new PaginatedList<CustomerListViewDto>(results, count, paginatedListQuery.Offset,
+                paginatedListQuery.Limit);
+        }
+
+        public async Task<PaginatedList<CustomerDto>> GetHistoriesCustomer(PaginatedListQuery paginatedListQuery)
+        {
+            var queryable = _customerRepository.GetQueryable();
+            var currentUserId = _currentUser.Id;
+
+            var listCustomer = await queryable
+                .Where(x => x.CreatedBy.Contains(currentUserId.ToString()))
+                .Include(x => x.Contracts)
+                .QueryablePaging(paginatedListQuery)
+                .ToListAsync();
+            var results = _mapper.Map<List<Customer>, List<CustomerDto>>(listCustomer);
+            var listCustomerIds = listCustomer.Where(x => x.Contracts.Any(y =>
+                    y.CustomerId.Equals(x.Id) && y.EffectDate!.Value.Date <= DateTime.Now.Date &&
+                    y.ExpiredDate!.Value.Date >= DateTime.Now.Date))
+                .Select(x => x.Id).ToList();
+            results = results.Where(x => !listCustomerIds.Contains(x.Id)).ToList();
+
+            return new PaginatedList<CustomerDto>(results, 0, paginatedListQuery.Offset,
                 paginatedListQuery.Limit);
         }
 

@@ -38,11 +38,24 @@ const DepositListView: React.FC = () => {
 
     const DepositServiceColDefs: BaseGridColDef[] = [
         {
-            headerName: 'Ngày đặt cọc',
-            field: nameof.full<DepositGridDto>(x => x.depositDate),
-            cellStyle: { textAlign: 'center' },
-            cellRenderer: (params: any) => {
-                return moment(params.value).format('DD/MM/YYYY');
+            headerName: 'Họ và tên',
+            field: nameof.full<DepositGridDto>(x => x.customerName),
+            minWidth: 200,
+            flex: 1,
+        },
+        {
+            headerName: 'Số điện thoại',
+            field: nameof.full<DepositGridDto>(x => x.phoneNumber),
+            width: 150,
+            cellRenderer: (val: any) => {
+                return (
+                    <a href={`tel:${val.value}`}>
+                        <i className="fa fa-phone">
+                            <span> </span>
+                            {val.value}
+                        </i>
+                    </a>
+                );
             },
         },
         {
@@ -54,12 +67,6 @@ const DepositListView: React.FC = () => {
             field: nameof.full<DepositGridDto>(x => x.roomCode),
         },
         {
-            headerName: 'Họ và tên',
-            field: nameof.full<DepositGridDto>(x => x.customerName),
-            minWidth: 200,
-            flex: 1,
-        },
-        {
             headerName: 'Tiền cọc',
             field: nameof.full<DepositGridDto>(x => x.depositAmount),
             width: 200,
@@ -68,6 +75,15 @@ const DepositListView: React.FC = () => {
                 return Number(val.value ?? 0).toLocaleString('vi', { maximumFractionDigits: 2 });
             },
         },
+        {
+            headerName: 'Ngày đặt cọc',
+            field: nameof.full<DepositGridDto>(x => x.depositDate),
+            cellStyle: { textAlign: 'center' },
+            cellRenderer: (params: any) => {
+                return moment(params.value).format('DD/MM/YYYY');
+            },
+        },
+
         {
             headerName: 'Ngày dự kiến nhận phòng',
             field: nameof.full<DepositGridDto>(x => x.expectedDate),

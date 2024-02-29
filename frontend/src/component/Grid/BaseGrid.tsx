@@ -245,7 +245,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                             onRowSelected={(event: any) => {
                                 return props?.onRowSelected?.(event);
                             }}
-                            rowSelection={'multiple'}
+                            rowSelection={props.rowSelection ?? 'multiple'}
                             gridOptions={props.gridOptions}
                             rowHeight={50}
                             paginateChildRows={true}

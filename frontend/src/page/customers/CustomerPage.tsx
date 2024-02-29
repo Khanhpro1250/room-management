@@ -21,6 +21,7 @@ import ServiceRoom, { ServiceRoomRef } from '~/page/customers/components/Service
 import ContractForm, { ContractFormRef } from './components/ContractForm';
 import CustomerForm, { CustomerFormRef } from './components/CustomerForm';
 import MemberForm, { MemberFormRef } from './components/MemberForm';
+import { BaseIcon } from '~/component/Icon/BaseIcon';
 
 interface State {}
 
@@ -91,6 +92,35 @@ const CustomerPage: React.FC = () => {
         // }
     };
 
+    const renderTitle = () => {
+        return (
+            <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+                <div>
+                    <div
+                        className={
+                            'text-sm inline-flex items-center font-bold leading-sm ' +
+                            'uppercase px-[8px] py-[5px] bg-[#73737320] text-[#737373] rounded-md mr-1'
+                        }
+                    >
+                        <BaseIcon icon={icon()} />
+                    </div>
+                    <span className="font-semibold text-lg">{title()}</span>
+                </div>
+                <div className=" flex-1 flex items-center justify-end mb-2">
+                    <ButtonBase
+                        title="Trở về"
+                        size="md"
+                        startIcon={faArrowRotateBack}
+                        variant="danger"
+                        onClick={() => pushDomain('/room-manage')}
+                    />
+
+                    <ButtonBase title="Lưu" size="md" startIcon={faSave} onClick={onClickSave} />
+                </div>
+            </div>
+        );
+    };
+
     const renderExtraContent = () => {
         switch (currentTab) {
             case 'member':
@@ -134,23 +164,13 @@ const CustomerPage: React.FC = () => {
                 return <></>;
         }
     };
-    return (
-        <AppContainer loading={isFetching} className="body-page h-full overflow-auto relative p-0">
-            <div className="flex items-center sticky top-0 left-0 right-0 bg-white z-10">
-                <FontAwesomeIcon size={'2x'} icon={icon()} className="mr-1.5" />
-                <span className="font-bold text-2xl  text-gray-600">{title()}</span>
-                <div className=" flex-1 flex items-center justify-end mb-2">
-                    <ButtonBase
-                        title="Trở về"
-                        size="md"
-                        startIcon={faArrowRotateBack}
-                        variant="danger"
-                        onClick={() => pushDomain('/room-manage')}
-                    />
-                    <ButtonBase title="Lưu" size="md" startIcon={faSave} onClick={onClickSave} />
-                </div>
-            </div>
 
+    return (
+        <AppContainer
+            title={renderTitle()}
+            loading={isFetching}
+            className="body-page h-full overflow-auto relative p-0"
+        >
             <Tabs
                 tabBarExtraContent={renderExtraContent()}
                 className="mt-2"

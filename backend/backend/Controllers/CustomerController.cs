@@ -34,6 +34,13 @@ namespace backend.Controllers
             return ApiResponse<PaginatedList<CustomerListViewDto>>.Ok(result);
         }
 
+        [HttpGet("list-histories")]
+        public async Task<ApiResponse<PaginatedList<CustomerDto>>> GetHistories()
+        {
+            var result = await _customerService.GetHistoriesCustomer(Request.Query.GetPaginatedListQuery());
+            return ApiResponse<PaginatedList<CustomerDto>>.Ok(result);
+        }
+
 
         [HttpGet("detail-by-room/{roomId}")]
         public async Task<ApiResponse<CustomerDto>> GetDetailByRoomId([FromRoute] Guid roomId)

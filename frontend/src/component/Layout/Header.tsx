@@ -1,10 +1,10 @@
 import { CaretDownFilled, MenuUnfoldOutlined, UserOutlined } from '@ant-design/icons';
-import { faSignOut } from '@fortawesome/free-solid-svg-icons';
+import { faSignOut, faUserEdit } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Avatar, Dropdown, Menu } from 'antd';
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAppState } from '~/AppStore';
 import { logoutAsync } from '~/store/authSlice';
 
@@ -16,6 +16,7 @@ interface Props {
 
 const Header: React.FC<Props> = props => {
     const dispatch = useDispatch();
+    const pushDomain = useNavigate();
     const { toggle } = props;
     const { authUser } = useAppState(state => state.authData);
 
@@ -29,6 +30,12 @@ const Header: React.FC<Props> = props => {
 
     const menu = (
         <Menu>
+            <Menu.Item key="editProfile" onClick={() => pushDomain('/profile')}>
+                <div className="flex items-center justify-start">
+                    <FontAwesomeIcon icon={faUserEdit} />
+                    <span className="ml-3">Thông tin cá nhân</span>
+                </div>
+            </Menu.Item>
             <Menu.Item key="logout" onClick={() => onActionClick('logout')}>
                 <div className="flex items-center justify-start">
                     <FontAwesomeIcon icon={faSignOut} />

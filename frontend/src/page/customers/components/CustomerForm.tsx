@@ -16,6 +16,10 @@ import ApiUtil from '~/util/ApiUtil';
 import NotifyUtil from '~/util/NotifyUtil';
 import { CUSTOMER_CREATE_API, CUSTOMER_UPDATE_API } from '../api/customer.api';
 import CustomInputNumber from '~/component/Form/CustomInputNumber';
+import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
+import { faHistory } from '@fortawesome/free-solid-svg-icons';
+import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
+import ListCustomerHistories, { ListCustomerHistoriesRef } from './ListCustomerHistories';
 interface Props {
     parentId?: string | null;
     readonly?: boolean;
@@ -32,10 +36,30 @@ export interface CustomerFormRef {
 }
 const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.Element => {
     const formRef = useRef<BaseFormRef>(null);
-
+    const modalRef = useRef<ModalRef>(null);
     const cloneRowData = _.cloneDeep(props.initialValues);
+    const customerHistoryRef = useRef<ListCustomerHistoriesRef>(null);
+
+    const getCustomerHistories = () => {
+        const data = customerHistoryRef.current?.getRoweData();
+        if (_.isEmpty(data) || data === undefined) {
+            return;
+        }
+        const formData = {
+            ...data,
+            issueDate: data?.issueDate ? moment(data?.issueDate) : null,
+            rentalStartTime: data?.rentalStartTime ? moment(data?.rentalStartTime) : null,
+            birthday: data?.birthday ? moment(data?.birthday) : null,
+        };
+        formRef.current?.setFieldsValue(formData);
+        modalRef.current?.onClose();
+    };
 
     const onSubmit = async () => {
+        const formValues = formRef.current?.getFieldsValue();
+        const formBody = {
+            ...formValues,
+        };
         const urlParams: Record<
             string,
             {
@@ -50,7 +74,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                 message: NotificationConstant.DESCRIPTION_CREATE_SUCCESS,
             },
             update: {
-                url: `${CUSTOMER_UPDATE_API}/${props.initialValues?.id}`,
+                url: `${CUSTOMER_UPDATE_API}/${props.initialValues?.id ?? formBody.id}`,
                 method: 'put',
                 message: NotificationConstant.DESCRIPTION_UPDATE_SUCCESS,
             },
@@ -58,10 +82,6 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
         if (!formRef.current?.isFieldsValidate()) {
             return;
         }
-        const formValues = formRef.current?.getFieldsValue();
-        const formBody = {
-            ...formValues,
-        };
 
         if (!_.isEmpty(props.initialValues)) {
             const initFiles = cloneRowData?.fileEntryCollection;
@@ -87,7 +107,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
             birthday: moment(formBody?.birthday).format('YYYY-MM-DD'),
         });
 
-        const urlParam = props.initialValues ? urlParams.update : urlParams.create;
+        const urlParam = props.initialValues ?? formBody.id ? urlParams.update : urlParams.create;
         props.mask?.();
         const response = await requestApi(urlParam.method, urlParam.url, data, {
             headers: {
@@ -107,6 +127,18 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
             props.unMask?.();
             return;
         }
+    };
+
+    const onCustomerHistory = () => {
+        modalRef.current?.onOpen(
+            <ListCustomerHistories
+                onGetData={getCustomerHistories}
+                onClose={() => modalRef.current?.onClose?.()}
+                ref={customerHistoryRef}
+            />,
+            'Nhập mã OTP đã gửi qua email ( hiệu lực trong 5 phút )',
+            '60%',
+        );
     };
 
     useImperativeHandle(
@@ -143,7 +175,18 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                 ref={formRef}
                 baseFormItem={[
                     {
-                        label: 'Họ và tên',
+                        label: (
+                            <>
+                                <div>Họ và tên</div>
+                                <ButtonBase
+                                    size={'xs'}
+                                    variant={'info'}
+                                    tooltip="Lấy khách cũ"
+                                    startIcon={faHistory}
+                                    onClick={onCustomerHistory}
+                                />
+                            </>
+                        ),
                         name: nameof.full<Customer>(x => x.fullName),
                         children: <Input disabled={props.readonly} placeholder="Nhập họ và tên ..." />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
@@ -327,6 +370,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                     <span className="text-red-500 font-bold">(*): Thông tin bắt buộc</span>
                 </div>
             </div>
+            <ModalBase ref={modalRef} />
         </AppModalContainer>
     );
 });

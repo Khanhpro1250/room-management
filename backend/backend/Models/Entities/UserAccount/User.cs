@@ -1,7 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
-namespace backend.Models.Entities.UserAccount;
+﻿namespace backend.Models.Entities.UserAccount;
 
 public class User: AuditedEntity<Guid>
 {

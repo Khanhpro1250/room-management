@@ -1,4 +1,5 @@
-﻿using backend.Models.Entities.Rooms;
+﻿using backend.Models.Entities.Customers;
+using backend.Models.Entities.Rooms;
 
 namespace backend.Models.Entities.Deposits;
 
@@ -10,6 +11,7 @@ public class Deposit : AuditedEntity<Guid>
     public decimal DepositAmount { get; set; }
     public DateTime DepositDate { get; set; }
     public string Note { get; set; }
+    public Guid? CustomerId { get; set; }
 
     /// <summary>
     /// Ngày dự kiến nhận phòng
@@ -19,4 +21,5 @@ public class Deposit : AuditedEntity<Guid>
     public int MaximumDays { get; set; }
     public string Status { get; set; }
     public Room Room { get; set; }
+    public Customer Customer { get; set; }
 }

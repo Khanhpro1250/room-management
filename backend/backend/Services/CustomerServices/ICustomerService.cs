@@ -8,6 +8,7 @@ namespace backend.Services.CustomerServices
     public interface ICustomerService
     {
         Task<PaginatedList<CustomerListViewDto>> GetListCustomer(PaginatedListQuery paginatedListQuery);
+        Task<PaginatedList<CustomerDto>> GetHistoriesCustomer(PaginatedListQuery paginatedListQuery);
         Task<CustomerDto> GetCustomerById(Guid customerId);
         Task<CustomerDto> GetCustomerByRoomId(Guid roomId);
         Task<List<CustomerDto>> GetCustomerByRoomIds(List<Guid> roomIds);

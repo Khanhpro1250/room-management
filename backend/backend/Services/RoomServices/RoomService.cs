@@ -137,6 +137,10 @@ public class RoomService : IRoomService
         var queryable = _roomRepository.GetQueryable();
         var currentUserId = _currentUser.Id;
 
+        var depositRepository = _depositRepository.GetQueryable();
+        var listRoomDepositIds = await depositRepository.Where(x => x.DepositDate.Date <= DateTime.Now.Date)
+            .Where(x => x.ExpectedDate.HasValue && x.ExpectedDate.Value.Date >= DateTime.Now.Date)
+            .Select(x => x.RoomId).ToListAsync();
 
         var listRoom = await queryable
             .WhereIf(!String.IsNullOrEmpty(filterDto.RoomCode), x => x.RoomCode.Contains(filterDto.RoomCode))
@@ -213,8 +217,12 @@ public class RoomService : IRoomService
                 roomDto.Status = nameof(RoomStatus.Rented);
                 roomDto.StatusName = "Đã cho thuê";
             }
-            else if (item.Customers is not null && item.Customers.Any() &&
-                     item.Customers.MaxBy(x => x.CreatedTime)?.Deposit is not null)
+            else if (item.Customers is not null && item.Customers.Any())
+            {
+                roomDto.Status = nameof(RoomStatus.New);
+                roomDto.StatusName = "Còn trống";
+            }
+            else if (listRoomDepositIds.Contains(item.Id))
             {
                 roomDto.Status = nameof(RoomStatus.Deposited);
                 roomDto.StatusName = "Đã đặt cọc";
@@ -266,6 +274,10 @@ public class RoomService : IRoomService
     public async Task<DataWithRoomDto> GetDataWithRoom(Guid roomId)
     {
         var queryable = _roomRepository.GetQueryable();
+        var deposit = await _depositRepository.GetQueryable()
+            .Where(x => x.ExpectedDate.HasValue && x.ExpectedDate.Value.Date >= DateTime.Now.Date &&
+                        x.DepositDate.Date <= DateTime.Now.Date)
+            .FirstOrDefaultAsync(x => x.RoomId.Equals(roomId));
 
         var room = await queryable
             .AsNoTracking()
@@ -297,6 +309,18 @@ public class RoomService : IRoomService
                 .ProjectTo<ContractDto>(_mapper.ConfigurationProvider)
                 .OrderByDescending(x => x.CreatedTime)
                 .FirstOrDefaultAsync(x => x.ExpiredDate >= DateTime.Now);
+        }
+
+        if (customer == null && deposit != null)
+        {
+            customer = new Customer()
+            {
+                RoomId = roomId,
+                Deposit = (float?)deposit?.DepositAmount,
+                FullName = deposit?.CustomerName,
+                PhoneNumber1 = deposit?.PhoneNumber,
+                RentalStartTime = deposit?.ExpectedDate,
+            };
         }
 
         var listServices = await _serviceService.GetListServiceRegister();
@@ -367,11 +391,7 @@ public class RoomService : IRoomService
                 ServiceId = x.ServiceId
             }).ToList();
         }
-
-        // else if ((roomServiceIndices is null || !roomServiceIndices.Any())
-        //          // && (filterDto.CurrentDate.Year == DateTime.Now.Year && filterDto.CurrentDate.Month == DateTime.Now.Month)
-        //         )
-        // {
+        
         result.AddRange(rooms
             .Where(x => x.RoomServiceIndices == null || !x.RoomServiceIndices.Any()
                                                      || !x.RoomServiceIndices.Any(y =>

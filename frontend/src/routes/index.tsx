@@ -22,6 +22,7 @@ const CustomerListView = React.lazy(() => import('~/page/customers/CustomerListV
 const CalculateChargeListView = React.lazy(() => import('~/page/CalculateCharge/CalculateChargeListView'));
 const ReportDashboard = React.lazy(() => import('~/page/dashboard/ReportDashboard'));
 const DepositListView = React.lazy(() => import('~/page/deposits/DepositListView'));
+const ProfileSetting = React.lazy(() => import('~/page/settings/ProfileSetting'));
 
 //home
 
@@ -102,6 +103,10 @@ const routeList = [
             {
                 path: 'deposit',
                 element: <DepositListView />,
+            },
+            {
+                path: 'profile',
+                element: <ProfileSetting />,
             },
         ],
     },

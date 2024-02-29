@@ -15,6 +15,8 @@ export interface AppUser {
     orgId?: string;
     userCode?: string;
     amount?: number;
+    issueDate: Date;
+    dateOfBirth: Date;
 }
 
 export interface IUser {

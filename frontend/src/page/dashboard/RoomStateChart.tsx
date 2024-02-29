@@ -70,17 +70,6 @@ const RoomStateChart = (props: IProps) => {
             <ReactECharts
                 ref={chartRef}
                 option={{
-                    title: {
-                        top: 'center',
-                        left: 'center',
-                        text: 'Trạng thái phòng',
-                        textStyle: {
-                            fontSize: 18,
-                            fontWeight: 'bold',
-                            fontFamily: 'lato, helvetica, arial, verdana, sans-serif, "FontAwesome"',
-                        },
-                    },
-
                     tooltip: {
                         trigger: 'item',
                         formatter: (params: any) => {
@@ -100,7 +89,6 @@ const RoomStateChart = (props: IProps) => {
                     },
                     series: [
                         {
-                            name: 'Trạng thái phòng trọ',
                             type: 'pie',
                             avoidLabelOverlap: false,
                             label: {
@@ -109,8 +97,7 @@ const RoomStateChart = (props: IProps) => {
                                 position: 'inside',
                                 color: '#fff',
                             },
-                            radius: ['30%', '80%'],
-                            center: ['50%', '50%'],
+
                             emphasis: {},
                             data: dataRender,
                             color: dataColorRender,
@@ -118,7 +105,7 @@ const RoomStateChart = (props: IProps) => {
                     ],
                 }}
                 style={{
-                    width: '100%',
+                    width: '300px',
                     height: 'unset',
                     aspectRatio: '1 / 1',
                     display: 'flex',
