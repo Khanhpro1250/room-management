@@ -1,5 +1,5 @@
 import { icon } from '@fortawesome/fontawesome-svg-core';
-import { faCubes, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faCubes, faEdit, faFileExport } from '@fortawesome/free-solid-svg-icons';
 import Checkbox from 'antd/lib/checkbox/Checkbox';
 import React, { useRef } from 'react';
 import Loading from '~/component/Elements/loading/Loading';
@@ -15,6 +15,7 @@ import { Service } from '~/types/shared/Service';
 import NotifyUtil from '~/util/NotifyUtil';
 import { SERVICE_DELETE_API, SERVICE_INDEX_API } from './api/services.api';
 import ServicesForm from './components/ServicesForm';
+import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 
 const ServicesListView: React.FC = () => {
     const gridRef = useRef<BaseGridRef>(null);
@@ -64,6 +65,13 @@ const ServicesListView: React.FC = () => {
             NotifyUtil.error(NotificationConstant.TITLE, res.data?.message ?? 'Có lỗi xảy ra');
             return;
         }
+    };
+
+    const onExport = () => {
+        gridRef.current?.api.exportDataAsExcel({
+            fileName: 'Danh sách dịch vụ',
+            sheetName: 'Danh sách dịch vụ',
+        });
     };
 
     const ServiceColDefs: BaseGridColDef[] = [
@@ -121,12 +129,21 @@ const ServicesListView: React.FC = () => {
                     </div>
                     <span className="font-semibold text-lg">Dịch vụ</span>
                 </div>
-                <GridToolbar
-                    hasCreateButton
-                    hasRefreshButton
-                    onClickCreateButton={onCreate}
-                    // onClickRefreshButton={() => gridController?.reloadData()}
-                />
+                <div className="flex">
+                    <GridToolbar
+                        hasCreateButton
+                        hasRefreshButton
+                        onClickCreateButton={onCreate}
+                        // onClickRefreshButton={() => gridController?.reloadData()}
+                    />
+                    <ButtonBase
+                        variant="warning"
+                        title="Xuất dữ liệu"
+                        size="md"
+                        startIcon={faFileExport}
+                        onClick={onExport}
+                    />
+                </div>
             </div>
         );
     };

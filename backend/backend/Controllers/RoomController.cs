@@ -194,7 +194,7 @@ namespace backend.Controllers
         {
             var dataReplace = await _calculateChargeService.GetDetailCalculateCharge(id);
             var wookbook = await _exportService.ExportWord(dataReplace, null,
-                "https://res.cloudinary.com/khanh15032001/raw/upload/v1708226990/documents/fnbuqvmvhn9ql1egoc7f.docx");
+                "https://res.cloudinary.com/khanh15032001/raw/upload/v1709480527/hoa-don-tien-nha_sdv5qv.docx");
             return WorkbookUtil.DocumentToFileStream(wookbook, "Hoa-don-tien-nha.pdf");
         }
 

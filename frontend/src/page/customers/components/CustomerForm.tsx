@@ -136,7 +136,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                 onClose={() => modalRef.current?.onClose?.()}
                 ref={customerHistoryRef}
             />,
-            'Nhập mã OTP đã gửi qua email ( hiệu lực trong 5 phút )',
+            'Danh sách khách cũ',
             '60%',
         );
     };

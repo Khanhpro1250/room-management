@@ -5,7 +5,7 @@ import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
 import { useBaseGrid } from '~/hook/useBaseGrid';
 import { Service } from '~/types/shared/Service';
 
-import { faEdit, faMagic, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faFileExport, faMagic, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { DatePicker, Input, Select } from 'antd';
 import { debounce } from 'lodash';
 import moment from 'moment';
@@ -20,6 +20,7 @@ import { useHouseCombo } from '../house/api/useHouseCombo';
 import { DELETE_INCURRED_API, INDEX_INCURRED_API } from './api/electric-service.api';
 import IncurredCostForm from './components/IncurredCostForm';
 import { IncurredCostGrid, IncurredCostType, ServiceType } from './type/electic-service';
+import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 
 const { RangePicker } = DatePicker;
 
@@ -122,14 +123,30 @@ const IncurredCostListView: React.FC = () => {
                     </div>
                     <span className="font-semibold text-lg">Chi phí phát sinh</span>
                 </div>
-                <GridToolbar
-                    hasCreateButton
-                    hasRefreshButton
-                    onClickCreateButton={onCreate}
-                    // onClickRefreshButton={() => gridController?.reloadData()}
-                />
+                <div className="flex">
+                    <GridToolbar
+                        hasCreateButton
+                        hasRefreshButton
+                        onClickCreateButton={onCreate}
+                        // onClickRefreshButton={() => gridController?.reloadData()}
+                    />
+                    <ButtonBase
+                        variant="warning"
+                        title="Xuất dữ liệu"
+                        size="md"
+                        startIcon={faFileExport}
+                        onClick={onExport}
+                    />
+                </div>
             </div>
         );
+    };
+
+    const onExport = () => {
+        gridRef.current?.api.exportDataAsExcel({
+            fileName: 'Danh sách chi phí phát sinh',
+            sheetName: 'Danh sách chi phí phát sinh',
+        });
     };
 
     const onDelete = async (data: any) => {

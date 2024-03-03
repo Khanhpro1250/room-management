@@ -76,7 +76,7 @@ namespace backend.Controllers
         public async Task<FileStreamResult> ExportAction([FromBody] CreateUpdateContractDto contractDto)
         {
             var dataReplace = await _contractService.GetDataExportContract(contractDto);
-            var wookbook = await _exportService.ExportWord(dataReplace,null,"https://res.cloudinary.com/khanh15032001/raw/upload/v1708046716/documents/wcbhgjedront5jjvfpvq.docx");
+            var wookbook = await _exportService.ExportWord(dataReplace,null,"https://res.cloudinary.com/khanh15032001/raw/upload/v1709479161/documents/templateContract_kgsu6u.doc");
             return WorkbookUtil.DocumentToFileStream(wookbook,"Hop-dong-cho-thue-nha.docx");
         }
     }

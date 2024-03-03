@@ -1,7 +1,7 @@
-import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
-import { ColDef, ColGroupDef, FirstDataRenderedEvent, GetDataPath, ModuleRegistry } from '@ag-grid-community/core';
-import { AgGridReact } from '@ag-grid-community/react';
-import { RowGroupingModule } from '@ag-grid-enterprise/row-grouping';
+// import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
+// import { ColDef, ColGroupDef, FirstDataRenderedEvent, GetDataPath, ModuleRegistry } from '@ag-grid-community/core';
+import { AgGridReact } from 'ag-grid-react';
+// import { RowGroupingModule } from '@ag-grid-enterprise/row-grouping';
 import {
     faEdit,
     faFile,
@@ -12,22 +12,32 @@ import {
     faUserEdit,
     faUserPlus,
 } from '@fortawesome/free-solid-svg-icons';
-import { GridReadyEvent, RowNode, RowSelectedEvent } from 'ag-grid';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
+// import { GridReadyEvent, RowNode, RowSelectedEvent } from 'ag-grid';
+import {
+    ColDef,
+    ColGroupDef,
+    FirstDataRenderedEvent,
+    GetDataPath,
+    GridReadyEvent,
+    ICellRendererParams,
+    RowNode,
+    RowSelectedEvent,
+} from 'ag-grid-community';
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+import 'ag-grid-enterprise';
 import { Popconfirm } from 'antd';
+import { ButtonType } from 'antd/lib/button';
 import _ from 'lodash';
 import React, { ReactChild } from 'react';
-import { ButtonBase, ButtonProps, sizes, variants } from '../Elements/Button/ButtonBase';
+import { IEntity } from '~/types/shared/AuditedEntity';
+import { ButtonBase, ButtonProps } from '../Elements/Button/ButtonBase';
 import { BaseIcon } from '../Icon/BaseIcon';
 import './styles/BaseGrid.scss';
-import { ICellRendererParams } from 'ag-grid-community';
-import Button, { ButtonType } from 'antd/lib/button';
-import { IEntity } from '~/types/shared/AuditedEntity';
 
 export interface BaseGridColDef extends ColDef, Partial<ColGroupDef> {}
 
-ModuleRegistry.registerModules([ClientSideRowModelModule, RowGroupingModule]);
+// ModuleRegistry.registerModules([ClientSideRowModelModule, RowGroupingModule]);
 
 export interface BaseGridProps {
     height?: string;
@@ -69,7 +79,7 @@ export interface BaseGridProps {
     treeData?: boolean;
     getDataPath?: GetDataPath;
     groupDefaultExpanded?: number;
-    autoGroupColumnDef?: ColDef<any>;
+    // autoGroupColumnDef?: ColDef<any>;
     pagination?: boolean;
     children?: ReactChild; // grid tool bar
     reloadData?: () => void;
@@ -99,7 +109,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                   {
                       field: 'stt',
                       headerName: 'STT',
-                      width: 60,
+                      width: 65,
                       cellStyle: {
                           textAlign: 'center',
                       },
@@ -219,7 +229,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
         });
 
     return (
-        <div className={`w-full h-[${props.height ? props.height : '500px'}]`}>
+        <div className={'w-full h-[500px]'}>
             <div>{props.children}</div>
             <div className="w-full h-[94%] ag-theme-alpine grid base-grid mt-3">
                 {props.data && (
@@ -227,7 +237,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                         <AgGridReact
                             ref={ref}
                             rowData={props.data}
-                            autoGroupColumnDef={props.autoGroupColumnDef}
+                            //@ts-ignore
                             columnDefs={customColDefs}
                             suppressAutoSize
                             pagination={pagination}
@@ -238,7 +248,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                             animateRows
                             getDataPath={props.getDataPath}
                             groupDefaultExpanded={props.groupDefaultExpanded}
-                            // detailCellRenderer
+                            detailCellRenderer
                             onFirstDataRendered={(params: any) => {
                                 return props?.onFirstDataRendered?.(params);
                             }}

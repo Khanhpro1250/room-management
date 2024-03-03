@@ -5,7 +5,15 @@ import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
 import { useBaseGrid } from '~/hook/useBaseGrid';
 import { Service } from '~/types/shared/Service';
 
-import { faCalculator, faEye, faMagic, faMoneyBill, faPrint, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+    faCalculator,
+    faEye,
+    faFileExport,
+    faMagic,
+    faMoneyBill,
+    faPrint,
+    faTrash,
+} from '@fortawesome/free-solid-svg-icons';
 import { DatePicker, Input, Select } from 'antd';
 import { debounce } from 'lodash';
 import moment from 'moment';
@@ -173,6 +181,14 @@ const CalculateChargeListView: React.FC = () => {
         FileUtil.downloadFileTest(response);
         overlayRef.current?.close();
     };
+
+    const onExportExcel = () => {
+        gridRef.current?.api.exportDataAsExcel({
+            fileName: 'Danh sách tiền phòng',
+            sheetName: 'Danh sách tiền phòng',
+        });
+    };
+
     const onViewCalculateCharge = (data: any) => {
         modalViewRef.current?.onOpen(
             <ViewCalculateMoneyBill
@@ -209,7 +225,21 @@ const CalculateChargeListView: React.FC = () => {
                     </div>
                     <span className="font-semibold text-lg">Tính tiền</span>
                 </div>
-                <ButtonBase variant="success" title="Tính tiền" startIcon={faCalculator} onClick={onCalculateCharge} />
+                <div className="flex">
+                    <ButtonBase
+                        variant="success"
+                        title="Tính tiền"
+                        startIcon={faCalculator}
+                        onClick={onCalculateCharge}
+                    />
+                    <ButtonBase
+                        variant="warning"
+                        title="Xuất dữ liệu"
+                        size="md"
+                        startIcon={faFileExport}
+                        onClick={onExportExcel}
+                    />
+                </div>
             </div>
         );
     };

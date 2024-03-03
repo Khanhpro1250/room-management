@@ -4,7 +4,7 @@ public class CalculateChargeDto
 {
     public string HouseName { get; set; }
     public string CustomerName { get; set; }
-    
+
     public string CustomerEmail { get; set; }
     public string HouseAddress { get; set; }
     public int Month { get; set; }
@@ -16,6 +16,11 @@ public class CalculateChargeDto
     public string? DateCustomerMoveIn { get; set; }
     public string TotalCost { get; set; }
     public string TotalCostWord { get; set; }
+
+    public string BankAccount { get; set; }
+    public string BankAccountName { get; set; }
+    public string BankBranch { get; set; }
+    public string PhoneNumber { get; set; }
     public List<CalculateChargeDetailDto> CalculateChargeDetails { get; set; }
 }
 

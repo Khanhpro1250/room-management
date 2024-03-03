@@ -21,6 +21,7 @@ export interface RoomListViewRef {
     onFilter: (formValues: any) => void;
     onCreate: () => void;
     refreshData: () => void;
+    onExport: () => void;
 }
 
 interface Props {
@@ -50,7 +51,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
             headerName: 'Diện tích (m2)',
             field: nameof.full<Room>(x => x.acreage),
             cellStyle: { textAlign: 'right' },
-            width: 120,
+            width: 130,
             cellRenderer: (val: any) => {
                 return Number(val.value ?? 0).toLocaleString('vi', { maximumFractionDigits: 2 });
             },
@@ -58,7 +59,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         {
             headerName: 'Số người ở tối đa',
             field: nameof.full<Room>(x => x.maxNumberOfPeople),
-            width: 130,
+            width: 145,
             cellStyle: { textAlign: 'right' },
         },
         {
@@ -93,6 +94,12 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
             onFilter: (formValues: any) => onFilter(formValues),
             refreshData: () => gridController?.reloadData(),
             onCreate,
+            onExport: () => {
+                gridRef.current?.api.exportDataAsExcel({
+                    fileName: 'Danh sách phòng',
+                    sheetName: 'Danh sách phòng',
+                });
+            },
         }),
         [],
     );

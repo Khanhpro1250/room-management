@@ -12,6 +12,7 @@ using backend.Models.Repositorties.RoomRepositories;
 using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver.Linq;
 
 namespace backend.Services.ContractServices
 {
@@ -55,7 +56,7 @@ namespace backend.Services.ContractServices
             var result = await _contractRepository.AddAsync(contractEntity, true);
             await _roomProcessRepository.AddAsync(roomProcess, true);
             await UpdateDepositState(contract.CustomerId, contract.RoomId);
-            
+
 
             return _mapper.Map<Contract, ContractDto>(result);
         }
@@ -184,7 +185,6 @@ namespace backend.Services.ContractServices
 
         public async Task<ExportContractDto> GetDataExportContract(CreateUpdateContractDto contractDto)
         {
-            //Todo: check điều kiện xuất dữ liệu customer
             var roomQueryable = _roomRepository.GetQueryable();
             var user = await _userService.GetUserById(_currentUser.Id);
             var room = await roomQueryable.AsNoTracking()
@@ -192,7 +192,13 @@ namespace backend.Services.ContractServices
                            .ThenInclude(x => x.Contracts)
                            .FirstOrDefaultAsync(x => x.Id.Equals(contractDto.RoomId)) ??
                        throw new Exception("Không tìm thấy phòng");
-            var customer = room?.Customers.FirstOrDefault(x => x.Id.Equals(contractDto.CustomerId));
+            var customer = room?.Customers
+                .Where(x =>
+                    (x.Contracts.Any(y => y.EffectDate <= DateTime.Now && y.ExpiredDate >= DateTime.Now)) ||
+                    (x.Contracts.Any(y => y.EffectDate > DateTime.Now && y.ExpiredDate > DateTime.Now)) ||
+                    x.Contracts == null || x.Contracts.Count == 0)
+                .FirstOrDefault(x => x.Id.Equals(contractDto.CustomerId));
+
             var result = new ExportContractDto()
             {
                 CurrentDay = contractDto.SignedDate.Day.ToString(),
@@ -223,7 +229,11 @@ namespace backend.Services.ContractServices
                 {
                     FullName = user.FullName,
                     PhoneNumber = user.PhoneNumber,
-                    Address = user.Address
+                    Address = user.Address,
+                    DateOfBirth = user.DateOfBirth?.ToString("dd/MM/yyyy"),
+                    IdentityNo = user.IdentityNo,
+                    IssueDate = user.IssueDate?.ToString("dd/MM/yyyy"),
+                    IssuePlace = user.IssuePlace
                 }
             };
             return result;

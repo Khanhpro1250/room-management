@@ -377,6 +377,7 @@ public class CalculateChargeService : ICalculateChargeService
     public async Task<CalculateChargeDto> GetDetailCalculateCharge(Guid id)
     {
         var queryable = _calculateChargeRepository.GetQueryable();
+        var user = await _userService.GetUserById(_currentUser.Id);
         var calculateCharge = await queryable
             .Include(x => x.Customer)
             .ThenInclude(x => x.Services)
@@ -476,7 +477,11 @@ public class CalculateChargeService : ICalculateChargeService
             DateCustomerMoveIn = calculateCharge.Customer.CreatedTime?.ToString("dd/MM/yyyy"),
             TotalCost = MoneyConverter.ToLocaleDotString(calculateCharge.TotalCost),
             TotalCostWord = MoneyConverter.ConvertToMoneyString(calculateCharge.TotalCost),
-            CalculateChargeDetails = calculateChargeDetailList
+            CalculateChargeDetails = calculateChargeDetailList,
+            BankAccount = user.BankAccount,
+            BankBranch = user.BankBranch,
+            BankAccountName = user.BankAccountName,
+            PhoneNumber = user.PhoneNumber
         };
 
         return result;

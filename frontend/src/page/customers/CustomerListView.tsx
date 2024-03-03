@@ -6,8 +6,7 @@ import { useBaseGrid } from '~/hook/useBaseGrid';
 import { Service } from '~/types/shared/Service';
 
 import { icon } from '@fortawesome/fontawesome-svg-core';
-import { faHistory, faSync, faTrash, faUserEdit, faUserGroup } from '@fortawesome/free-solid-svg-icons';
-import { RowNode } from 'ag-grid';
+import { faFileExport, faHistory, faSync, faTrash, faUserEdit, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { BaseFormRef } from '~/component/Form/BaseForm';
 import { Status } from '~/component/Grid/Components/Status';
@@ -19,6 +18,8 @@ import { CUSTOMER_DELETE_API, CUSTOMER_INDEX_API } from './api/customer.api';
 import CustomerHistories from './components/CustomerHistories';
 import CustomerPaymentHistory from './components/CustomerPaymentHistory';
 import { CustomerListViewDto } from './types/customer';
+import { RowNode } from 'ag-grid-community';
+import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 
 const CustomerListView: React.FC = () => {
     const gridRef = useRef<BaseGridRef>(null);
@@ -132,18 +133,34 @@ const CustomerListView: React.FC = () => {
         }
     };
 
+    const onExport = () => {
+        gridRef.current?.api.exportDataAsExcel({
+            fileName: 'Danh khách thuê',
+            sheetName: 'Danh khách thuê',
+        });
+    };
+
     const renderTitle = () => {
         return (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div
-                    className={
-                        'text-sm inline-flex items-center font-bold leading-sm ' +
-                        'uppercase px-[8px] py-[5px] bg-[#73737320] text-[#737373] rounded-md mr-1'
-                    }
-                >
-                    <BaseIcon icon={faUserGroup} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                    <div
+                        className={
+                            'text-sm inline-flex items-center font-bold leading-sm ' +
+                            'uppercase px-[8px] py-[5px] bg-[#73737320] text-[#737373] rounded-md mr-1'
+                        }
+                    >
+                        <BaseIcon icon={faUserGroup} />
+                    </div>
+                    <span className="font-semibold text-lg">Khách thuê</span>
                 </div>
-                <span className="font-semibold text-lg">Khách thuê</span>
+                <ButtonBase
+                    variant="warning"
+                    title="Xuất dữ liệu"
+                    size="md"
+                    startIcon={faFileExport}
+                    onClick={onExport}
+                />
             </div>
         );
     };

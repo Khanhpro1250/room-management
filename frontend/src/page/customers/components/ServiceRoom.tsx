@@ -1,16 +1,14 @@
 import React, { useImperativeHandle, useRef } from 'react';
 import NotificationConstant from '~/configs/contants';
 
-import { InputNumber } from 'antd';
 import _, { debounce } from 'lodash';
+import CustomInputNumber from '~/component/Form/CustomInputNumber';
 import BaseGrid, { BaseGridColDef, BaseGridRef } from '~/component/Grid/BaseGrid';
 import { requestApi } from '~/lib/axios';
 import { Member } from '~/types/shared/Customer';
 import { Service, ServiceCustomer } from '~/types/shared/Service';
 import NotifyUtil from '~/util/NotifyUtil';
 import { CUSTOMER_UPDATE_SERVICE_CUSTOMER_API } from '../api/customer.api';
-import CustomInputNumber from '~/component/Form/CustomInputNumber';
-import { GridApi } from 'ag-grid';
 interface Props {
     customerId?: string | null;
     readonly?: boolean;

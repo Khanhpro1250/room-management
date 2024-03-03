@@ -1,4 +1,4 @@
-import { GetDataPath } from '@ag-grid-community/core';
+import { GetDataPath } from 'ag-grid-community';
 import _ from 'lodash';
 import React, { useMemo, useRef } from 'react';
 import Loading from '~/component/Elements/loading/Loading';
@@ -101,16 +101,6 @@ const MenuListView: React.FC = () => {
             },
         },
     ];
-
-    const autoGroupColumnDef = useMemo<BaseGridColDef>(() => {
-        return {
-            headerName: 'Tên',
-            minWidth: 500,
-            cellRendererParams: {
-                suppressCount: true,
-            },
-        };
-    }, []);
 
     return (
         <AppContainer>

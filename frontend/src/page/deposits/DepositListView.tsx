@@ -5,23 +5,21 @@ import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
 import { useBaseGrid } from '~/hook/useBaseGrid';
 import { Service } from '~/types/shared/Service';
 
-import { faAdd, faEdit, faHandshake, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { DatePicker, Input, Select } from 'antd';
+import { faAdd, faEdit, faFileExport, faHandshake, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { debounce } from 'lodash';
 import moment from 'moment';
-import { Fieldset } from '~/component/Elements/FieldSet/FieldSet';
-import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
+import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
+import { BaseFormRef } from '~/component/Form/BaseForm';
 import { BaseIcon } from '~/component/Icon/BaseIcon';
 import { useHouseCombo } from '../house/api/useHouseCombo';
 import { DELETE_DEPOSIT_API, INDEX_DEPOSIT_API } from './api/deposit.api';
-import { DepositDto, DepositGridDto } from './type/deposit';
-import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 import DepositForm from './components/DepositForm';
-import { RowNode } from 'ag-grid';
-import { Status } from '~/component/Grid/Components/Status';
+import { DepositGridDto } from './type/deposit';
+
 import { icon } from '@fortawesome/fontawesome-svg-core';
-import { requestApi } from '~/lib/axios';
+import { Status } from '~/component/Grid/Components/Status';
 import NotificationConstant from '~/configs/contants';
+import { requestApi } from '~/lib/axios';
 import NotifyUtil from '~/util/NotifyUtil';
 
 const DepositListView: React.FC = () => {
@@ -129,6 +127,13 @@ const DepositListView: React.FC = () => {
         gridController?.reloadData();
     }, 300);
 
+    const onExportExcel = () => {
+        gridRef.current?.api.exportDataAsExcel({
+            fileName: 'Danh sách tiền cọc nhà trọ',
+            sheetName: 'Danh sách tiền cọc nhà trọ',
+        });
+    };
+
     const onCreate = () => {
         modalRef.current?.onOpen(
             <DepositForm
@@ -189,7 +194,17 @@ const DepositListView: React.FC = () => {
                     </div>
                     <span className="font-semibold text-lg">Cọc giữ phòng</span>
                 </div>
-                <ButtonBase startIcon={faAdd} variant="success" title="Tạo mới" onClick={onCreate} />
+
+                <div className="flex">
+                    <ButtonBase startIcon={faAdd} variant="success" title="Tạo mới" onClick={onCreate} />
+                    <ButtonBase
+                        variant="warning"
+                        title="Xuất dữ liệu"
+                        size="md"
+                        startIcon={faFileExport}
+                        onClick={onExportExcel}
+                    />
+                </div>
             </div>
         );
     };

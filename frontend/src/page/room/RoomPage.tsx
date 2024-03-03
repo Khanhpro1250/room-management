@@ -3,6 +3,7 @@ import {
     faBed,
     faBolt,
     faEdit,
+    faFileExport,
     faHouse,
     faList,
     faSearch,
@@ -249,6 +250,13 @@ const RoomPage: React.FC = () => {
                                 variant={'success'}
                                 title={'Thêm phòng'}
                                 startIcon={faBed}
+                                size="md"
+                            />
+                            <ButtonBase
+                                onClick={() => roomListViewRef.current?.onExport()}
+                                variant={'warning'}
+                                title={'Xuất dữ liệu'}
+                                startIcon={faFileExport}
                                 size="md"
                             />
                             <ButtonBase
