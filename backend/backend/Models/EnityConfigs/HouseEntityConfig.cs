@@ -63,6 +63,17 @@ public static class HouseEntityConfig
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<PaymentHistory>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.ToTable(nameof(PaymentHistory), SchemaName);
+            entity.Property(x => x.Id).HasDefaultValueSql("NEWID()");
+            entity.HasOne(x => x.Customer)
+                .WithMany(x=> x.PaymentHistories)
+                .HasForeignKey(x => x.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
 
         modelBuilder.Entity<Member>(entity =>
         {

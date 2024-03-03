@@ -30,6 +30,7 @@ export interface BaseGridColDef extends ColDef, Partial<ColGroupDef> {}
 ModuleRegistry.registerModules([ClientSideRowModelModule, RowGroupingModule]);
 
 export interface BaseGridProps {
+    height?: string;
     actionWidth?: number;
     pinAction?: boolean;
     columnDefs: BaseGridColDef[];
@@ -218,7 +219,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
         });
 
     return (
-        <div className="w-full h-[500px]">
+        <div className={`w-full h-[${props.height ? props.height : '500px'}]`}>
             <div>{props.children}</div>
             <div className="w-full h-[94%] ag-theme-alpine grid base-grid mt-3">
                 {props.data && (
@@ -258,6 +259,7 @@ const BaseGrid = React.forwardRef<BaseGridRef, BaseGridProps>((props, ref) => {
                             <BaseIcon
                                 className="absolute font-thin cursor-pointer text-gray-600 bottom-[17px] right-[340px]"
                                 icon={faRotate}
+                                tooltip="Làm mới"
                                 onClick={() => {
                                     props.reloadData?.();
                                 }}

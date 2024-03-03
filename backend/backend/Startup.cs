@@ -174,6 +174,7 @@ public class Startup
         services.AddTransient<ICalculateChargeRepository, CalculateChargeRepository>();
         services.AddTransient<ICalculateChargeDetailRepository, CalculateChargeDetailRepository>();
         services.AddTransient<IDepositRepository, DepositRepository>();
+        services.AddTransient<IPaymentHistoryRepository, PaymentHistoryRepository>();
 
 
         // AddScoped adService

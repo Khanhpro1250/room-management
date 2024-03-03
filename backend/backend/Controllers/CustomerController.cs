@@ -93,5 +93,12 @@ namespace backend.Controllers
             var result = await _customerService.GetHistoriesByCustomerId(id);
             return ApiResponse<PaginatedList<RoomProcessDto>>.Ok(result);
         }
+        
+        [HttpGet("payment-histories/{id:guid}")]
+        public async Task<ApiResponse<PaginatedList<PaymentHistoryDto>>> HandleGetListPaymentHistories([FromRoute] Guid id)
+        {
+            var result = await _customerService.GetPaymentHistoriesByCustomerId(id);
+            return ApiResponse<PaginatedList<PaymentHistoryDto>>.Ok(result);
+        }
     }
 }

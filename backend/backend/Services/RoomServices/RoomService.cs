@@ -508,6 +508,7 @@ public class RoomService : IRoomService
                 RoomId = room.Id,
                 CustomerId = contract.CustomerId,
                 Action = "Return",
+                CreatedTime = DateTime.Now
             };
 
 

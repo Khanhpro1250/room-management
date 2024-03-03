@@ -34,7 +34,7 @@ const ProfileSetting: React.FC<Props> = props => {
                     >
                         <BaseIcon icon={faUserSecret} />
                     </div>
-                    <span className="font-semibold text-lg">Thông tin chủ thuê</span>
+                    <span className="font-semibold text-lg">Thông tin chủ trọ</span>
                 </div>
                 <div className="flex">
                     <ButtonBase startIcon={faSave} variant="primary" title="Lưu" onClick={onUpdate} />
@@ -65,7 +65,9 @@ const ProfileSetting: React.FC<Props> = props => {
 
         if (response.data?.success) {
             NotifyUtil.success(NotificationConstant.TITLE, 'Cập nhật thông tin chủ trọ thành công');
-            window.location.reload();
+            setTimeout(() => {
+                window.location.reload();
+            }, 300);
             return;
         }
     };
@@ -132,7 +134,38 @@ const ProfileSetting: React.FC<Props> = props => {
                         label: 'Địa chỉ',
                         name: 'address',
                         children: <Input placeholder="Nhập địa chỉ" />,
+                        className: 'col-span-6',
+                    },
+                    {
+                        label: 'Thu tiền từ ngày',
+                        name: 'collectionFromDate',
+                        children: <Input placeholder="Ngày thu tiền từ ngày" />,
 
+                        className: 'col-span-6',
+                    },
+                    {
+                        label: 'Thu tiền đến ngày',
+                        name: 'collectionToDate',
+                        children: <Input placeholder="Ngày thu tiền đến ngày" />,
+
+                        className: 'col-span-6',
+                    },
+                    {
+                        label: 'Ngân hàng',
+                        name: 'bankBranch',
+                        children: <Input placeholder="Nhập tên ngân hàng" />,
+                        className: 'col-span-6',
+                    },
+                    {
+                        label: 'Số tài khoản',
+                        name: 'bankAccount',
+                        children: <Input placeholder="Nhập số tài khoản" />,
+                        className: 'col-span-6',
+                    },
+                    {
+                        label: 'Tên chủ tài khoản',
+                        name: 'bankAccountName',
+                        children: <Input placeholder="Nhập tên chủ tài khoản" />,
                         className: 'col-span-6',
                     },
                 ]}

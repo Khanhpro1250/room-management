@@ -101,7 +101,7 @@ const CalculateMoneyForm: React.FC<Props> = props => {
                 ref={formRef}
                 baseFormItem={[
                     {
-                        label: 'Ngày',
+                        label: 'Từ ngày 1 đến ngày',
                         name: nameof.full<CalculateRequestDto>(x => x.dateCalculate),
                         initialValue: moment(),
                         children: <DatePicker className="w-full" format={'DD/MM/YYYY'} />,

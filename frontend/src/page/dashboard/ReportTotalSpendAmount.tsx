@@ -4,11 +4,11 @@ import { RefObject, useMemo, useRef } from 'react';
 import { ReactECharts, ReactEChartsRef } from '~/component/Echart/ReactECharts';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 
-import DomToImage from 'dom-to-image';
-import { MoneyUtil } from '~/util/MoneyUtil';
-import { useReportRevenue } from './hooks/useReportRevenue';
-import Loading from '~/component/Elements/loading/Loading';
 import { Select } from 'antd';
+import DomToImage from 'dom-to-image';
+import Loading from '~/component/Elements/loading/Loading';
+import { MoneyUtil } from '~/util/MoneyUtil';
+import { useReportTotalSpentAmount } from './hooks/useReportTotalSpentAmount';
 interface IProps {}
 interface IState {
     deActiveButton: Array<string>;
@@ -31,11 +31,11 @@ const getDistinctMonths = (data: any) => {
     });
     return Array.from(monthsSet).map((month: any) => JSON.parse(month));
 };
-const ReportRevenueChart = (props: IProps) => {
+const ReportTotalSpendAmount = (props: IProps) => {
     const chartRef = useRef<ReactEChartsRef>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const { data: dataResponse, isFetching: isLoadingData } = useReportRevenue();
+    const { data: dataResponse, isFetching: isLoadingData } = useReportTotalSpentAmount();
     const dataReportRevenue = useMemo(() => dataResponse?.data?.result ?? [], [dataResponse]);
 
     const renderEChart = (data: any[], chartRef: RefObject<ReactEChartsRef>, wrapperRef: RefObject<HTMLDivElement>) => {
@@ -162,14 +162,14 @@ const ReportRevenueChart = (props: IProps) => {
     return (
         <div ref={containerRef} className="mt-2 border p-4">
             <div className="relative flex">
-                <div className="text-2xl text-[#0e335890] font-bold mb-2 ">Doanh thu ( VNĐ )</div>
+                <div className="text-2xl text-[#0e335890] font-bold mb-2 ">Tổng chi ( VNĐ )</div>
                 <ButtonBase
                     tooltip="Xuất hình ảnh"
                     variant="info"
                     className="absolute top-[1px] right-0"
                     startIcon={faDownload}
                     onClick={() => {
-                        exportDom('doanh-thu');
+                        exportDom('tong-chi');
                     }}
                 />
                 <div className="ml-2 w-[40%]">
@@ -199,4 +199,4 @@ const ReportRevenueChart = (props: IProps) => {
     );
 };
 
-export default ReportRevenueChart;
+export default ReportTotalSpendAmount;

@@ -6,6 +6,7 @@ export const CUSTOMER_DELETE_API = APP_API_PATH + '/customer/delete';
 export const CUSTOMER_CREATE_API = APP_API_PATH + '/customer/create';
 export const CUSTOMER_UPDATE_API = APP_API_PATH + '/customer/update';
 export const CUSTOMER_HISTORIES_API = APP_API_PATH + '/customer/histories';
+export const CUSTOMER_PAYMENT_HISTORIES_API = APP_API_PATH + '/customer/payment-histories';
 
 export const CREATE_CONTACT_API = APP_API_PATH + '/contract/create';
 export const UPDATE_CONTACT_API = APP_API_PATH + '/contract/update';

@@ -11,6 +11,8 @@ import { requestApi } from '~/lib/axios';
 import NotifyUtil from '~/util/NotifyUtil';
 import { CALCULATE_SENT_BILL } from '../api/calculate.api';
 import { useGetDetailCalculateChargeBill } from '../api/useGetDetailCalculateChargeBill';
+import { useSelector } from 'react-redux';
+import { RootState } from '~/AppStore';
 interface Props {
     initialValues?: any;
     onClose?: () => void;
@@ -20,6 +22,7 @@ interface Props {
 
 const ViewCalculateMoneyBill: React.FC<Props> = props => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const { authUser } = useSelector((state: RootState) => state.authData);
     const { data: calculateChargeRes, isFetching } = useGetDetailCalculateChargeBill(props.initialValues?.id);
     const overlayRef = useRef<OverlayRef>(null);
     const data = useMemo(() => calculateChargeRes?.data?.result, [isFetching]);
@@ -136,23 +139,27 @@ const ViewCalculateMoneyBill: React.FC<Props> = props => {
                             <i className="text-xs text-sky-950">( Bằng chữ : {data?.totalCostWord} )</i>
                         </div>
                     </div>
-                    <hr className="mt-2" />
-                    <div className="mt-2 mb-4">
-                        <div className="text-sm mb-1  text-sky-950 font-bold">Thông tin số tài khoản </div>
-                        <div className="flex mb-2">
-                            <div className="text-xs font-bold text-sky-950 mr-2">Ngân hàng: </div>
-                            <div className="text-xs text-sky-950">Vietcombank</div>
-                        </div>
-                        <div className="flex mb-2">
-                            <div className="text-xs font-bold text-sky-950 mr-2">Số tài khoản: </div>
-                            <div className="text-xs text-sky-950 mr-1">01231239869912</div>
-                            <div className="text-xs text-sky-950 ">- [ Huỳnh Công Khanh ]</div>
-                        </div>
-                        <div className="flex mb-2">
-                            <div className="text-xs font-bold text-sky-950 mr-2">Số điện thoại liên hệ: </div>
-                            <div className="text-xs text-sky-950">01231239869912</div>
-                        </div>
-                    </div>
+                    {authUser?.user?.bankAccount && (
+                        <>
+                            <hr className="mt-2" />
+                            <div className="mt-2 mb-4">
+                                <div className="text-sm mb-1  text-sky-950 font-bold">Thông tin số tài khoản </div>
+                                <div className="flex mb-2">
+                                    <div className="text-xs font-bold text-sky-950 mr-2">Ngân hàng: </div>
+                                    <div className="text-xs text-sky-950">{authUser?.user?.bankBranch}</div>
+                                </div>
+                                <div className="flex mb-2">
+                                    <div className="text-xs font-bold text-sky-950 mr-2">Số tài khoản: </div>
+                                    <div className="text-xs text-sky-950 mr-1">{authUser?.user?.bankAccount}</div>
+                                    <div className="text-xs text-sky-950 ">- [ {authUser?.user?.bankAccountName} ]</div>
+                                </div>
+                                <div className="flex mb-2">
+                                    <div className="text-xs font-bold text-sky-950 mr-2">Số điện thoại liên hệ: </div>
+                                    <div className="text-xs text-sky-950">{authUser?.user?.phoneNumber}</div>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
             <div className="flex items-center justify-center w-full">

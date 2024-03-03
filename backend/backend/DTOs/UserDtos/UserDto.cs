@@ -14,6 +14,12 @@ public class UserDto
     public DateTime? IssueDate { get; set; }
     public string IssuePlace { get; set; }
     public bool IsAdmin { get; set; }
+    public string BankAccount { get; set; }
+    public string BankAccountName { get; set; }
+    public string BankBranch { get; set; }
+
+    public int? CollectionFromDate { get; set; }
+    public int? CollectionToDate { get; set; }
 
     public string CreatedBy { get; set; }
     public DateTime? CreatedTime { get; set; }

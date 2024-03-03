@@ -26,15 +26,17 @@ namespace backend.Services.CustomerServices
         private readonly ICurrentUser _currentUser;
         private readonly IFileService _fileService;
         private readonly IRoomProcessRepository _roomProcessRepository;
+        private readonly IPaymentHistoryRepository _paymentHistoryRepository;
 
         public CustomerService(ICustomerRepository customerRepository, IMapper mapper, ICurrentUser currentUser,
-            IFileService fileService, IRoomProcessRepository roomProcessRepository)
+            IFileService fileService, IRoomProcessRepository roomProcessRepository, IPaymentHistoryRepository paymentHistoryRepository)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
             _currentUser = currentUser;
             _fileService = fileService;
             _roomProcessRepository = roomProcessRepository;
+            _paymentHistoryRepository = paymentHistoryRepository;
         }
 
         public async Task<CustomerDto> GetCustomerByRoomId(Guid roomId)
@@ -247,6 +249,17 @@ namespace backend.Services.CustomerServices
             }
 
             return new PaginatedList<RoomProcessDto>(listHistories, listHistories.Count, 0, -1);
+        }
+        
+        public async Task<PaginatedList<PaymentHistoryDto>> GetPaymentHistoriesByCustomerId(Guid customerId)
+        {
+            var listHistories = await _paymentHistoryRepository.GetQueryable()
+                .Where(x => x.CustomerId.Equals(customerId))
+                .OrderByDescending(x => x.CreatedTime)
+                .ProjectTo<PaymentHistoryDto>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+
+            return new PaginatedList<PaymentHistoryDto>(listHistories, listHistories.Count, 0, -1);
         }
     }
 }

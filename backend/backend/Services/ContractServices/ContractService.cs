@@ -49,10 +49,13 @@ namespace backend.Services.ContractServices
             {
                 RoomId = contract.RoomId,
                 CustomerId = contract.CustomerId,
-                Action = "Rent"
+                Action = "RENT",
+                CreatedTime = DateTime.Now
             };
             var result = await _contractRepository.AddAsync(contractEntity, true);
             await _roomProcessRepository.AddAsync(roomProcess, true);
+            await UpdateDepositState(contract.CustomerId, contract.RoomId);
+            
 
             return _mapper.Map<Contract, ContractDto>(result);
         }
@@ -71,7 +74,15 @@ namespace backend.Services.ContractServices
                      deposit.PhoneNumber.Contains(customer?.PhoneNumber2 ?? "")))
                 {
                     deposit.Status = "CheckedIn";
+                    var roomProcess = new RoomProcess()
+                    {
+                        RoomId = deposit.RoomId,
+                        CustomerId = customerId,
+                        Action = "Deposited",
+                        CreatedTime = deposit.CreatedTime
+                    };
                     await _depositRepository.UpdateAsync(deposit, true);
+                    await _roomProcessRepository.AddAsync(roomProcess, true);
                 }
             }
         }
@@ -85,7 +96,8 @@ namespace backend.Services.ContractServices
             {
                 RoomId = findContract.RoomId,
                 CustomerId = findContract.CustomerId,
-                Action = "Cancel"
+                Action = "Cancel",
+                CreatedTime = DateTime.Now
             };
             await _roomProcessRepository.AddAsync(roomProcess, true);
         }

@@ -1,13 +1,11 @@
 import { faPieChart } from '@fortawesome/free-solid-svg-icons';
-import { DatePicker, Select } from 'antd';
-import moment from 'moment';
-import React, { useRef } from 'react';
-import { Fieldset } from '~/component/Elements/FieldSet/FieldSet';
-import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
+import React from 'react';
 import { BaseIcon } from '~/component/Icon/BaseIcon';
 import { AppContainer } from '~/component/Layout/AppContainer';
-import RoomStateChart from './RoomStateChart';
+import ReportContractAboutExpire from './ReportContractAboutExpire';
 import ReportRevenueChart from './ReportRevenueChart';
+import RoomStateChart from './RoomStateChart';
+import ReportTotalSpendAmount from './ReportTotalSpendAmount';
 
 type Props = {};
 
@@ -32,55 +30,6 @@ const ReportDashboard: React.FC<Props> = (props: Props) => {
     return (
         <AppContainer title={renderTitle()}>
             <div className={'container-dash-board pb-6'}>
-                {/* <Fieldset title="Bộ lọc tìm kiếm">
-                    <BaseForm
-                        ref={formRef}
-                        className="mb-2 w-full"
-                        baseFormItem={[
-                            {
-                                label: 'Tháng/năm',
-                                name: 'dateTime',
-                                initialValue: moment(),
-                                children: (
-                                    <DatePicker
-                                        clearIcon={false}
-                                        // onChange={handleChangeData}
-                                        className="w-full"
-                                        format={'MM/yyyy'}
-                                        picker="month"
-                                    />
-                                ),
-                                className: 'col-span-4',
-                            },
-                            {
-                                label: 'Nhà',
-                                name: 'houseId',
-                                children: (
-                                    <Select
-                                        // onChange={handleChangeData}
-                                        defaultValue={null}
-                                        options={[
-                                            {
-                                                value: null,
-                                                label: 'Tất cả',
-                                            },
-                                        ]}
-                                    />
-                                ),
-                                className: 'col-span-4',
-                            },
-                            {
-                                label: 'Mã phòng',
-                                name: 'roomCode',
-                                // children: <Input onChange={handleChangeData} placeholder="Nhập mã phòng ..." />,
-                                className: 'col-span-4',
-                            },
-                        ]}
-                        labelAlign="left"
-                        labelCol={2}
-                        isDisplayGrid={true}
-                    />
-                </Fieldset> */}
                 <div className="container-body !pr-1 grid grid-cols-12 gap-4">
                     <div className="col-span-6">
                         <RoomStateChart />
@@ -89,10 +38,10 @@ const ReportDashboard: React.FC<Props> = (props: Props) => {
                         <ReportRevenueChart />
                     </div>
                     <div className="col-span-6">
-                        <ReportRevenueChart />
+                        <ReportContractAboutExpire />
                     </div>
                     <div className="col-span-6">
-                        <ReportRevenueChart />
+                        <ReportTotalSpendAmount />
                     </div>
                 </div>
             </div>

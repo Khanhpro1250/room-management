@@ -1,12 +1,12 @@
-﻿using Aspose.Words.Lists;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using backend.Controllers.Dtos.Responese;
 using backend.DTOs.ReportDtos;
 using backend.DTOs.RoomDtos;
 using backend.Models.Entities.Rooms;
+using backend.Models.Repositorties.ContractRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Services.UserServices;
-using backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver.Linq;
 
@@ -17,15 +17,23 @@ public class ReportService : IReportService
     private readonly IRoomRepository _roomRepository;
     private readonly ICurrentUser _currentUser;
     private readonly ICalculateChargeRepository _calculateChargeRepository;
+    private readonly IContractRepository _contractRepository;
+    private readonly IUserService _userService;
+    private readonly IIncurredCostRepository _incurredCostRepository;
+
     private readonly IMapper _mapper;
 
     public ReportService(IRoomRepository roomRepository, ICurrentUser currentUser,
-        ICalculateChargeRepository calculateChargeRepository, IMapper mapper)
+        ICalculateChargeRepository calculateChargeRepository, IMapper mapper, IContractRepository contractRepository,
+        IUserService userService, IIncurredCostRepository incurredCostRepository)
     {
         _roomRepository = roomRepository;
         _currentUser = currentUser;
         _calculateChargeRepository = calculateChargeRepository;
         _mapper = mapper;
+        _contractRepository = contractRepository;
+        _userService = userService;
+        _incurredCostRepository = incurredCostRepository;
     }
 
     public async Task<List<ReportRoomStateDto>> GetReportRoomState(DateTime? filterDateTime)
@@ -115,6 +123,82 @@ public class ReportService : IReportService
                     Month = item.Key.Month,
                     Year = item.Key.Year,
                     Revenue = revenue
+                });
+            }
+
+            data.Details = listDetails;
+            result.Add(data);
+        }
+
+        return result;
+    }
+
+    public async Task<PaginatedList<ReportContractExpireDto>> GetContractExpired(DateTime? filterDateTime)
+    {
+        var currentUserId = _currentUser.Id;
+        var contracts = await _contractRepository.GetQueryable()
+            .Where(x => x.Room.House.UserId.Equals(currentUserId))
+            .Include(x => x.Customer)
+            .Where(x => !x.IsEarly)
+            .Where(x => x.EffectDate.HasValue && x.EffectDate.Value.Date <= DateTime.Now.Date)
+            // .Where(x => x.ExpiredDate.HasValue && (x.ExpiredDate.Value.Date - DateTime.Now.Date).TotalDays <= 30)
+            .ProjectTo<ReportContractExpireDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
+        contracts = contracts.Where(x =>
+            x.ExpiredDate.HasValue && (x.ExpiredDate.Value.Date - DateTime.Now.Date).TotalDays <= 30).ToList();
+        foreach (var item in contracts)
+        {
+            item.NumberOfDayToExpire = (item.ExpiredDate!.Value.Date - DateTime.Now.Date).TotalDays;
+        }
+
+
+        return new PaginatedList<ReportContractExpireDto>(contracts, contracts.Count, 0, -1);
+    }
+
+    public async Task<List<ReportRoomRevenueDto>> GetReportRoomTotalSpendAmount(DateTime? filterDateTime)
+    {
+        var date = filterDateTime ?? DateTime.Now;
+        var queryable = _incurredCostRepository.GetQueryable();
+        var currentUserId = _currentUser.Id;
+        queryable = queryable
+                .Where(x => x.Type == IncurredCostType.Owner)
+                .Where(x => x.Room.House.UserId.Equals(currentUserId))
+                .Where(x => x.Date.Month == date.Month &&
+                            x.Date.Year == date.Year)
+            ;
+
+        var dataIncurredCosts = await queryable
+            .ProjectTo<IncurredCostDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
+        var result = new List<ReportRoomRevenueDto>();
+        var dataCalculateChargesByMonths = dataIncurredCosts
+            .GroupBy(x => new DateTime(x.Date.Year, x.Date.Month, 1));
+
+        foreach (var item in dataCalculateChargesByMonths)
+        {
+            var data = new ReportRoomRevenueDto
+            {
+                Month = new MonthDto()
+                {
+                    Month = item.Key.Month,
+                    Year = item.Key.Year
+                }
+            };
+
+            var datacalculateChargesByHouse = item.GroupBy(x => x.HouseId);
+
+            var listDetails = new List<ReportRevenueDetailDto>();
+
+            foreach (var dataHouseItem in datacalculateChargesByHouse)
+            {
+                var cost = dataHouseItem.Sum(x => x.Cost);
+                listDetails.Add(new ReportRevenueDetailDto()
+                {
+                    HouseName = dataHouseItem.Select(x => x.HouseName).FirstOrDefault(),
+                    HouseId = dataHouseItem.Key,
+                    Month = item.Key.Month,
+                    Year = item.Key.Year,
+                    Revenue = cost
                 });
             }
 

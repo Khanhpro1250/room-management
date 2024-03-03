@@ -17,6 +17,11 @@ export interface AppUser {
     amount?: number;
     issueDate: Date;
     dateOfBirth: Date;
+    collectionFromDate: number;
+    collectionToDate: number;
+    bankAccount: string;
+    bankAccountName: string;
+    bankBranch: string;
 }
 
 export interface IUser {

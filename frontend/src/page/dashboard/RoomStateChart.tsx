@@ -169,22 +169,6 @@ const RoomStateChart = (props: IProps) => {
                         exportDom('trang-thai-phong');
                     }}
                 />
-                <div className="ml-2 w-[40%]">
-                    <Select
-                        className="w-full test-class"
-                        placeholder="Chọn tháng"
-                        options={[
-                            {
-                                value: 'month',
-                                label: 'Tháng',
-                            },
-                            {
-                                value: 'year',
-                                label: 'Năm',
-                            },
-                        ]}
-                    />
-                </div>
             </div>
             <hr />
             <div className="dashboard-unit flex">

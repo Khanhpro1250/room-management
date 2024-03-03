@@ -5,23 +5,20 @@ import ModalBase, { ModalRef } from '~/component/Modal/ModalBase';
 import { useBaseGrid } from '~/hook/useBaseGrid';
 import { Service } from '~/types/shared/Service';
 
-import { faSave, faSync, faTrash, faUserEdit, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import { icon } from '@fortawesome/fontawesome-svg-core';
+import { faHistory, faSync, faTrash, faUserEdit, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import { RowNode } from 'ag-grid';
-import { DatePicker, Select } from 'antd';
-import { debounce } from 'lodash';
-import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
-import { Fieldset } from '~/component/Elements/FieldSet/FieldSet';
-import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
+import { BaseFormRef } from '~/component/Form/BaseForm';
 import { Status } from '~/component/Grid/Components/Status';
 import { BaseIcon } from '~/component/Icon/BaseIcon';
-import { CUSTOMER_DELETE_API, CUSTOMER_INDEX_API } from './api/customer.api';
-import { CustomerListViewDto } from './types/customer';
+import NotificationConstant from '~/configs/contants';
 import { requestApi } from '~/lib/axios';
 import NotifyUtil from '~/util/NotifyUtil';
-import NotificationConstant from '~/configs/contants';
+import { CUSTOMER_DELETE_API, CUSTOMER_INDEX_API } from './api/customer.api';
 import CustomerHistories from './components/CustomerHistories';
-import { icon } from '@fortawesome/fontawesome-svg-core';
+import CustomerPaymentHistory from './components/CustomerPaymentHistory';
+import { CustomerListViewDto } from './types/customer';
 
 const CustomerListView: React.FC = () => {
     const gridRef = useRef<BaseGridRef>(null);
@@ -89,8 +86,24 @@ const CustomerListView: React.FC = () => {
                     modalRef.current?.onOpen(
                         <CustomerHistories customerId={data.id} onClose={modalRef.current.onClose} />,
                         'Lịch sử thuê phòng',
-                        '50%',
+                        '60%',
                         icon(faSync),
+                    );
+                },
+            },
+            {
+                startIcon: faHistory,
+                variant: 'warning',
+                tooltip: 'Lịch sử thanh toán',
+                isHidden(data) {
+                    return data.status === 'NotRented';
+                },
+                onClick: data => {
+                    modalRef.current?.onOpen(
+                        <CustomerPaymentHistory customerId={data.id} onClose={modalRef.current.onClose} />,
+                        'Lịch thanh toán',
+                        '60%',
+                        icon(faHistory),
                     );
                 },
             },

@@ -11,4 +11,9 @@ public class UpdateUserProfileDto
     public string IdentityNo { get; set; }
     public DateTime? IssueDate { get; set; }
     public string IssuePlace { get; set; }
+    public string BankAccount { get; set; }
+    public string BankAccountName { get; set; }
+    public string BankBranch { get; set; }
+    public int? CollectionFromDate { get; set; }
+    public int? CollectionToDate { get; set; }
 }

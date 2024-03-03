@@ -5,6 +5,7 @@ using backend.DTOs.RoomDtos;
 using backend.Models.Entities.Customers;
 using backend.Models.Entities.Rooms;
 using backend.Models.Entities.Services;
+using backend.Models.Repositorties.CustomerRepositories;
 using backend.Models.Repositorties.HouseRerositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Services.SendMailServices;
@@ -23,9 +24,12 @@ public class CalculateChargeService : ICalculateChargeService
     private readonly IHouseRepository _houseRepository;
     private readonly ICurrentUser _currentUser;
     private readonly ISendMailService _sendMailService;
+    private readonly IPaymentHistoryRepository _paymentHistoryRepository;
+    private readonly IUserService _userService;
 
     public CalculateChargeService(ICalculateChargeRepository calculateChargeRepository, IRoomRepository roomRepository,
-        IMapper mapper, IHouseRepository houseRepository, ICurrentUser currentUser, ISendMailService sendMailService)
+        IMapper mapper, IHouseRepository houseRepository, ICurrentUser currentUser, ISendMailService sendMailService,
+        IPaymentHistoryRepository paymentHistoryRepository, IUserService userService)
     {
         _calculateChargeRepository = calculateChargeRepository;
         _roomRepository = roomRepository;
@@ -33,6 +37,8 @@ public class CalculateChargeService : ICalculateChargeService
         _houseRepository = houseRepository;
         _currentUser = currentUser;
         _sendMailService = sendMailService;
+        _paymentHistoryRepository = paymentHistoryRepository;
+        _userService = userService;
     }
 
     public async Task<PaginatedList<CalculateChargeGridDto>> GetListCalculateCharge(CalculateChargeFilterDto filterDto)
@@ -109,7 +115,7 @@ public class CalculateChargeService : ICalculateChargeService
         }
 
         var calculteChangeQueryable = _calculateChargeRepository.GetQueryable();
-        
+
         var calculateForDeletes = await calculteChangeQueryable
             .Include(x => x.CalculateChargeDetails)
             .Where(x => calculateCharges.Select(y => y.RoomId).Contains(x.RoomId))
@@ -229,7 +235,7 @@ public class CalculateChargeService : ICalculateChargeService
     }
 
     private Task CalculateElectricCharge(RoomServiceIndex roomElectricServiceIndice,
-            Customer customer, List<RoomServiceCalculateDto> roomServiceCalculateDtos)
+        Customer customer, List<RoomServiceCalculateDto> roomServiceCalculateDtos)
     {
         var customerService = customer?.Services?.FirstOrDefault(x => x.Service.Type.Equals("DIEN"));
         if (customerService is null)
@@ -330,6 +336,8 @@ public class CalculateChargeService : ICalculateChargeService
     {
         var queryable = _calculateChargeRepository.GetQueryable();
         var calculateCharge = await queryable
+            .Include(x => x.Room)
+            .ThenInclude(x => x.House)
             .Include(x => x.CollectMoneyProcesses)
             .FirstOrDefaultAsync(x => x.Id == calculateChargeDto.Id);
         if (calculateCharge == null)
@@ -353,7 +361,17 @@ public class CalculateChargeService : ICalculateChargeService
         calculateCharge.LastDateCollectMoney = calculateChargeDto.DateCollectMoney;
         calculateCharge.CollectMoneyProcesses = collectMoneyProcesses;
 
+        var paymentHistory = new PaymentHistory()
+        {
+            CustomerId = calculateCharge.CustomerId,
+            Amount = calculateChargeDto.MoneyCollect,
+            Description =
+                $"Thanh toán tiền nhà {calculateCharge.Room.House.Name} - Phòng: {calculateCharge.Room.RoomCode} tháng {calculateCharge.DateCalculate.Month}/{calculateCharge.DateCalculate.Year}",
+            CreatedBy = _currentUser.Id.ToString(),
+            CreatedTime = DateTime.Now
+        };
         await _calculateChargeRepository.UpdateAsync(calculateCharge, true);
+        await _paymentHistoryRepository.AddAsync(paymentHistory, true);
     }
 
     public async Task<CalculateChargeDto> GetDetailCalculateCharge(Guid id)
@@ -398,7 +416,8 @@ public class CalculateChargeService : ICalculateChargeService
                     title = item.RoomServiceIndex.Service.Name;
                     description =
                         $"CS cũ: {item.RoomServiceIndex.OldElectricValue} - CS mới: {item.RoomServiceIndex.NewElectricValue} - SD: {item.RoomServiceIndex.UsedElectricValue} ";
-                    cost = (decimal)(item.RoomServiceIndex.Service?.Price ?? 0) * item.RoomServiceIndex.UsedElectricValue;
+                    cost = (decimal)(item.RoomServiceIndex.Service?.Price ?? 0) *
+                           item.RoomServiceIndex.UsedElectricValue;
                 }
             }
             else if (item.ServiceId.HasValue)
@@ -466,6 +485,8 @@ public class CalculateChargeService : ICalculateChargeService
     public async Task SendBillCalculateCharge(Guid id)
     {
         var getData = await GetDetailCalculateCharge(id);
+        var currentUser = await _userService.GetUserById(_currentUser.Id);
+
         var caculateDetails = getData.CalculateChargeDetails;
         var details = "";
         foreach (var item in caculateDetails)
@@ -484,6 +505,46 @@ public class CalculateChargeService : ICalculateChargeService
 <head>
   <meta charset=""UTF-8"">
   <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+<style>
+        body, h1, h2, p, ul, ol {{
+            margin: 0;
+            padding: 0;
+        }}
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }}
+        .mt-2 {{
+            margin-top: 8px; /* 2rem in Tailwind CSS */
+        }}
+        .mb-4 {{
+            margin-bottom: 16px; /* 4rem in Tailwind CSS */
+        }}
+        .text-sm {{
+            font-size: 13px; /* 0.875rem in Tailwind CSS */
+        }}
+        .text-sky-950 {{
+            color: #2d3748; /* Equivalent to 'sky-950' in Tailwind CSS */
+        }}
+        .font-bold {{
+            font-weight: bold;
+        }}
+        .flex {{
+            display: flex;
+            align-items: center;
+        }}
+        .mr-2 {{
+            margin-right: 8px; /* 2rem in Tailwind CSS */
+        }}
+        .mr-1 {{
+            margin-right: 4px; /* 1rem in Tailwind CSS */
+        }}
+        .text-xs {{
+            font-size: 12px; /* 0.75rem in Tailwind CSS */
+        }}
+    </style>
 </head>
 <body style=""margin: 0; padding: 0;background-color: #a4abae80"">
   <div style=""padding: 0.5rem;"">
@@ -518,6 +579,23 @@ public class CalculateChargeService : ICalculateChargeService
       <div style=""clear: both;""></div>
       <div style=""float: right;""><i style=""font-size: 0.75rem; color: #0d1e66;"">( Bằng chữ : {getData.TotalCostWord})</i></div>
       <div style=""clear: both;""></div>
+    </div>
+<hr class=""mt-2"">
+    <div class=""mt-2 mb-4"">
+        <div class=""text-sm mb-1 text-sky-950 font-bold"">Thông tin số tài khoản</div>
+        <div class=""flex mb-2"">
+            <div class=""text-xs font-bold text-sky-950 mr-2"">Ngân hàng:</div>
+            <div class=""text-xs text-sky-950"">{currentUser.BankBranch}</div>
+        </div>
+        <div class=""flex mb-2"">
+            <div class=""text-xs font-bold text-sky-950 mr-2"">Số tài khoản:</div>
+            <div class=""text-xs text-sky-950 mr-1"">{currentUser.BankAccount}</div>
+            <div class=""text-xs text-sky-950"">- [ {currentUser.BankAccountName} ]</div>
+        </div>
+        <div class=""flex mb-2"">
+            <div class=""text-xs font-bold text-sky-950 mr-2"">Số điện thoại liên hệ:</div>
+            <div class=""text-xs text-sky-950"">{currentUser.PhoneNumber}</div>
+        </div>
     </div>
   </div>
 </body>
