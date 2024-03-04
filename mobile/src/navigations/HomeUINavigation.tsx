@@ -1,13 +1,13 @@
 import { View, Text } from "react-native";
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import HomeScreen from "../screens/HomeScreen";
-import RoomManagementScreen from "../screens/RoomManagementScreen";
+import Notification from "../screens/Notification";
 import ChatScreen from "../screens/ChatScreen";
 import {
   BuildingOfficeIcon,
   BuildingStorefrontIcon,
   ChatBubbleBottomCenterIcon,
+  ChatBubbleLeftEllipsisIcon,
   ClipboardDocumentListIcon,
   HomeIcon,
 } from "react-native-heroicons/outline";
@@ -31,26 +31,27 @@ export default function HomeUINavigation() {
         }}
       >
         <Tab.Screen
-          name="Home"
-          component={HomeScreen}
+          name="Notification"
+          component={Notification}
           options={{
             headerShown: false,
             //   tabBarBadge: 3,
+            tabBarIcon: ({ color, size }) => (
+              <ChatBubbleLeftEllipsisIcon stroke={color} size={size} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Home"
+          component={DetailRoomNavigation}
+          options={{
+            headerShown: false,
             tabBarIcon: ({ color, size }) => (
               <HomeIcon stroke={color} size={size} />
             ),
           }}
         />
-        <Tab.Screen
-          name="Room"
-          component={DetailRoomNavigation}
-          options={{
-            headerShown: false,
-            tabBarIcon: ({ color, size }) => (
-              <BuildingStorefrontIcon stroke={color} size={size} />
-            ),
-          }}
-        />
+
         <Tab.Screen
           name="Request"
           component={RequestsScreen}

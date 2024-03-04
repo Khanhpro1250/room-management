@@ -11,7 +11,7 @@ import { Bars3Icon } from "react-native-heroicons/outline";
 import RentCost from "../components/RentCost";
 import Announcement from "../components/Announcement";
 
-export default function HomeScreen() {
+export default function Notification() {
   return (
     <SafeAreaView
       style={{
@@ -39,7 +39,7 @@ export default function HomeScreen() {
           >
             {/* <Bars3Icon style={{ marginEnd: 10 }} stroke={"blue"} /> */}
             <Text style={{ fontSize: 20, fontWeight: "bold", color: "blue" }}>
-              Home
+              Thông báo
             </Text>
           </View>
           <Image
@@ -51,53 +51,52 @@ export default function HomeScreen() {
         <View style={{ flex: 1 }}>
           {/* Bottom content */}
           <View style={{ flex: 1 }}>
-            <Text>All Session</Text>
+            <Text>Tất cả thông báo</Text>
             <ScrollView>
-              <RentCost title="Bóng đèn bị hỏng" room="P.406" />
+              {/* <RentCost title="Bóng đèn bị hỏng" room="P.406" /> */}
               <Announcement
-                title="Khóa cửa chính bị kẹt"
-                room="Tất cả"
-                address="52B5, Phước Kiểng, Nhà Bè"
+                title="Thông báo"
+                content="Không được gây mất trật tự sau 10 giờ đêm"
                 user="Admin"
                 date="10/09/2023"
                 priority="Cao"
               />
               <Announcement
-                title="Nhắc nhở làm ồn"
-                room="P.104"
-                address="52B5, Phước Kiểng, Nhà Bè"
+                title="Thông báo"
+                content="Sau 12h đêm, không được sử dụng mát giặt gây ồn ào, ảnh hướng đến những người xung quanh."
+                address=""
                 user="Admin"
                 date="10/09/2023"
                 priority="Cao"
               />
               <Announcement
-                title="Tường bị rạn nứt"
-                room="Tất cả"
-                address="52B5, Phước Kiểng, Nhà Bè"
+                title="Thông báo"
+                content="Xe đi về sắp xếp gọn ràng, để đúng vạch kẽ, không để xe tại các vị trí không có vạch kẻ. Xe nào để không đúng ô kẻ quá 3 lần, chúng tôi xin từ chối phục vụ."
+                address=""
                 user="Admin"
                 date="10/09/2023"
                 priority="Trung bình"
               />
               <Announcement
-                title="Không được bỏ rác phía trước"
-                room="P.206"
-                address="52B5, Phước Kiểng, Nhà Bè"
+                title="Thông báo"
+                content="Nghiêm cấm các hành vi: tổ chức mua bán, giao dịch tại phòng trọ các mặt hàng nhà nước nghiêm cấm, không được phép nuôi thú cưng, không tổ chức đánh bạc, môi giới mại dâm, mang vũ khí, chất cấm vào trọ."
+                address=""
                 user="Admin"
                 date="10/09/2023"
                 priority="Thấp"
               />
               <Announcement
-                title="Cẩn thận trộm cắp"
-                room="Tất cả"
-                address="52B5, Phước Kiểng, Nhà Bè"
+                title="Thông báo"
+                content="Thông báo tiền phòng tháng 2, năm 2024"
+                address=""
                 user="Admin"
                 date="10/09/2023"
                 priority="Cao"
               />
               <Announcement
-                title="Tường bị rạn nứt"
-                room="P.112"
-                address="52B5, Phước Kiểng, Nhà Bè"
+                title="Thông báo"
+                content="Thông báo tiền phòng tháng 1, năm 2024"
+                address=""
                 user="Admin"
                 date="10/09/2023"
                 priority="Cao"

@@ -16,7 +16,7 @@ import {
 } from "react-native-heroicons/outline";
 import ServicesCard from "../components/ServicesCard";
 
-export default function DetailRoomScreen() {
+export default function DetailRoomScreen({ navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: "white", paddingHorizontal: 22 }}>
       <ScrollView>
@@ -30,6 +30,16 @@ export default function DetailRoomScreen() {
             marginVertical: 20,
           }}
         >
+          <Text
+            style={{
+              fontWeight: "bold",
+              fontSize: 30,
+              alignSelf: "center",
+              color: "red",
+            }}
+          >
+            P406
+          </Text>
           <Text
             style={{
               fontWeight: "bold",
@@ -82,7 +92,7 @@ export default function DetailRoomScreen() {
             <Text style={styles.title}>Hợp đồng #000078</Text>
             <Text>Từ 15-09-2023 đến 15-09-2024</Text>
           </View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Contract")}>
             <ChevronRightIcon stroke={"grey"} />
           </TouchableOpacity>
         </View>

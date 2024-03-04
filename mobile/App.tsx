@@ -11,12 +11,15 @@ import CreateNewPassWordScreen from "./src/screens/CreateNewPasswordScreen";
 import ChangePasswordScreen from "./src/screens/ChangePasswordScreen";
 import HomeUINavigation from "./src/navigations/HomeUINavigation";
 import DetailCostScreen from "./src/screens/DetailCostScreen";
-import DetailRoomScreen from "./src/screens/DetailRoomScreen";
+import DetailRoomScreen from "./src/screens/Home";
 import DetailRoomNavigation from "./src/navigations/DetailRoomNavigation";
 import ProfileScreen from "./src/screens/ProfileScreen";
 import CreateRequestScreen from "./src/screens/CreateRequestScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
+import { Provider } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -48,10 +51,16 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="OTPVerification"
+          component={OTPVerificationScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="ForgotPassword"
           component={ForgotPasswordScreen}
           options={{ headerShown: false }}
         />
+
         {!loading && (
           <Stack.Screen
             name="Welcome"
@@ -90,11 +99,7 @@ export default function App() {
           component={CreateNewPassWordScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="OTPVerification"
-          component={OTPVerificationScreen}
-          options={{ headerShown: false }}
-        />
+
         <Stack.Screen
           name="RegisterScreen"
           component={RegisterScreen}

@@ -1,8 +1,8 @@
-import { View, Text, SafeAreaView, StatusBar } from "react-native";
+import { View, Text, SafeAreaView, StatusBar, Image } from "react-native";
 import React from "react";
 import { ChevronLeftIcon, ShareIcon } from "react-native-heroicons/outline";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import DetailRoomScreen from "../screens/DetailRoomScreen";
+import Home from "../screens/Home";
 
 import RoommatesScreen from "../screens/RoommatesScreen";
 import PaymentHistoryScreen from "../screens/PaymentHistoryScreen";
@@ -29,20 +29,27 @@ export default function DetailRoomNavigation() {
             marginTop: 10,
           }}
         >
-          <ChevronLeftIcon stroke={"black"} />
+          <Text style={{ fontSize: 20, fontWeight: "bold", color: "blue" }}>
+            QLPT
+          </Text>
+          {/* <ChevronLeftIcon stroke={"black"} /> */}
           <View style={{ flex: 1 }}>
             <Text
               style={{ alignSelf: "center", fontSize: 20, fontWeight: "bold" }}
             >
-              P406
+              Home
             </Text>
           </View>
-          <ShareIcon stroke={"black"} />
+          <Image
+            source={require("../../assets/profile.jpg")}
+            style={{ height: 32, width: 32, borderRadius: 32 / 2 }}
+          />
+          {/* <ShareIcon stroke={"black"} /> */}
         </View>
         <Tab.Navigator>
           <Tab.Screen
-            name="DetailRoomScreen"
-            component={DetailRoomScreen}
+            name="Home"
+            component={Home}
             options={{ tabBarLabel: "Thông tin" }}
           />
           <Tab.Screen

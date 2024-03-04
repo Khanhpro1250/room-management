@@ -10,7 +10,7 @@ import {
 } from "react-native-heroicons/outline";
 interface Props {
   title: String;
-  room: String;
+  content: String;
   address: String;
   user: String;
   status: String;
@@ -43,15 +43,9 @@ export default function Announcement(props) {
               style={{
                 flexDirection: "row",
                 justifyContent: "center",
-
                 alignItems: "center",
               }}
             >
-              <ExclamationTriangleIcon
-                color={"grey"}
-                size={18}
-                style={{ marginEnd: 5 }}
-              />
               <Text style={{ fontSize: 14, fontWeight: "bold" }}>
                 {props.title}
               </Text>
@@ -75,20 +69,17 @@ export default function Announcement(props) {
             </Text>
           </View>
           <View style={{ flexDirection: "row" }}>
-            <HomeIcon stroke={"grey"} size={18} style={{ marginEnd: 5 }} />
-            <Text style={{ fontSize: 13 }}>{props.room}</Text>
+            <Text style={{ fontSize: 13 }}>{props.content}</Text>
           </View>
 
           <View style={{ flexDirection: "row" }}>
-            <MapPinIcon stroke={"grey"} size={18} style={{ marginEnd: 5 }} />
             <Text style={{ fontSize: 12 }}>{props.address}</Text>
           </View>
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
             <View style={{ flexDirection: "row" }}>
-              <UserIcon stroke={"grey"} size={18} style={{ marginEnd: 5 }} />
-              <Text style={{ fontSize: 12 }}>{props.user}</Text>
+              <Text style={{ fontSize: 12 }}>Quản lý: 0949696722 </Text>
             </View>
             <Text style={{ fontSize: 12, color: "green" }}>{props.date}</Text>
           </View>

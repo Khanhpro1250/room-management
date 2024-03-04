@@ -11,7 +11,7 @@ import { ChevronLeftIcon } from "react-native-heroicons/outline";
 import InputText from "../components/InputText";
 import ButtonPrimary from "../components/ButtonPrimary";
 import { Colors } from "../utils/Colors";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function OTPVerificationScreen({ navigation }) {
   return (
     <SafeAreaView
@@ -24,8 +24,9 @@ export default function OTPVerificationScreen({ navigation }) {
       <View style={{ flex: 1, marginHorizontal: 22 }}>
         {/* button back */}
         <TouchableOpacity
-          onPress={() => {
-            navigation.goBack();
+          onPress={async () => {
+            await AsyncStorage.setItem("isLoggin", "true");
+            navigation.navigate("HomeUINavigation");
           }}
           style={{
             borderRadius: 12,
@@ -47,7 +48,26 @@ export default function OTPVerificationScreen({ navigation }) {
           Enter the Verification code we just sent on your email address.
         </Text>
         <InputText placeholder="Enter your code" />
-        <ButtonPrimary title="Verify" color={Colors.btnPrimary} />
+        <TouchableOpacity
+          onPress={() => navigation.navigate("HomeUINavigation")}
+          style={{
+            backgroundColor: "#1E232C",
+            borderRadius: 8,
+            height: 56,
+            justifyContent: "center",
+            alignItems: "center",
+            marginVertical: 15,
+          }}
+        >
+          <Text
+            style={{
+              color: "white",
+              fontSize: 15,
+            }}
+          >
+            Verify
+          </Text>
+        </TouchableOpacity>
         <View
           style={{
             flexDirection: "row",
@@ -56,7 +76,9 @@ export default function OTPVerificationScreen({ navigation }) {
           }}
         >
           <Text>Didn't received code? </Text>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("HomeUINavigation")}
+          >
             <Text style={{ color: "grey" }}>Resend</Text>
           </TouchableOpacity>
         </View>
