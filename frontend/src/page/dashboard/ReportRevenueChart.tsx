@@ -1,14 +1,16 @@
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { EChartsOption, SeriesOption } from 'echarts';
-import { RefObject, useMemo, useRef } from 'react';
+import { RefObject, useMemo, useRef, useState } from 'react';
 import { ReactECharts, ReactEChartsRef } from '~/component/Echart/ReactECharts';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 
-import DomToImage from 'dom-to-image';
-import { MoneyUtil } from '~/util/MoneyUtil';
-import { useReportRevenue } from './hooks/useReportRevenue';
-import Loading from '~/component/Elements/loading/Loading';
 import { Select } from 'antd';
+import DomToImage from 'dom-to-image';
+import moment from 'moment';
+import Loading from '~/component/Elements/loading/Loading';
+import { MoneyUtil } from '~/util/MoneyUtil';
+import { ComboFilterReportDto } from './constants/dashboard.constant';
+import { useReportRevenue } from './hooks/useReportRevenue';
 interface IProps {}
 interface IState {
     deActiveButton: Array<string>;
@@ -24,18 +26,29 @@ const getDistinctHouses = (data: any) => {
     return Array.from(houses).map((house: any) => JSON.parse(house));
 };
 
+const compareMonths = (a: any, b: any) => {
+    if (a.year === b.year) {
+        return a.month - b.month;
+    } else {
+        return a.year - b.year;
+    }
+};
+
 const getDistinctMonths = (data: any) => {
     const monthsSet = new Set();
     data.forEach((entry: any) => {
         monthsSet.add(JSON.stringify(entry.month));
     });
-    return Array.from(monthsSet).map((month: any) => JSON.parse(month));
+    return Array.from(monthsSet)
+        .map((month: any) => JSON.parse(month))
+        .sort(compareMonths);
 };
 const ReportRevenueChart = (props: IProps) => {
     const chartRef = useRef<ReactEChartsRef>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const [filter, setFilter] = useState({ dateTime: moment().format('YYYY-MM') });
 
-    const { data: dataResponse, isFetching: isLoadingData } = useReportRevenue();
+    const { data: dataResponse, isFetching: isLoadingData } = useReportRevenue({ ...filter }, undefined);
     const dataReportRevenue = useMemo(() => dataResponse?.data?.result ?? [], [dataResponse]);
 
     const renderEChart = (data: any[], chartRef: RefObject<ReactEChartsRef>, wrapperRef: RefObject<HTMLDivElement>) => {
@@ -117,16 +130,16 @@ const ReportRevenueChart = (props: IProps) => {
                     },
                 },
             },
-            dataZoom: [
-                {
-                    type: 'slider',
-                    show: true,
-                    start: 0,
-                    end: 20,
-                    showDetail: true,
-                    height: 20,
-                },
-            ],
+            // dataZoom: [
+            //     {
+            //         type: 'slider',
+            //         show: true,
+            //         start: 0,
+            //         end: 20,
+            //         showDetail: true,
+            //         height: 20,
+            //     },
+            // ],
             series: series.map(item => ({
                 ...item,
                 label: {
@@ -157,7 +170,9 @@ const ReportRevenueChart = (props: IProps) => {
                 });
     };
 
-    if (isLoadingData) return <Loading />;
+    const onChangeFilter = (value: any) => {
+        setFilter({ dateTime: value });
+    };
 
     return (
         <div ref={containerRef} className="mt-2 border p-4">
@@ -174,25 +189,18 @@ const ReportRevenueChart = (props: IProps) => {
                 />
                 <div className="ml-2 w-[40%]">
                     <Select
+                        onChange={onChangeFilter}
                         className="w-full"
+                        defaultValue={filter.dateTime}
                         placeholder="Chọn thời gian"
-                        options={[
-                            {
-                                value: 'month',
-                                label: 'Tháng',
-                            },
-                            {
-                                value: 'year',
-                                label: 'Năm',
-                            },
-                        ]}
+                        options={ComboFilterReportDto}
                     />
                 </div>
             </div>
             <hr />
             <div className="dashboard-unit flex" ref={containerRef}>
                 <div className="w-full sm:w-full h-full flex-col flex justify-center items-center">
-                    {renderEChart(dataReportRevenue, chartRef, containerRef)}
+                    {isLoadingData ? <Loading /> : renderEChart(dataReportRevenue, chartRef, containerRef)}
                 </div>
             </div>
         </div>

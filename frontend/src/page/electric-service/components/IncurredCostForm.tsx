@@ -104,6 +104,8 @@ const IncurredCostForm: React.FC<Props> = props => {
     const initialValues = {
         ...props.initialValues,
         date: props.initialValues?.date ? moment(props.initialValues?.date) : undefined,
+        houseId: props.initialValues?.houseId ?? 'All',
+        roomId: props.initialValues?.roomId ?? 'All',
     };
 
     return (
@@ -116,7 +118,6 @@ const IncurredCostForm: React.FC<Props> = props => {
                     {
                         label: 'Nhà',
                         name: nameof.full<IncurredCost>(x => x.houseId),
-                        initialValue: 'All',
                         children: (
                             <Select
                                 onChange={value => setRoomCombo(value)}
@@ -135,7 +136,6 @@ const IncurredCostForm: React.FC<Props> = props => {
                     {
                         label: 'Phòng',
                         name: nameof.full<IncurredCost>(x => x.roomId),
-                        initialValue: 'All',
                         children: (
                             <Select
                                 placeholder="Chọn phòng ..."
