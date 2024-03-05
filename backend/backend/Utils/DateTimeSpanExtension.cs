@@ -21,8 +21,14 @@ public struct DateTimeSpanExtension
         Milliseconds = milliseconds;
     }
 
-    enum Phase { Years, Months, Days, Done }
-    
+    enum Phase
+    {
+        Years,
+        Months,
+        Days,
+        Done
+    }
+
     /// <summary>
     /// Lấy ra khoảng cách giữa 2 ngày tính đến đơn vị Milliseconds
     /// VD: Khoảng cách giữa 2 ngày 9/1/2022 - 11/1/2023 là 1 year 2 day 0 hours 0 Minutes 0 Milliseconds
@@ -60,43 +66,54 @@ public struct DateTimeSpanExtension
                     {
                         years++;
                     }
+
                     break;
                 case Phase.Months:
                     if (current.AddMonths(months + 1) > date2)
                     {
                         phase = Phase.Days;
                         current = current.AddMonths(months);
-                        if (current.Day < officialDay && officialDay <= DateTime.DaysInMonth(current.Year, current.Month))
+                        if (current.Day < officialDay &&
+                            officialDay <= DateTime.DaysInMonth(current.Year, current.Month))
                             current = current.AddDays(officialDay - current.Day);
                     }
                     else
                     {
                         months++;
                     }
+
                     break;
                 case Phase.Days:
                     if (current.AddDays(days + 1) > date2)
                     {
                         current = current.AddDays(days);
                         var timespan = date2 - current;
-                        span = new DateTimeSpanExtension(years, months, days, timespan.Hours, timespan.Minutes, timespan.Seconds, timespan.Milliseconds);
+                        span = new DateTimeSpanExtension(years, months, days, timespan.Hours, timespan.Minutes,
+                            timespan.Seconds, timespan.Milliseconds);
                         phase = Phase.Done;
                     }
                     else
                     {
                         days++;
                     }
+
                     break;
             }
         }
 
         return span;
     }
-    
+
     public static DateTime GetEndOfMonth(DateTime date)
     {
         DateTime nextMonth = date.AddMonths(1);
         DateTime endOfMonth = new DateTime(nextMonth.Year, nextMonth.Month, 1).AddDays(-1);
         return endOfMonth;
+    }
+
+    public static DateTime GetStartOfMonth(DateTime date)
+    {
+        DateTime startOfMonth = new DateTime(date.Year, date.Month, 1);
+        return startOfMonth;
     }
 }

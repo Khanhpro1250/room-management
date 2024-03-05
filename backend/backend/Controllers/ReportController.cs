@@ -25,16 +25,17 @@ public class ReportController : ControllerBase
     }
 
     [HttpGet("room-revenue")]
-    public async Task<ApiResponse<List<ReportRoomRevenueDto>>> GetRoomRevenue()
+    public async Task<ApiResponse<List<ReportRoomRevenueDto>>> GetRoomRevenue([FromQuery] ReportFilterDto filterDto)
     {
-        var result = await _reportService.GetReportRoomRevenue(DateTime.Now);
+        var result = await _reportService.GetReportRoomRevenue(filterDto);
         return ApiResponse<List<ReportRoomRevenueDto>>.Ok(result);
     }
 
     [HttpGet("total-spend-amount")]
-    public async Task<ApiResponse<List<ReportRoomRevenueDto>>> ReportRoomTotalSpendAmount()
+    public async Task<ApiResponse<List<ReportRoomRevenueDto>>> ReportRoomTotalSpendAmount(
+        [FromQuery] ReportFilterDto filterDto)
     {
-        var result = await _reportService.GetReportRoomTotalSpendAmount(DateTime.Now);
+        var result = await _reportService.GetReportRoomTotalSpendAmount(filterDto);
         return ApiResponse<List<ReportRoomRevenueDto>>.Ok(result);
     }
 

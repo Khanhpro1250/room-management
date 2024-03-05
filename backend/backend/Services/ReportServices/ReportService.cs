@@ -7,8 +7,8 @@ using backend.Models.Entities.Rooms;
 using backend.Models.Repositorties.ContractRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Services.UserServices;
+using backend.Utils;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver.Linq;
 
 namespace backend.Services.ReportServices;
 
@@ -80,15 +80,16 @@ public class ReportService : IReportService
         return result;
     }
 
-    public async Task<List<ReportRoomRevenueDto>> GetReportRoomRevenue(DateTime? filterDateTime)
+    public async Task<List<ReportRoomRevenueDto>> GetReportRoomRevenue(ReportFilterDto filterDto)
     {
-        var date = filterDateTime ?? DateTime.Now;
+        var startDate = DateTimeSpanExtension.GetStartOfMonth(filterDto.DateTime ?? DateTime.Now);
+        var endDate = DateTimeSpanExtension.GetEndOfMonth(DateTime.Now);
         var queryable = _calculateChargeRepository.GetQueryable();
         var currentUserId = _currentUser.Id;
         queryable = queryable
                 .Where(x => x.Room.House.UserId.Equals(currentUserId))
-                .Where(x => x.DateCalculate.Date.Month == date.Month &&
-                            x.DateCalculate.Date.Year == date.Year)
+                .Where(x => x.DateCalculate.Date <= endDate)
+                .Where(x => x.DateCalculate.Date >= startDate)
             ;
 
         var dataCalculateCharges = await queryable
@@ -155,16 +156,17 @@ public class ReportService : IReportService
         return new PaginatedList<ReportContractExpireDto>(contracts, contracts.Count, 0, -1);
     }
 
-    public async Task<List<ReportRoomRevenueDto>> GetReportRoomTotalSpendAmount(DateTime? filterDateTime)
+    public async Task<List<ReportRoomRevenueDto>> GetReportRoomTotalSpendAmount(ReportFilterDto filterDto)
     {
-        var date = filterDateTime ?? DateTime.Now;
+        var startDate = DateTimeSpanExtension.GetStartOfMonth(filterDto.DateTime ?? DateTime.Now);
+        var endDate = DateTimeSpanExtension.GetEndOfMonth(DateTime.Now);
         var queryable = _incurredCostRepository.GetQueryable();
         var currentUserId = _currentUser.Id;
         queryable = queryable
                 .Where(x => x.Type == IncurredCostType.Owner)
                 .Where(x => x.Room.House.UserId.Equals(currentUserId))
-                .Where(x => x.Date.Month == date.Month &&
-                            x.Date.Year == date.Year)
+                .Where(x => x.Date.Date <= endDate.Date)
+                .Where(x => x.Date.Date >= startDate.Date)
             ;
 
         var dataIncurredCosts = await queryable
