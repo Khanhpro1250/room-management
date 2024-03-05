@@ -1,22 +1,58 @@
+import axios from "axios";
+import React, { useState } from "react";
 import {
-  View,
-  Text,
+  ActivityIndicator,
   SafeAreaView,
   StatusBar,
-  TouchableOpacity,
   StyleSheet,
-  Image,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import React from "react";
-import {
-  ArrowLeftIcon,
-  ChevronLeftIcon,
-  SparklesIcon,
-} from "react-native-heroicons/outline";
-import InputText from "../components/InputText";
+import { ChevronLeftIcon, LightBulbIcon } from "react-native-heroicons/outline";
 import ButtonPrimary from "../components/ButtonPrimary";
-import {Colors} from "../utils/Colors";
-export default function LoginScreen() {
+import { Colors } from "../utils/Colors";
+import { validateEmail } from "../utils/Validate";
+import { useMergeState } from "../hooks/useMergeState";
+import { requestApi } from "../lib/axios";
+
+export default function LoginScreen({ navigation }) {
+  const headers = {
+    Accept: "*/*",
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+  };
+
+  const [state, setState] = useMergeState({
+    email: "",
+    loading: false,
+    error: -1,
+    errorText: "",
+  });
+
+  const onClick = async () => {
+    if (state.errorText) return;
+    const res = await requestApi(
+      "post",
+      "/api/identity/sent-opt-customer-login",
+      {
+        email: state.email,
+      }
+    );
+
+    // navigation.navigate("OTPVerification");
+  };
+
+  const onChangeText = (text) => {
+    const isValidEmail = text && validateEmail(text);
+    if (!isValidEmail) {
+      setState({ errorText: "Invalid email" });
+    } else {
+      setState({ errorText: "", email: text });
+    }
+  };
+
   return (
     <SafeAreaView
       style={{
@@ -28,6 +64,9 @@ export default function LoginScreen() {
       <View style={{ flex: 1, marginHorizontal: 22 }}>
         {/* button back */}
         <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
+          }}
           style={{
             borderRadius: 12,
             borderWidth: 1,
@@ -40,147 +79,59 @@ export default function LoginScreen() {
           }}
         >
           <ChevronLeftIcon stroke="black" />
+          {/* Header Text */}
         </TouchableOpacity>
         {/* Header Text */}
-        <Text style={styles.headerText}>Welcome back! Glad</Text>
-        <Text style={styles.headerText}>to see you, Again!</Text>
-        {/* Role Boss vs Guest */}
+        <Text style={styles.headerText}>Hello! Welcome back</Text>
+        <Text>
+          Please enter the email address linked with your account. We will send
+          OTP verification for you.
+        </Text>
         <View
           style={{
-            flexDirection: "row",
-            backgroundColor: "#EDEEEF",
             borderRadius: 10,
-            height: 36,
+            borderWidth: 1,
+            borderColor: "#E8ECF4",
+            height: 56,
             justifyContent: "center",
-            marginVertical: 30,
-            padding: 2,
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              backgroundColor: "white",
-              borderRadius: 10,
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text>Boss</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              borderRadius: 10,
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text>Guest</Text>
-          </TouchableOpacity>
-        </View>
-        {/* TextInput email vs password */}
-        <InputText placeholder="Enter your email" />
-        <InputText placeholder="Enter your password" isPassword={true} />
-        {/* Forgot password */}
-        <TouchableOpacity style={{ alignItems: "flex-end" }}>
-          <Text
-            style={{
-              fontSize: 14,
-              color: "#6A707C",
-              marginTop: 5,
-              marginBottom: 20,
-            }}
-          >
-            Forgot Password?
-          </Text>
-        </TouchableOpacity>
-        {/* Button Login */}
-        <ButtonPrimary title="Login" color={Colors.btnPrimary} />
-        {/* Or login with */}
-        <View
-          style={{
-            borderWidth: 0.3,
-            borderColor: "grey",
-            marginTop: 30,
-            marginBottom: 15,
-          }}
-        >
-          <Text
-            style={{
-              position: "absolute",
-              alignSelf: "center",
-              top: -12,
-              backgroundColor: "white",
-              paddingHorizontal: 10,
-            }}
-          >
-            Or Login with
-          </Text>
-        </View>
-        {/* Facebook/gooogle/apple */}
-        <View
-          style={{
             flexDirection: "row",
-            justifyContent: "space-around",
-            marginVertical: 20,
+            alignItems: "center",
+            marginVertical: 8,
           }}
         >
-          <TouchableOpacity
-            style={{
-              borderWidth: 1,
-              borderRadius: 10,
-              padding: 10,
-              width: 105,
-              alignItems: "center",
-            }}
-          >
-            <Image
-              source={require("../../assets/google.png")}
-              style={{ height: 36, width: 36 }}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              borderWidth: 1,
-              borderRadius: 10,
-              padding: 10,
-              width: 105,
-              alignItems: "center",
-            }}
-          >
-            <Image
-              source={require("../../assets/facebook.png")}
-              style={{ height: 36, width: 36 }}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              borderWidth: 1,
-              borderRadius: 10,
-              padding: 10,
-              width: 105,
-              alignItems: "center",
-            }}
-          >
-            <Image
-              source={require("../../assets/apple.png")}
-              style={{ height: 36, width: 36 }}
+          <TextInput
+            onChangeText={onChangeText}
+            placeholder="Enter your email"
+            style={{ flex: 1, fontSize: 15, marginStart: 15, outline: "none" }}
+          />
+          <TouchableOpacity style={{ display: "none" }}>
+            <LightBulbIcon
+              stroke={"grey"}
+              //@ts-ignore
+              style={{ marginHorizontal: 8 }}
             />
           </TouchableOpacity>
         </View>
-        {/* Dont have account */}
-        <View
+        <Text style={{ color: "red" }}>{state.errorText}</Text>
+        {state.loading ? <ActivityIndicator /> : <Text></Text>}
+        <ButtonPrimary
+          title="Send Code"
+          color={Colors.btnPrimary}
+          onPressBtn={onClick}
+        />
+
+        {/* <View
           style={{
             flexDirection: "row",
             marginVertical: 20,
             justifyContent: "center",
           }}
         >
-          <Text>Don't have an account? </Text>
+          <Text>Remember Password </Text>
           <TouchableOpacity>
-            <Text style={{ color: "grey" }}>Register Now</Text>
+            <Text style={{ color: "grey" }}>Login</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
     </SafeAreaView>
   );

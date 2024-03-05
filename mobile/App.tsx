@@ -1,50 +1,29 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import LoginScreen from "./src/screens/LoginScreen";
-import RegisterScreen from "./src/screens/RegisterScreen";
-import WelcomScreen from "./src/screens/WelcomeScreen";
-import ForgotPasswordScreen from "./src/screens/ForgotPasswordScreen";
-import OTPVerificationScreen from "./src/screens/OTPVerificationScreen";
-import CreateNewPassWordScreen from "./src/screens/CreateNewPasswordScreen";
-import ChangePasswordScreen from "./src/screens/ChangePasswordScreen";
-import HomeUINavigation from "./src/navigations/HomeUINavigation";
-import DetailCostScreen from "./src/screens/DetailCostScreen";
-import DetailRoomScreen from "./src/screens/Home";
+import React from "react";
+import { StyleSheet } from "react-native";
 import DetailRoomNavigation from "./src/navigations/DetailRoomNavigation";
-import ProfileScreen from "./src/screens/ProfileScreen";
+import HomeUINavigation from "./src/navigations/HomeUINavigation";
+import ChangePasswordScreen from "./src/screens/ChangePasswordScreen";
+import CreateNewPassWordScreen from "./src/screens/CreateNewPasswordScreen";
 import CreateRequestScreen from "./src/screens/CreateRequestScreen";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
-import { Provider } from "react-redux";
-import { useSelector, useDispatch } from "react-redux";
+import DetailCostScreen from "./src/screens/DetailCostScreen";
+import LoginScreen from "./src/screens/LoginScreen";
+import OTPVerificationScreen from "./src/screens/OTPVerificationScreen";
+import ProfileScreen from "./src/screens/ProfileScreen";
+import RegisterScreen from "./src/screens/RegisterScreen";
 
 const Stack = createStackNavigator();
 
-export default function App() {
-  const [shouldDisplayWelcome, setShouldDisplayWelcome] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const _storeData = async () => {
-    try {
-      await AsyncStorage.getItem("isFirst")
-        .then((result) => {
-          if (result != undefined) setShouldDisplayWelcome(true);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } catch (error) {
-      // Error saving data
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    _storeData();
-  }, []);
+const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="HomeUINavigation"
           component={HomeUINavigation}
@@ -55,19 +34,6 @@ export default function App() {
           component={OTPVerificationScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="ForgotPassword"
-          component={ForgotPasswordScreen}
-          options={{ headerShown: false }}
-        />
-
-        {!loading && (
-          <Stack.Screen
-            name="Welcome"
-            component={WelcomScreen}
-            options={{ headerShown: false }}
-          />
-        )}
 
         <Stack.Screen
           name="AddRequest"
@@ -105,15 +71,10 @@ export default function App() {
           component={RegisterScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -123,3 +84,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
+
+export default App;

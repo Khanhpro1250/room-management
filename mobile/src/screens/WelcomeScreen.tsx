@@ -1,15 +1,13 @@
-import {
-  View,
-  Text,
-  SafeAreaView,
-  ImageBackground,
-  StatusBar,
-  TouchableOpacity,
-} from "react-native";
-import React from "react";
-import ButtonPrimary from "../components/ButtonPrimary";
-import { Colors } from "../utils/Colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import React from "react";
+import {
+  ImageBackground,
+  SafeAreaView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function WelcomeScreen({ navigation }) {
   return (

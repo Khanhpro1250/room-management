@@ -29,7 +29,8 @@ namespace backend.Services.CustomerServices
         private readonly IPaymentHistoryRepository _paymentHistoryRepository;
 
         public CustomerService(ICustomerRepository customerRepository, IMapper mapper, ICurrentUser currentUser,
-            IFileService fileService, IRoomProcessRepository roomProcessRepository, IPaymentHistoryRepository paymentHistoryRepository)
+            IFileService fileService, IRoomProcessRepository roomProcessRepository,
+            IPaymentHistoryRepository paymentHistoryRepository)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
@@ -250,7 +251,7 @@ namespace backend.Services.CustomerServices
 
             return new PaginatedList<RoomProcessDto>(listHistories, listHistories.Count, 0, -1);
         }
-        
+
         public async Task<PaginatedList<PaymentHistoryDto>> GetPaymentHistoriesByCustomerId(Guid customerId)
         {
             var listHistories = await _paymentHistoryRepository.GetQueryable()
@@ -260,6 +261,12 @@ namespace backend.Services.CustomerServices
                 .ToListAsync();
 
             return new PaginatedList<PaymentHistoryDto>(listHistories, listHistories.Count, 0, -1);
+        }
+
+        public Task<bool> CheckEmailCustomer(string email)
+        {
+            var queryable = _customerRepository.GetQueryable();
+            return queryable.AnyAsync(x => x.Email.Equals(email));
         }
     }
 }

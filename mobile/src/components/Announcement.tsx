@@ -1,13 +1,6 @@
-import { View, Text } from "react-native";
 import React from "react";
+import { Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import {
-  ExclamationTriangleIcon,
-  HomeIcon,
-  MapPinIcon,
-  UserIcon,
-  UsersIcon,
-} from "react-native-heroicons/outline";
 interface Props {
   title: String;
   content: String;

@@ -1,12 +1,11 @@
-import { View, Text, SafeAreaView, StatusBar, Image } from "react-native";
-import React from "react";
-import { ChevronLeftIcon, ShareIcon } from "react-native-heroicons/outline";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import React from "react";
+import { Image, SafeAreaView, StatusBar, Text, View } from "react-native";
 import Home from "../screens/Home";
 
-import RoommatesScreen from "../screens/RoommatesScreen";
-import PaymentHistoryScreen from "../screens/PaymentHistoryScreen";
 import ContractScreen from "../screens/ContractScreen";
+import PaymentHistoryScreen from "../screens/PaymentHistoryScreen";
+import RoommatesScreen from "../screens/RoommatesScreen";
 
 const Tab = createMaterialTopTabNavigator();
 export default function DetailRoomNavigation() {

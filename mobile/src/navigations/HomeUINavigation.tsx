@@ -1,20 +1,14 @@
-import { View, Text } from "react-native";
-import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Notification from "../screens/Notification";
-import ChatScreen from "../screens/ChatScreen";
+import React from "react";
+import { View } from "react-native";
 import {
-  BuildingOfficeIcon,
-  BuildingStorefrontIcon,
-  ChatBubbleBottomCenterIcon,
   ChatBubbleLeftEllipsisIcon,
   ClipboardDocumentListIcon,
   HomeIcon,
 } from "react-native-heroicons/outline";
-import ButtonPrimary from "../components/ButtonPrimary";
-import { Colors } from "../utils/Colors";
-import DetailRoomNavigation from "./DetailRoomNavigation";
+import Notification from "../screens/Notification";
 import RequestsScreen from "../screens/RequestsScreen";
+import DetailRoomNavigation from "./DetailRoomNavigation";
 
 const Tab = createBottomTabNavigator();
 export default function HomeUINavigation() {

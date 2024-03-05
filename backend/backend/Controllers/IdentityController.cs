@@ -4,6 +4,7 @@ using backend.Contanst;
 using backend.Controllers.Dtos;
 using backend.DTOs.UserDtos;
 using backend.Models.Entities.UserAccount;
+using backend.Services.CustomerServices;
 using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.AspNetCore.Authentication;
@@ -19,12 +20,15 @@ public class IdentityController : ControllerBase
     private readonly IUserService _userService;
     private readonly IMapper _mapper;
     private readonly IOtpService _otpService;
+    private readonly ICustomerService _customerService;
 
-    public IdentityController(IUserService userService, IMapper mapper, IOtpService otpService)
+    public IdentityController(IUserService userService, IMapper mapper, IOtpService otpService,
+        ICustomerService customerService)
     {
         _userService = userService;
         _mapper = mapper;
         _otpService = otpService;
+        _customerService = customerService;
     }
 
     [HttpGet("check-login")]
@@ -159,5 +163,14 @@ public class IdentityController : ControllerBase
     {
         await _userService.DeleteUser(id);
         return ApiResponse<UserDto>.Ok();
+    }
+
+    [HttpPost("sent-opt-customer-login")]
+    public async Task<ApiResponse<object>> SentOptCustomerLogin([FromBody] string email)
+    {
+        var checkEmailCustomer = await _customerService.CheckEmailCustomer(email);
+        if (!checkEmailCustomer) return ApiResponse<object>.Fail("Email is not existed");
+        await _otpService.GenerateOtp(email, CommonConstant.CUSTOMER_LOGIN);
+        return ApiResponse<object>.Ok();
     }
 }

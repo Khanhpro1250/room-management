@@ -24,5 +24,7 @@ namespace backend.Services.CustomerServices
 
         Task<PaginatedList<RoomProcessDto>> GetHistoriesByCustomerId(Guid customerId);
         Task<PaginatedList<PaymentHistoryDto>> GetPaymentHistoriesByCustomerId(Guid customerId);
+
+        Task<bool> CheckEmailCustomer(string email);
     }
 }
