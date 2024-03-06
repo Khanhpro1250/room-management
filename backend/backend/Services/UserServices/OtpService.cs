@@ -124,8 +124,7 @@ public class OtpService : IOtpService
         await _otpRepository.DeleteAsync(result, true);
         return true;
     }
-    
-    
+
 
     private string GenerateRandomOtp()
     {

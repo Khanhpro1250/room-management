@@ -1,4 +1,5 @@
 ﻿using backend.Controllers.Dtos;
+using backend.DTOs.HouseDtos;
 using Newtonsoft.Json;
 
 namespace backend.DTOs.RoomDtos
@@ -16,13 +17,16 @@ namespace backend.DTOs.RoomDtos
         public string Acreage { get; set; }
         public int MaxNumberOfPeople { get; set; }
         public float Price { get; set; }
+
         public string Description { get; set; }
+
         // [JsonProperty("fileUrls")] 
         public string FileUrls { get; set; }
         public string Status { get; set; }
         public string InteriorIds { get; set; }
         public string StatusName { get; set; }
-        
+        public HouseDto House { get; set; }
+
         public Guid? FileEntryCollectionId { get; set; }
         public FileEntryCollectionDto? FileEntryCollection { get; set; }
     }

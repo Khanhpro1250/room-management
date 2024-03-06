@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AutoMapper;
 using backend.Contanst;
 using backend.Controllers.Dtos;
+using backend.DTOs.CustomerDtos;
 using backend.DTOs.UserDtos;
 using backend.Models.Entities.UserAccount;
 using backend.Services.CustomerServices;
@@ -166,11 +167,18 @@ public class IdentityController : ControllerBase
     }
 
     [HttpPost("sent-opt-customer-login")]
-    public async Task<ApiResponse<object>> SentOptCustomerLogin([FromBody] string email)
+    public async Task<ApiResponse<object>> SentOptCustomerLogin([FromBody] SentOtpRequestDto request)
     {
-        var checkEmailCustomer = await _customerService.CheckEmailCustomer(email);
+        var checkEmailCustomer = await _customerService.CheckEmailCustomer(request.Email);
         if (!checkEmailCustomer) return ApiResponse<object>.Fail("Email is not existed");
-        await _otpService.GenerateOtp(email, CommonConstant.CUSTOMER_LOGIN);
+        await _otpService.GenerateOtp(request.Email, CommonConstant.CUSTOMER_LOGIN);
         return ApiResponse<object>.Ok();
+    }
+
+    [HttpPost("validation-otp-customer")]
+    public async Task<ApiResponse<CustomerMobileDto>> ValidationOtpCustomer([FromBody] SentOtpRequestDto request)
+    {
+        var result = await _customerService.ValidationOtpCustomer(request.OtpCode, request.Email);
+        return ApiResponse<CustomerMobileDto>.Ok(result);
     }
 }

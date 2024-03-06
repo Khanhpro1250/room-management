@@ -1,6 +1,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import DetailRoomNavigation from './src/navigations/DetailRoomNavigation';
 import HomeUINavigation from './src/navigations/HomeUINavigation';
@@ -12,15 +12,31 @@ import LoginScreen from './src/screens/LoginScreen';
 import OTPVerificationScreen from './src/screens/OTPVerificationScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
+import { useMergeState } from './src/hooks/useMergeState';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { USER_DATA_STORED } from './src/constants/AppConstant';
 
 const Stack = createStackNavigator();
 
 const App = () => {
+    const [state, setState] = useMergeState({
+        isLogin: false,
+    });
+    useEffect(() => {
+        AsyncStorage.getItem(USER_DATA_STORED).then(res => {
+            console.log('res', res);
+            if (res) {
+                setState({ isLogin: true });
+            }
+        });
+    }, []);
     return (
         <NavigationContainer>
             <Stack.Navigator>
+                {!state.isLogin && (
+                    <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+                )}
                 <Stack.Screen name="HomeUINavigation" component={HomeUINavigation} options={{ headerShown: false }} />
-                <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
                 <Stack.Screen
                     name="OTPVerification"
                     component={OTPVerificationScreen}

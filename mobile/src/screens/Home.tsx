@@ -1,11 +1,26 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
-import React from 'react';
-import { RadioButton } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Clipboard from 'expo-clipboard';
-import { ChevronRightIcon, ClipboardDocumentIcon, HomeIcon } from 'react-native-heroicons/outline';
+import React, { useEffect } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ChevronRightIcon, ClipboardDocumentIcon } from 'react-native-heroicons/outline';
 import ServicesCard from '../components/ServicesCard';
+import { USER_DATA_STORED } from '../constants/AppConstant';
+import { useMergeState } from '../hooks/useMergeState';
+import { DateUtil } from '../utils/DateUtil';
+// import moment from 'moment';
 
 export default function DetailRoomScreen({ navigation }) {
+    const [state, setState] = useMergeState({
+        user: {} as any,
+    });
+    useEffect(() => {
+        AsyncStorage.getItem(USER_DATA_STORED).then(res => {
+            if (res) {
+                console.log('res', JSON.parse(res));
+                setState({ user: JSON.parse(res) });
+            }
+        });
+    }, []);
     return (
         <View style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 22 }}>
             <ScrollView>
@@ -27,7 +42,7 @@ export default function DetailRoomScreen({ navigation }) {
                             color: 'red',
                         }}
                     >
-                        P406
+                        {state.user?.room?.roomCode}
                     </Text>
                     <Text
                         style={{
@@ -37,7 +52,7 @@ export default function DetailRoomScreen({ navigation }) {
                             color: 'gold',
                         }}
                     >
-                        3.000.000 đ
+                        {Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 }).format(state.user?.room?.price)}đ
                     </Text>
                     {/* dich vu */}
                     <View
@@ -48,19 +63,20 @@ export default function DetailRoomScreen({ navigation }) {
                     >
                         <View style={{ alignItems: 'center' }}>
                             <Text style={styles.title}>Diện tích</Text>
-                            <Text style={styles.info}>22 m</Text>
-                            <Text style={styles.title}>Phòng ngủ</Text>
-                            <Text style={styles.info}>1</Text>
+                            <Text style={styles.info}>{state.user?.room?.acreage}m2</Text>
                             <Text style={styles.title}>Số người tối đa</Text>
                             <Text style={styles.info}>2</Text>
                         </View>
                         <View style={{ alignItems: 'center' }}>
-                            <Text style={styles.title}>Tầng</Text>
-                            <Text style={styles.info}>4</Text>
-                            <Text style={styles.title}>Phòng khách</Text>
-                            <Text style={styles.info}>0</Text>
-                            <Text style={styles.title}>Tiền cọc</Text>
-                            <Text style={styles.info}>2.000.000 đ</Text>
+                            <Text style={styles.title}>Nhà</Text>
+                            <Text style={styles.info}>{state.user?.room?.roomCode}</Text>
+                            <Text style={styles.title}>Số thành viên</Text>
+                            <Text style={styles.info}>{state.user?.room?.member?.length ?? 0}</Text>
+                            <Text style={styles.title}>Tiền đã cọc</Text>
+                            <Text style={styles.info}>
+                                {' '}
+                                {Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 }).format(state.user?.deposit)}đ
+                            </Text>
                         </View>
                     </View>
                 </View>
@@ -78,8 +94,12 @@ export default function DetailRoomScreen({ navigation }) {
                     }}
                 >
                     <View>
-                        <Text style={styles.title}>Hợp đồng #000078</Text>
-                        <Text>Từ 15-09-2023 đến 15-09-2024</Text>
+                        <Text style={styles.title}>Hợp đồng #{state.user?.contract?.contractNumber}</Text>
+                        <Text>
+                            Từ {DateUtil.formatDate(state.user?.contract?.effectDate)} đến{' '}
+                            {DateUtil.formatDate(state.user?.contract?.expiredDate)} ({state.user?.contract?.month}{' '}
+                            tháng)
+                        </Text>
                     </View>
                     <TouchableOpacity onPress={() => navigation.navigate('Contract')}>
                         <ChevronRightIcon stroke={'grey'} />
@@ -87,7 +107,7 @@ export default function DetailRoomScreen({ navigation }) {
                 </View>
                 {/* Dich vu */}
                 <View>
-                    <Text style={{ fontWeight: 'bold', fontSize: 16, marginVertical: 10 }}>Dịch vụ có phí</Text>
+                    <Text style={{ fontWeight: 'bold', fontSize: 16, marginVertical: 10 }}>Dịch vụ</Text>
                     <View
                         style={{
                             flexDirection: 'row',
@@ -95,43 +115,65 @@ export default function DetailRoomScreen({ navigation }) {
                             justifyContent: 'space-between',
                         }}
                     >
-                        <ServicesCard name="Máy lạnh" price="200.000 đ/Phòng" color="violet" />
-                        <ServicesCard name="Tủ lạnh" price="150.000 đ/Phòng" color="gold" />
-                        <ServicesCard name="TV" price="100.000 đ/Phòng" color="cyan" />
-                        <ServicesCard name="Máy giặc" price="300.000 đ/Phòng" color="darkorange" />
-                        <ServicesCard name="Điện" price="200.000 đ/kWh" color="darkturquoise" />
-                        <ServicesCard name="Nước" price="20.000 đ/m3" color="hotpink" />
+                        {state.user?.services?.map((item, index) => {
+                            const fnHashCode = (str: string) => {
+                                let hash = 0;
+                                if (!str) return str;
+                                for (let i = 0; i < str.length; i++) {
+                                    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+                                }
+                                return hash;
+                            };
+
+                            const intToRGB = (i: any) => {
+                                const c = (i & 0x0098aa82).toString(16).toUpperCase();
+                                return '00000'.substring(0, 6 - c.length) + c;
+                            };
+
+                            const hashCode = fnHashCode(item.serviceCode);
+                            const strbg = intToRGB(hashCode);
+                            return (
+                                <ServicesCard
+                                    key={index}
+                                    serviceCode={item.serviceCode}
+                                    name={item.serviceName}
+                                    price={`${Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 }).format(
+                                        item.price,
+                                    )}đ/${JSON.parse(item.serviceUnit)?.[0]}`}
+                                    color={`#${strbg}`}
+                                />
+                            );
+                        })}
                     </View>
                 </View>
-                <Text style={{ fontWeight: 'bold', fontSize: 16, marginVertical: 10 }}>Dịch vụ miễn phí</Text>
                 <View style={{ marginVertical: 10 }}>
                     <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Thông tin chủ trọ</Text>
-                    <Text style={styles.info}>Họ và tên: Nguyễn Phạm Tuấn Huỳnh</Text>
+                    <Text style={styles.info}>Họ và tên: {state.user?.houseOwn?.fullName}</Text>
                     <View style={{ flexDirection: 'row' }}>
-                        <Text style={styles.info}>Số điện thoại: 0985774882</Text>
+                        <Text style={styles.info}>Số điện thoại: {state.user?.houseOwn?.phoneNumber}</Text>
                         <TouchableOpacity
                             onPress={() => {
-                                Clipboard.setStringAsync('0985774882');
-                                Alert.alert('Thành công', '0985774882');
+                                Clipboard.setStringAsync(state.user?.houseOwn?.phoneNumber);
+                                Alert.alert('Thành công', state.user?.houseOwn?.phoneNumber);
                             }}
                         >
                             <ClipboardDocumentIcon stroke={'grey'} size={18} />
                         </TouchableOpacity>
                     </View>
-                    <Text style={styles.info}>Ngân hàng: Vietcombank</Text>
+                    <Text style={styles.info}>Ngân hàng: {state.user?.houseOwn?.bankBranch}</Text>
                     <View style={{ flexDirection: 'row' }}>
-                        <Text style={styles.info}>STK: 0190001887997</Text>
+                        <Text style={styles.info}>STK: {state.user?.houseOwn?.bankAccount}</Text>
                         <TouchableOpacity
                             onPress={() => {
-                                Clipboard.setStringAsync('0190001887997');
-                                Alert.alert('Thành công', '0190001887997');
+                                Clipboard.setStringAsync(state.user?.houseOwn?.bankAccount);
+                                Alert.alert('Thành công', state.user?.houseOwn?.bankAccount);
                             }}
                         >
                             <ClipboardDocumentIcon stroke={'grey'} size={18} />
                         </TouchableOpacity>
                     </View>
 
-                    <Text style={styles.info}>Tên: NGUYEN PHAM TUAN HUYNH</Text>
+                    <Text style={styles.info}>Tên: {state.user?.houseOwn?.bankAccountName}</Text>
                 </View>
             </ScrollView>
         </View>

@@ -1,6 +1,5 @@
 ﻿using backend.Controllers.Dtos;
 using backend.DTOs.ServiceDtos;
-using Newtonsoft.Json;
 
 namespace backend.DTOs.CustomerDtos
 {
