@@ -1,21 +1,13 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import React from 'react';
 import { ChevronRightIcon } from 'react-native-heroicons/outline';
-export default function PaymentHistoryScreen() {
+export default function PaymentHistoryScreen({ navigation }) {
     return (
-        <View style={{ flex: 1, backgroundColor: 'white' }}>
-            <View
-                style={{
-                    alignItems: 'center',
-                    elevation: 3,
-                    shadowColor: 'black',
-                    backgroundColor: 'moccasin',
-                    borderRadius: 10,
-                    padding: 10,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginVertical: 10,
-                    marginHorizontal: 22,
+        <ScrollView style={{ flex: 1, backgroundColor: '#D7F9F9' }}>
+            <TouchableOpacity
+                style={styles.line}
+                onPress={() => {
+                    navigation.navigate('BillDetail');
                 }}
             >
                 <View>
@@ -25,77 +17,38 @@ export default function PaymentHistoryScreen() {
                 <TouchableOpacity onPress={() => {}}>
                     <ChevronRightIcon stroke={'grey'} />
                 </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
 
-            <View
-                style={{
-                    alignItems: 'center',
-                    elevation: 3,
-                    shadowColor: 'black',
-                    backgroundColor: 'moccasin',
-                    borderRadius: 10,
-                    padding: 10,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginVertical: 10,
-                    marginHorizontal: 22,
+            <TouchableOpacity
+                style={styles.line}
+                onPress={() => {
+                    navigation.navigate('BillDetail');
                 }}
             >
                 <View>
                     <Text style={styles.title}>Hóa đơn tháng 2/2024 </Text>
-                    <Text style={{ fontSize: 12, color: 'red' }}>Đã thanh toán </Text>
+                    <Text style={{ fontSize: 12, color: 'red' }}>Chưa thanh toán </Text>
                 </View>
                 <TouchableOpacity onPress={() => {}}>
                     <ChevronRightIcon stroke={'grey'} />
                 </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
 
-            <View
-                style={{
-                    alignItems: 'center',
-                    elevation: 3,
-                    shadowColor: 'black',
-                    backgroundColor: 'moccasin',
-                    borderRadius: 10,
-                    padding: 10,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginVertical: 10,
-                    marginHorizontal: 22,
+            <TouchableOpacity
+                style={styles.line}
+                onPress={() => {
+                    navigation.navigate('BillDetail');
                 }}
             >
                 <View>
                     <Text style={styles.title}>Hóa đơn tháng 1/2024 </Text>
-                    <Text style={{ fontSize: 12, color: 'red' }}>Đã thanh toán </Text>
+                    <Text style={{ fontSize: 12, color: 'red' }}>Chưa thanh toán </Text>
                 </View>
                 <TouchableOpacity onPress={() => {}}>
                     <ChevronRightIcon stroke={'grey'} />
                 </TouchableOpacity>
-            </View>
-
-            <View
-                style={{
-                    alignItems: 'center',
-                    elevation: 3,
-                    shadowColor: 'black',
-                    backgroundColor: 'moccasin',
-                    borderRadius: 10,
-                    padding: 10,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginVertical: 10,
-                    marginHorizontal: 22,
-                }}
-            >
-                <View>
-                    <Text style={styles.title}>Hóa đơn tháng 12/2023 </Text>
-                    <Text style={{ fontSize: 12, color: 'red' }}>Đã thanh toán </Text>
-                </View>
-                <TouchableOpacity onPress={() => {}}>
-                    <ChevronRightIcon stroke={'grey'} />
-                </TouchableOpacity>
-            </View>
-        </View>
+            </TouchableOpacity>
+        </ScrollView>
     );
 }
 const styles = StyleSheet.create({
@@ -106,5 +59,15 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: 'grey',
         fontWeight: 'bold',
+    },
+    line: {
+        alignItems: 'center',
+        elevation: 3,
+        shadowColor: 'black',
+        backgroundColor: 'white',
+        marginBottom: 2,
+        padding: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
 });

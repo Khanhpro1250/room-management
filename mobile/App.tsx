@@ -10,11 +10,11 @@ import CreateRequestScreen from './src/screens/CreateRequestScreen';
 import DetailCostScreen from './src/screens/DetailCostScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import OTPVerificationScreen from './src/screens/OTPVerificationScreen';
-import ProfileScreen from './src/screens/ProfileScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import { useMergeState } from './src/hooks/useMergeState';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { USER_DATA_STORED } from './src/constants/AppConstant';
+import BillDetailScreen from './src/screens/BillDetailScreen';
 
 const Stack = createStackNavigator();
 
@@ -37,13 +37,14 @@ const App = () => {
                     <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
                 )}
                 <Stack.Screen name="HomeUINavigation" component={HomeUINavigation} options={{ headerShown: false }} />
+                <Stack.Screen name="BillDetail" component={BillDetailScreen} options={{ headerShown: false }} />
+
                 <Stack.Screen
                     name="OTPVerification"
                     component={OTPVerificationScreen}
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen name="AddRequest" component={CreateRequestScreen} options={{ headerShown: false }} />
-                <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
                 <Stack.Screen name="DetailRoom" component={DetailRoomNavigation} options={{ headerShown: false }} />
                 <Stack.Screen name="DetailCost" component={DetailCostScreen} options={{ headerShown: false }} />
                 <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ headerShown: false }} />

@@ -34,7 +34,7 @@ export default function DetailRoomNavigation() {
                     <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'blue' }}>IRoom</Text>
                     {/* <ChevronLeftIcon stroke={"black"} /> */}
                     <View style={{ flex: 1 }}>
-                        <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Home</Text>
+                        <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Trang chủ</Text>
                     </View>
                     <Image
                         source={require('../../assets/profile.jpg')}

@@ -1,110 +1,147 @@
-import {
-  View,
-  Text,
-  StatusBar,
-  SafeAreaView,
-  Image,
-  ScrollView,
-} from "react-native";
-import React from "react";
-import { Bars3Icon } from "react-native-heroicons/outline";
-import RentCost from "../components/RentCost";
-import Announcement from "../components/Announcement";
+import { View, Text, StatusBar, SafeAreaView, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { Bars3Icon, ChevronLeftIcon } from 'react-native-heroicons/outline';
+import RentCost from '../components/RentCost';
+import Announcement from '../components/Announcement';
 
 export default function Notification() {
-  return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        paddingTop: StatusBar.currentHeight,
-        backgroundColor: "white",
-      }}
-    >
-      <View style={{ flex: 1, marginHorizontal: 22 }}>
-        {/* header */}
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 20,
-            marginTop: 10,
-          }}
-        >
-          <View
+    return (
+        <SafeAreaView
             style={{
-              flexDirection: "row",
-              alignItems: "center",
+                flex: 1,
+                paddingTop: StatusBar.currentHeight,
+                backgroundColor: 'white',
             }}
-          >
-            {/* <Bars3Icon style={{ marginEnd: 10 }} stroke={"blue"} /> */}
-            <Text style={{ fontSize: 20, fontWeight: "bold", color: "blue" }}>
-              Thông báo
-            </Text>
-          </View>
-          <Image
-            source={require("../../assets/profile.jpg")}
-            style={{ height: 32, width: 32, borderRadius: 32 / 2 }}
-          />
-        </View>
-        {/* content */}
-        <View style={{ flex: 1 }}>
-          {/* Bottom content */}
-          <View style={{ flex: 1 }}>
-            <Text>Tất cả thông báo</Text>
-            <ScrollView>
-              {/* <RentCost title="Bóng đèn bị hỏng" room="P.406" /> */}
-              <Announcement
-                title="Thông báo"
-                content="Không được gây mất trật tự sau 10 giờ đêm"
-                user="Admin"
-                date="10/09/2023"
-                priority="Cao"
-              />
-              <Announcement
-                title="Thông báo"
-                content="Sau 12h đêm, không được sử dụng mát giặt gây ồn ào, ảnh hướng đến những người xung quanh."
-                address=""
-                user="Admin"
-                date="10/09/2023"
-                priority="Cao"
-              />
-              <Announcement
-                title="Thông báo"
-                content="Xe đi về sắp xếp gọn ràng, để đúng vạch kẽ, không để xe tại các vị trí không có vạch kẻ. Xe nào để không đúng ô kẻ quá 3 lần, chúng tôi xin từ chối phục vụ."
-                address=""
-                user="Admin"
-                date="10/09/2023"
-                priority="Trung bình"
-              />
-              <Announcement
-                title="Thông báo"
-                content="Nghiêm cấm các hành vi: tổ chức mua bán, giao dịch tại phòng trọ các mặt hàng nhà nước nghiêm cấm, không được phép nuôi thú cưng, không tổ chức đánh bạc, môi giới mại dâm, mang vũ khí, chất cấm vào trọ."
-                address=""
-                user="Admin"
-                date="10/09/2023"
-                priority="Thấp"
-              />
-              <Announcement
-                title="Thông báo"
-                content="Thông báo tiền phòng tháng 2, năm 2024"
-                address=""
-                user="Admin"
-                date="10/09/2023"
-                priority="Cao"
-              />
-              <Announcement
-                title="Thông báo"
-                content="Thông báo tiền phòng tháng 1, năm 2024"
-                address=""
-                user="Admin"
-                date="10/09/2023"
-                priority="Cao"
-              />
-            </ScrollView>
-          </View>
-        </View>
-      </View>
-    </SafeAreaView>
-  );
+        >
+            <View style={{ flex: 1 }}>
+                {/* header */}
+                <View style={styles.header}>
+                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'blue' }}>IRoom</Text>
+                    {/* <ChevronLeftIcon stroke={"black"} /> */}
+                    <View style={{ flex: 1 }}>
+                        <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Thông báo</Text>
+                    </View>
+                    <Image
+                        source={require('../../assets/profile.jpg')}
+                        style={{ height: 32, width: 32, borderRadius: 32 / 2 }}
+                    />
+                    {/* <ShareIcon stroke={"black"} /> */}
+                </View>
+                {/* content */}
+                <View style={{ flex: 1 }}>
+                    {/* Bottom content */}
+                    <View style={{ flex: 1, marginTop: 10 }}>
+                        <Text style={{ color: 'green', fontSize: 15, fontWeight: 'bold', marginHorizontal: 22 }}>
+                            Tất cả
+                        </Text>
+                        {/* Content */}
+                        <ScrollView style={{ backgroundColor: '#D7F9F9' }}>
+                            {/* Line thong bao */}
+                            <TouchableOpacity style={styles.line}>
+                                <Text style={styles.title}>Thông báo </Text>
+                                <Text style={{ fontSize: 12, color: 'red', maxWidth: '80%' }}>
+                                    Sau 12h đêm, không được sử dụng máy làm ảnh hưởng đến đời sống sin hoạt của người
+                                    khác là việc làm không nên.
+                                </Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    <Text style={{ fontSize: 12 }}>Quản lý: 0949696969</Text>
+                                    <Text style={{ fontSize: 12, color: 'green' }}>10/08/2024</Text>
+                                </View>
+                            </TouchableOpacity>
+                            {/* Line thong bao */}
+                            <TouchableOpacity style={styles.line}>
+                                <Text style={styles.title}>Thông báo </Text>
+                                <Text style={{ fontSize: 12, color: 'red', maxWidth: '80%' }}>
+                                    Sau 12h đêm, không được sử dụng máy làm ảnh hưởng đến đời sống sin hoạt của người
+                                    khác là việc làm không nên.
+                                </Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    <Text style={{ fontSize: 12 }}>Quản lý: 0949696969</Text>
+                                    <Text style={{ fontSize: 12, color: 'green' }}>10/08/2024</Text>
+                                </View>
+                            </TouchableOpacity>
+
+                            {/* Line thong bao */}
+                            <TouchableOpacity style={styles.line}>
+                                <Text style={styles.title}>Thông báo </Text>
+                                <Text style={{ fontSize: 12, color: 'red', maxWidth: '80%' }}>
+                                    Sau 12h đêm, không được sử dụng máy làm ảnh hưởng đến đời sống sin hoạt của người
+                                    khác là việc làm không nên.
+                                </Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    <Text style={{ fontSize: 12 }}>Quản lý: 0949696969</Text>
+                                    <Text style={{ fontSize: 12, color: 'green' }}>10/08/2024</Text>
+                                </View>
+                            </TouchableOpacity>
+
+                            {/* Line thong bao */}
+                            <TouchableOpacity style={styles.line}>
+                                <Text style={styles.title}>Thông báo </Text>
+                                <Text style={{ fontSize: 12, color: 'red', maxWidth: '80%' }}>
+                                    Sau 12h đêm, không được sử dụng máy làm ảnh hưởng đến đời sống sin hoạt của người
+                                    khác là việc làm không nên.
+                                </Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    <Text style={{ fontSize: 12 }}>Quản lý: 0949696969</Text>
+                                    <Text style={{ fontSize: 12, color: 'green' }}>10/08/2024</Text>
+                                </View>
+                            </TouchableOpacity>
+
+                            {/* Line thong bao */}
+                            <TouchableOpacity style={styles.line}>
+                                <Text style={styles.title}>Thông báo </Text>
+                                <Text style={{ fontSize: 12, color: 'red', maxWidth: '80%' }}>
+                                    Sau 12h đêm, không được sử dụng máy làm ảnh hưởng đến đời sống sin hoạt của người
+                                    khác là việc làm không nên.
+                                </Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    <Text style={{ fontSize: 12 }}>Quản lý: 0949696969</Text>
+                                    <Text style={{ fontSize: 12, color: 'green' }}>10/08/2024</Text>
+                                </View>
+                            </TouchableOpacity>
+
+                            {/* Line thong bao */}
+                            <TouchableOpacity style={styles.line}>
+                                <Text style={styles.title}>Thông báo </Text>
+                                <Text style={{ fontSize: 12, color: 'red', maxWidth: '80%' }}>
+                                    Sau 12h đêm, không được sử dụng máy làm ảnh hưởng đến đời sống sin hoạt của người
+                                    khác là việc làm không nên.
+                                </Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    <Text style={{ fontSize: 12 }}>Quản lý: 0949696969</Text>
+                                    <Text style={{ fontSize: 12, color: 'green' }}>10/08/2024</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </View>
+                </View>
+            </View>
+        </SafeAreaView>
+    );
 }
+
+const styles = StyleSheet.create({
+    title: {
+        fontWeight: 'bold',
+    },
+    info: {
+        fontSize: 13,
+        color: 'grey',
+        fontWeight: 'bold',
+    },
+    line: {
+        elevation: 3,
+        shadowColor: 'black',
+        backgroundColor: 'white',
+        marginVertical: 1,
+        paddingHorizontal: 22,
+        paddingVertical: 10,
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom: 20,
+        marginHorizontal: 22,
+        marginTop: 10,
+    },
+});
