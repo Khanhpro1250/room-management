@@ -478,10 +478,10 @@ public class CalculateChargeService : ICalculateChargeService
             TotalCost = MoneyConverter.ToLocaleDotString(calculateCharge.TotalCost),
             TotalCostWord = MoneyConverter.ConvertToMoneyString(calculateCharge.TotalCost),
             CalculateChargeDetails = calculateChargeDetailList,
-            BankAccount = user.BankAccount,
-            BankBranch = user.BankBranch,
-            BankAccountName = user.BankAccountName,
-            PhoneNumber = user.PhoneNumber
+            BankAccount = user?.BankAccount,
+            BankBranch = user?.BankBranch,
+            BankAccountName = user?.BankAccountName,
+            PhoneNumber = user?.PhoneNumber
         };
 
         return result;
@@ -608,5 +608,42 @@ public class CalculateChargeService : ICalculateChargeService
 ";
         await _sendMailService.SendMail(getData?.CustomerEmail ?? "khanhpro1250@gmail.com",
             $"[{getData.CustomerName}] Tiền trọ tháng {getData?.Month}/{getData?.Year}", htmlContent);
+    }
+
+    public async Task<List<CalculateChargeMobileDto>> GetListCalculateChargeByCustomerId(Guid customerId)
+    {
+        var queryable = _calculateChargeRepository.GetQueryable();
+        queryable = queryable
+                .Where(x => x.CustomerId.Equals(customerId))
+            ;
+
+        var result = await queryable
+            .ProjectTo<CalculateChargeMobileDto>(_mapper.ConfigurationProvider)
+            .OrderByDescending(x => x.DateCalculate)
+            .ThenByDescending(x => x.CreatedTime)
+            .ToListAsync();
+
+        foreach (var item in result)
+        {
+            if (item.TotalUnpaid == 0)
+            {
+                item.Status = "PAID";
+                item.StatusName = "Đã thanh toán";
+            }
+            else
+            {
+                item.Status = "UNPAID";
+                item.StatusName = "Chưa thanh toán";
+            }
+
+            item.FromDate = DateTimeSpanExtension.GetStartOfMonth(item.DateCalculate).ToString("dd/MM/yyyy");
+            item.ToDate = DateTimeSpanExtension.GetEndOfMonth(item.DateCalculate).ToString("dd/MM/yyyy");
+            item.MonthDate = item.DateCalculate.ToString("MM/yyyy");
+
+            item.IsCurrent = item.DateCalculate.Date.Month == DateTime.Now.Date.Month &&
+                             item.DateCalculate.Date.Year == DateTime.Now.Date.Year;
+        }
+
+        return result;
     }
 }

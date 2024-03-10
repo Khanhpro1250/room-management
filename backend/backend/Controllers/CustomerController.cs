@@ -109,5 +109,12 @@ namespace backend.Controllers
             var result = await _customerService.CheckEmailCustomer(filter.Email, filter.Id);
             return ApiResponse<object>.Ok(result);
         }
+
+        [HttpGet("mobile/detail/{id:guid}")]
+        public async Task<ApiResponse<CustomerMobileDto>> GetMobileDetail([FromRoute] Guid id)
+        {
+            var result = await _customerService.GetCustomerMobileById(id);
+            return ApiResponse<CustomerMobileDto>.Ok(result);
+        }
     }
 }

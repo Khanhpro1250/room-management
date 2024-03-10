@@ -24,7 +24,6 @@ const App = () => {
     });
     useEffect(() => {
         AsyncStorage.getItem(USER_DATA_STORED).then(res => {
-            console.log('res', res);
             if (res) {
                 setState({ isLogin: true });
             }

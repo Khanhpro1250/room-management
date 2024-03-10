@@ -16,10 +16,10 @@ using backend.Models.Repositorties.ContractRepositories;
 using backend.Models.Repositorties.CustomerRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Services.FileServices;
+using backend.Services.RoomServices;
 using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver.Linq;
 
 namespace backend.Services.CustomerServices
 {
@@ -33,11 +33,12 @@ namespace backend.Services.CustomerServices
         private readonly IPaymentHistoryRepository _paymentHistoryRepository;
         private readonly IOtpService _otpService;
         private readonly IContractRepository _contractRepository;
+        private readonly ICalculateChargeService _calculateChargeService;
 
         public CustomerService(ICustomerRepository customerRepository, IMapper mapper, ICurrentUser currentUser,
             IFileService fileService, IRoomProcessRepository roomProcessRepository,
             IPaymentHistoryRepository paymentHistoryRepository, IOtpService otpService,
-            IContractRepository contractRepository)
+            IContractRepository contractRepository, ICalculateChargeService calculateChargeService)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
@@ -47,6 +48,7 @@ namespace backend.Services.CustomerServices
             _paymentHistoryRepository = paymentHistoryRepository;
             _otpService = otpService;
             _contractRepository = contractRepository;
+            _calculateChargeService = calculateChargeService;
         }
 
         public async Task<CustomerDto> GetCustomerByRoomId(Guid roomId)
@@ -286,11 +288,35 @@ namespace backend.Services.CustomerServices
             if (!isValidOtp) throw new Exception("Otp code is invalid");
             var queryable = _customerRepository.GetQueryable();
             var customer = await queryable
+                // .Include(x => x.Room.House.User)
+                // .Include(x => x.Services)
+                // .ThenInclude(x => x.Service)
+                // .Include(x => x.Members)
+                .FirstOrDefaultAsync(x => x.Email.Equals(email));
+
+            if (customer is null) throw new Exception("Customer is not existed");
+            //
+            // var contract = await _contractRepository.GetQueryable().Where(y =>
+            //         y.EffectDate <= DateTime.Now && y.ExpiredDate >= DateTime.Now)
+            //     .FirstOrDefaultAsync(x => x.CustomerId.Equals(customer.Id));
+
+            var result = _mapper.Map<Customer, CustomerMobileDto>(customer);
+            //
+            // result.Contract = _mapper.Map<Contract, ContractDto>(contract);
+            // result.HouseOwn = _mapper.Map<User, HouseOwnerDto>(customer.Room.House.User);
+
+            return result;
+        }
+
+        public async Task<CustomerMobileDto> GetCustomerMobileById(Guid customerId)
+        {
+            var queryable = _customerRepository.GetQueryable();
+            var customer = await queryable
                 .Include(x => x.Room.House.User)
                 .Include(x => x.Services)
                 .ThenInclude(x => x.Service)
                 .Include(x => x.Members)
-                .FirstOrDefaultAsync(x => x.Email.Equals(email));
+                .FirstOrDefaultAsync(x => x.Id.Equals(customerId));
 
             if (customer is null) throw new Exception("Customer is not existed");
 
@@ -298,10 +324,13 @@ namespace backend.Services.CustomerServices
                     y.EffectDate <= DateTime.Now && y.ExpiredDate >= DateTime.Now)
                 .FirstOrDefaultAsync(x => x.CustomerId.Equals(customer.Id));
 
+            var calculateCharges = await _calculateChargeService.GetListCalculateChargeByCustomerId(customerId);
+
             var result = _mapper.Map<Customer, CustomerMobileDto>(customer);
 
             result.Contract = _mapper.Map<Contract, ContractDto>(contract);
             result.HouseOwn = _mapper.Map<User, HouseOwnerDto>(customer.Room.House.User);
+            result.CalculateCharges = calculateCharges;
 
             return result;
         }

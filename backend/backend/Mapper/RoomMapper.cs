@@ -26,6 +26,13 @@ namespace backend.Mapper
                 .ForMember(x => x.HouseId, otp => otp.MapFrom(x => x.Room.House.Id))
                 .ForMember(x => x.RoomCode, otp => otp.MapFrom(x => x.Room.RoomCode))
                 ;
+
+            CreateMap<CalculateCharge, CalculateChargeMobileDto>()
+                .ForMember(x => x.CustomerName, otp => otp.MapFrom(x => x.Customer.FullName))
+                .ForMember(x => x.HouseName, otp => otp.MapFrom(x => x.Room.House.Name))
+                .ForMember(x => x.HouseId, otp => otp.MapFrom(x => x.Room.House.Id))
+                .ForMember(x => x.RoomCode, otp => otp.MapFrom(x => x.Room.RoomCode))
+                ;
         }
     }
 }

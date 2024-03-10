@@ -54,6 +54,8 @@ public class CustomerMobileDto
 
     public List<ServiceCustomerDto> Services { get; set; }
 
+    public List<CalculateChargeMobileDto> CalculateCharges { get; set; }
+
     public Guid? FileEntryCollectionId { get; set; }
     public FileEntryCollectionDto? FileEntryCollection { get; set; }
 
