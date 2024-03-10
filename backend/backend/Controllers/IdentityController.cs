@@ -2,8 +2,10 @@ using System.Security.Claims;
 using AutoMapper;
 using backend.Contanst;
 using backend.Controllers.Dtos;
+using backend.DTOs.CustomerDtos;
 using backend.DTOs.UserDtos;
 using backend.Models.Entities.UserAccount;
+using backend.Services.CustomerServices;
 using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.AspNetCore.Authentication;
@@ -19,12 +21,15 @@ public class IdentityController : ControllerBase
     private readonly IUserService _userService;
     private readonly IMapper _mapper;
     private readonly IOtpService _otpService;
+    private readonly ICustomerService _customerService;
 
-    public IdentityController(IUserService userService, IMapper mapper, IOtpService otpService)
+    public IdentityController(IUserService userService, IMapper mapper, IOtpService otpService,
+        ICustomerService customerService)
     {
         _userService = userService;
         _mapper = mapper;
         _otpService = otpService;
+        _customerService = customerService;
     }
 
     [HttpGet("check-login")]
@@ -159,5 +164,21 @@ public class IdentityController : ControllerBase
     {
         await _userService.DeleteUser(id);
         return ApiResponse<UserDto>.Ok();
+    }
+
+    [HttpPost("sent-opt-customer-login")]
+    public async Task<ApiResponse<object>> SentOptCustomerLogin([FromBody] SentOtpRequestDto request)
+    {
+        var checkEmailCustomer = await _customerService.CheckEmailCustomer(request.Email);
+        if (!checkEmailCustomer) return ApiResponse<object>.Fail("Email is not existed");
+        await _otpService.GenerateOtp(request.Email, CommonConstant.CUSTOMER_LOGIN);
+        return ApiResponse<object>.Ok();
+    }
+
+    [HttpPost("validation-otp-customer")]
+    public async Task<ApiResponse<CustomerMobileDto>> ValidationOtpCustomer([FromBody] SentOtpRequestDto request)
+    {
+        var result = await _customerService.ValidationOtpCustomer(request.OtpCode, request.Email);
+        return ApiResponse<CustomerMobileDto>.Ok(result);
     }
 }

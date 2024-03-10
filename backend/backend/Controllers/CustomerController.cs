@@ -93,12 +93,28 @@ namespace backend.Controllers
             var result = await _customerService.GetHistoriesByCustomerId(id);
             return ApiResponse<PaginatedList<RoomProcessDto>>.Ok(result);
         }
-        
+
         [HttpGet("payment-histories/{id:guid}")]
-        public async Task<ApiResponse<PaginatedList<PaymentHistoryDto>>> HandleGetListPaymentHistories([FromRoute] Guid id)
+        public async Task<ApiResponse<PaginatedList<PaymentHistoryDto>>> HandleGetListPaymentHistories(
+            [FromRoute] Guid id)
         {
             var result = await _customerService.GetPaymentHistoriesByCustomerId(id);
             return ApiResponse<PaginatedList<PaymentHistoryDto>>.Ok(result);
+        }
+
+        [HttpGet("check-email")]
+        public async Task<ApiResponse<object>> CheckEmailCustomer(
+            [FromQuery] CheckEmailCustomerDto filter)
+        {
+            var result = await _customerService.CheckEmailCustomer(filter.Email, filter.Id);
+            return ApiResponse<object>.Ok(result);
+        }
+
+        [HttpGet("mobile/detail/{id:guid}")]
+        public async Task<ApiResponse<CustomerMobileDto>> GetMobileDetail([FromRoute] Guid id)
+        {
+            var result = await _customerService.GetCustomerMobileById(id);
+            return ApiResponse<CustomerMobileDto>.Ok(result);
         }
     }
 }

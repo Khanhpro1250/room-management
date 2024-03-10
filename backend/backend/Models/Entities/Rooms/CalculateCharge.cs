@@ -6,7 +6,7 @@ public class CalculateCharge : AuditedEntity<Guid>
 {
     public Guid RoomId { get; set; }
     public Guid CustomerId { get; set; }
-    public decimal TotalCost { get; set; }
+    public decimal TotalCost { get; set; } 
     public decimal TotalPaid { get; set; }
     public decimal TotalUnpaid { get; set; }
     public DateTime DateCalculate { get; set; }

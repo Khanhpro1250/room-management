@@ -10,6 +10,7 @@ namespace backend.Services.CustomerServices
         Task<PaginatedList<CustomerListViewDto>> GetListCustomer(PaginatedListQuery paginatedListQuery);
         Task<PaginatedList<CustomerDto>> GetHistoriesCustomer(PaginatedListQuery paginatedListQuery);
         Task<CustomerDto> GetCustomerById(Guid customerId);
+        Task<CustomerMobileDto> GetCustomerMobileById(Guid customerId);
         Task<CustomerDto> GetCustomerByRoomId(Guid roomId);
         Task<List<CustomerDto>> GetCustomerByRoomIds(List<Guid> roomIds);
         Task<CustomerDto> CreateCustomer(CreateUpdateCustomerDto customer);
@@ -24,5 +25,8 @@ namespace backend.Services.CustomerServices
 
         Task<PaginatedList<RoomProcessDto>> GetHistoriesByCustomerId(Guid customerId);
         Task<PaginatedList<PaymentHistoryDto>> GetPaymentHistoriesByCustomerId(Guid customerId);
+
+        Task<bool> CheckEmailCustomer(string email, Guid? id = null);
+        Task<CustomerMobileDto> ValidationOtpCustomer(string opt, string email);
     }
 }

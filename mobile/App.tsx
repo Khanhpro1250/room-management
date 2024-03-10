@@ -1,120 +1,70 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import LoginScreen from "./src/screens/LoginScreen";
-import RegisterScreen from "./src/screens/RegisterScreen";
-import WelcomScreen from "./src/screens/WelcomeScreen";
-import ForgotPasswordScreen from "./src/screens/ForgotPasswordScreen";
-import OTPVerificationScreen from "./src/screens/OTPVerificationScreen";
-import CreateNewPassWordScreen from "./src/screens/CreateNewPasswordScreen";
-import ChangePasswordScreen from "./src/screens/ChangePasswordScreen";
-import HomeUINavigation from "./src/navigations/HomeUINavigation";
-import DetailCostScreen from "./src/screens/DetailCostScreen";
-import DetailRoomScreen from "./src/screens/DetailRoomScreen";
-import DetailRoomNavigation from "./src/navigations/DetailRoomNavigation";
-import ProfileScreen from "./src/screens/ProfileScreen";
-import CreateRequestScreen from "./src/screens/CreateRequestScreen";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import React, { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
+import DetailRoomNavigation from './src/navigations/DetailRoomNavigation';
+import HomeUINavigation from './src/navigations/HomeUINavigation';
+import ChangePasswordScreen from './src/screens/ChangePasswordScreen';
+import CreateNewPassWordScreen from './src/screens/CreateNewPasswordScreen';
+import CreateRequestScreen from './src/screens/CreateRequestScreen';
+import DetailCostScreen from './src/screens/DetailCostScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import OTPVerificationScreen from './src/screens/OTPVerificationScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
+import { useMergeState } from './src/hooks/useMergeState';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { USER_DATA_STORED } from './src/constants/AppConstant';
+import BillDetailScreen from './src/screens/BillDetailScreen';
+
 const Stack = createStackNavigator();
 
-export default function App() {
-  const [shouldDisplayWelcome, setShouldDisplayWelcome] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const _storeData = async () => {
-    try {
-      await AsyncStorage.getItem("isFirst")
-        .then((result) => {
-          if (result != undefined) setShouldDisplayWelcome(true);
-        })
-        .finally(() => {
-          setLoading(false);
+const App = () => {
+    const [state, setState] = useMergeState({
+        isLogin: false,
+    });
+    useEffect(() => {
+        AsyncStorage.getItem(USER_DATA_STORED).then(res => {
+            if (res) {
+                setState({ isLogin: true });
+            }
         });
-    } catch (error) {
-      // Error saving data
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    _storeData();
-  }, []);
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="HomeUINavigation"
-          component={HomeUINavigation}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="ForgotPassword"
-          component={ForgotPasswordScreen}
-          options={{ headerShown: false }}
-        />
-        {!loading && (
-          <Stack.Screen
-            name="Welcome"
-            component={WelcomScreen}
-            options={{ headerShown: false }}
-          />
-        )}
+    }, []);
+    return (
+        <NavigationContainer>
+            <Stack.Navigator>
+                {!state.isLogin && (
+                    <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+                )}
+                <Stack.Screen name="HomeUINavigation" component={HomeUINavigation} options={{ headerShown: false }} />
+                <Stack.Screen name="BillDetail" component={BillDetailScreen} options={{ headerShown: false }} />
 
-        <Stack.Screen
-          name="AddRequest"
-          component={CreateRequestScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Profile"
-          component={ProfileScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="DetailRoom"
-          component={DetailRoomNavigation}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="DetailCost"
-          component={DetailCostScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="ChangePassword"
-          component={ChangePasswordScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="CreateNewPassword"
-          component={CreateNewPassWordScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="OTPVerification"
-          component={OTPVerificationScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="RegisterScreen"
-          component={RegisterScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-}
+                <Stack.Screen
+                    name="OTPVerification"
+                    component={OTPVerificationScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen name="AddRequest" component={CreateRequestScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="DetailRoom" component={DetailRoomNavigation} options={{ headerShown: false }} />
+                <Stack.Screen name="DetailCost" component={DetailCostScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ headerShown: false }} />
+                <Stack.Screen
+                    name="CreateNewPassword"
+                    component={CreateNewPassWordScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen name="RegisterScreen" component={RegisterScreen} options={{ headerShown: false }} />
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
 });
+
+export default App;

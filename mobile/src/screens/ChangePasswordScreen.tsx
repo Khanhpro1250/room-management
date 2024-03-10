@@ -1,17 +1,16 @@
+import React from "react";
 import {
-  View,
-  Text,
   SafeAreaView,
   StatusBar,
-  TouchableOpacity,
   StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import React, { useRef } from "react";
 import { ChevronLeftIcon } from "react-native-heroicons/outline";
-import InputText from "../components/InputText";
 import ButtonPrimary from "../components/ButtonPrimary";
+import InputText from "../components/InputText";
 import { Colors } from "../utils/Colors";
-import { TextInput } from "react-native-gesture-handler";
 
 const ChangePasswordScreen = () => {
   return (

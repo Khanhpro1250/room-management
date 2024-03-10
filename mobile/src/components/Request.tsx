@@ -1,12 +1,10 @@
-import { View, Text } from "react-native";
 import React from "react";
+import { Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import {
   ExclamationTriangleIcon,
-  HomeIcon,
   MapPinIcon,
   UserIcon,
-  UsersIcon,
 } from "react-native-heroicons/outline";
 interface Props {
   title: String;
@@ -50,6 +48,7 @@ export default function Request(props) {
               <ExclamationTriangleIcon
                 color={"grey"}
                 size={18}
+                //@ts-ignore
                 style={{ marginEnd: 5 }}
               />
               <Text style={{ fontSize: 14, fontWeight: "bold" }}>
@@ -76,14 +75,24 @@ export default function Request(props) {
           </View>
 
           <View style={{ flexDirection: "row" }}>
-            <MapPinIcon stroke={"grey"} size={18} style={{ marginEnd: 5 }} />
+            <MapPinIcon
+              stroke={"grey"}
+              size={18}
+              //@ts-ignore
+              style={{ marginEnd: 5 }}
+            />
             <Text style={{ fontSize: 12 }}>{props.address}</Text>
           </View>
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
             <View style={{ flexDirection: "row" }}>
-              <UserIcon stroke={"grey"} size={18} style={{ marginEnd: 5 }} />
+              <UserIcon
+                stroke={"grey"}
+                size={18}
+                //@ts-ignore
+                style={{ marginEnd: 5 }}
+              />
               <Text style={{ fontSize: 12 }}>{props.user}</Text>
             </View>
             <Text style={{ fontSize: 12, color: "green" }}>{props.date}</Text>
@@ -93,7 +102,12 @@ export default function Request(props) {
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
             <View style={{ flexDirection: "row" }}>
-              <UserIcon stroke={"grey"} size={18} style={{ marginEnd: 5 }} />
+              <UserIcon
+                stroke={"grey"}
+                size={18}
+                //@ts-ignore
+                style={{ marginEnd: 5 }}
+              />
               <Text style={{ fontSize: 12 }}>Trạng thái</Text>
             </View>
             <Text style={{ fontSize: 12, color: "green" }}>{props.status}</Text>

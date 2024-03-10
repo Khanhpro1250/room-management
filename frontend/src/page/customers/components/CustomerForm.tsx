@@ -4,7 +4,7 @@ import React, { useImperativeHandle, useRef } from 'react';
 import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
 import { AppModalContainer } from '~/component/Layout/AppModalContainer';
 import NotificationConstant from '~/configs/contants';
-import { Room } from '~/types/shared';
+import { Identifier, Room } from '~/types/shared';
 
 import TextArea from 'antd/lib/input/TextArea';
 import _ from 'lodash';
@@ -55,6 +55,19 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
         modalRef.current?.onClose();
     };
 
+    const onCheckCustomerEmail = async (email: string, id?: Identifier) => {
+        if (!!!email) {
+            return false;
+        }
+        const res = await requestApi('get', 'api/customer/check-email', { email, id });
+        if (res.data.success) {
+            return res.data.result;
+        } else {
+            NotifyUtil.error(NotificationConstant.TITLE, res.data.message ?? 'Có lỗi xảy ra');
+            return false;
+        }
+    };
+
     const onSubmit = async () => {
         const formValues = formRef.current?.getFieldsValue();
         const formBody = {
@@ -82,6 +95,10 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
         if (!formRef.current?.isFieldsValidate()) {
             return;
         }
+
+        const isValidEmail = await onCheckCustomerEmail(formBody.email, formBody.id);
+
+        if (isValidEmail) return;
 
         if (!_.isEmpty(props.initialValues)) {
             const initFiles = cloneRowData?.fileEntryCollection;

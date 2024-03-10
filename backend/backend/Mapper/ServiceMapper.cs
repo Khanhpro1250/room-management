@@ -13,10 +13,13 @@ namespace backend.Mapper
             CreateMap<Service, ServiceDto>();
             CreateMap<CreateUpdateServiceDto, Service>();
             CreateMap<ServiceCustomerDto, ServiceCustomer>();
-            CreateMap<ServiceCustomer, ServiceCustomerDto>();
-            
+            CreateMap<ServiceCustomer, ServiceCustomerDto>()
+                .ForMember(x => x.ServiceName, opt => opt.MapFrom(x => x.Service.Name))
+                .ForMember(x => x.ServiceUnit, opt => opt.MapFrom(x => x.Service.Unit))
+                .ForMember(x => x.ServiceCode, opt => opt.MapFrom(x => x.Service.Code));
+
             CreateMap<IncurredCost, IncurredCostDto>();
-            CreateMap<UpdateIncurredCostDto,IncurredCost>();
+            CreateMap<UpdateIncurredCostDto, IncurredCost>();
         }
     }
 }

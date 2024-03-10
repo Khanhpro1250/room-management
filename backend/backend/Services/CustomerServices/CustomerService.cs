@@ -3,19 +3,23 @@ using AutoMapper.QueryableExtensions;
 using backend.Contanst;
 using backend.Controllers.Dtos;
 using backend.Controllers.Dtos.Responese;
+using backend.DTOs.ContractDtos;
 using backend.DTOs.CustomerDtos;
 using backend.DTOs.RoomDtos;
 using backend.DTOs.ServiceDtos;
+using backend.Models.Entities.Contracts;
 using backend.Models.Entities.Customers;
 using backend.Models.Entities.Rooms;
 using backend.Models.Entities.Services;
+using backend.Models.Entities.UserAccount;
+using backend.Models.Repositorties.ContractRepositories;
 using backend.Models.Repositorties.CustomerRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Services.FileServices;
+using backend.Services.RoomServices;
 using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver.Linq;
 
 namespace backend.Services.CustomerServices
 {
@@ -27,9 +31,14 @@ namespace backend.Services.CustomerServices
         private readonly IFileService _fileService;
         private readonly IRoomProcessRepository _roomProcessRepository;
         private readonly IPaymentHistoryRepository _paymentHistoryRepository;
+        private readonly IOtpService _otpService;
+        private readonly IContractRepository _contractRepository;
+        private readonly ICalculateChargeService _calculateChargeService;
 
         public CustomerService(ICustomerRepository customerRepository, IMapper mapper, ICurrentUser currentUser,
-            IFileService fileService, IRoomProcessRepository roomProcessRepository, IPaymentHistoryRepository paymentHistoryRepository)
+            IFileService fileService, IRoomProcessRepository roomProcessRepository,
+            IPaymentHistoryRepository paymentHistoryRepository, IOtpService otpService,
+            IContractRepository contractRepository, ICalculateChargeService calculateChargeService)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
@@ -37,6 +46,9 @@ namespace backend.Services.CustomerServices
             _fileService = fileService;
             _roomProcessRepository = roomProcessRepository;
             _paymentHistoryRepository = paymentHistoryRepository;
+            _otpService = otpService;
+            _contractRepository = contractRepository;
+            _calculateChargeService = calculateChargeService;
         }
 
         public async Task<CustomerDto> GetCustomerByRoomId(Guid roomId)
@@ -250,7 +262,7 @@ namespace backend.Services.CustomerServices
 
             return new PaginatedList<RoomProcessDto>(listHistories, listHistories.Count, 0, -1);
         }
-        
+
         public async Task<PaginatedList<PaymentHistoryDto>> GetPaymentHistoriesByCustomerId(Guid customerId)
         {
             var listHistories = await _paymentHistoryRepository.GetQueryable()
@@ -260,6 +272,67 @@ namespace backend.Services.CustomerServices
                 .ToListAsync();
 
             return new PaginatedList<PaymentHistoryDto>(listHistories, listHistories.Count, 0, -1);
+        }
+
+        public Task<bool> CheckEmailCustomer(string email, Guid? id = null)
+        {
+            var queryable = _customerRepository.GetQueryable();
+            return queryable
+                .WhereIf(id.HasValue, x => !x.Id.Equals(id.Value))
+                .AnyAsync(x => x.Email.Equals(email));
+        }
+
+        public async Task<CustomerMobileDto> ValidationOtpCustomer(string opt, string email)
+        {
+            var isValidOtp = await _otpService.ValidateOtp(email, opt, CommonConstant.CUSTOMER_LOGIN);
+            if (!isValidOtp) throw new Exception("Otp code is invalid");
+            var queryable = _customerRepository.GetQueryable();
+            var customer = await queryable
+                // .Include(x => x.Room.House.User)
+                // .Include(x => x.Services)
+                // .ThenInclude(x => x.Service)
+                // .Include(x => x.Members)
+                .FirstOrDefaultAsync(x => x.Email.Equals(email));
+
+            if (customer is null) throw new Exception("Customer is not existed");
+            //
+            // var contract = await _contractRepository.GetQueryable().Where(y =>
+            //         y.EffectDate <= DateTime.Now && y.ExpiredDate >= DateTime.Now)
+            //     .FirstOrDefaultAsync(x => x.CustomerId.Equals(customer.Id));
+
+            var result = _mapper.Map<Customer, CustomerMobileDto>(customer);
+            //
+            // result.Contract = _mapper.Map<Contract, ContractDto>(contract);
+            // result.HouseOwn = _mapper.Map<User, HouseOwnerDto>(customer.Room.House.User);
+
+            return result;
+        }
+
+        public async Task<CustomerMobileDto> GetCustomerMobileById(Guid customerId)
+        {
+            var queryable = _customerRepository.GetQueryable();
+            var customer = await queryable
+                .Include(x => x.Room.House.User)
+                .Include(x => x.Services)
+                .ThenInclude(x => x.Service)
+                .Include(x => x.Members)
+                .FirstOrDefaultAsync(x => x.Id.Equals(customerId));
+
+            if (customer is null) throw new Exception("Customer is not existed");
+
+            var contract = await _contractRepository.GetQueryable().Where(y =>
+                    y.EffectDate <= DateTime.Now && y.ExpiredDate >= DateTime.Now)
+                .FirstOrDefaultAsync(x => x.CustomerId.Equals(customer.Id));
+
+            var calculateCharges = await _calculateChargeService.GetListCalculateChargeByCustomerId(customerId);
+
+            var result = _mapper.Map<Customer, CustomerMobileDto>(customer);
+
+            result.Contract = _mapper.Map<Contract, ContractDto>(contract);
+            result.HouseOwn = _mapper.Map<User, HouseOwnerDto>(customer.Room.House.User);
+            result.CalculateCharges = calculateCharges;
+
+            return result;
         }
     }
 }

@@ -221,11 +221,9 @@ public class Startup
         {
             options.AddPolicy("AllowReactNativeApp", builder =>
             {
-                // Allow requests from the React Native app's origin (e.g., http://localhost:7179)
-                builder.WithOrigins()
+                builder.WithOrigins("http://localhost:19006") 
                     .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    ;
+                    .AllowAnyMethod();
             });
         });
 

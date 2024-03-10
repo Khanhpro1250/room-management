@@ -9,6 +9,7 @@ namespace backend.Mapper
         public CustomerMapper()
         {
             CreateMap<Customer, CustomerDto>();
+            CreateMap<Customer, CustomerMobileDto>();
             CreateMap<Customer, CustomerListViewDto>();
             CreateMap<PaymentHistory, PaymentHistoryDto>()
                 .ForMember(x => x.CustomerName, opt => opt.MapFrom(x => x.Customer.FullName));

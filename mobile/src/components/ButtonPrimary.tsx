@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
+import { Text, TouchableOpacity } from "react-native";
 
 interface Props {
   color?: string;
@@ -11,8 +11,8 @@ interface Props {
 export default function ButtonPrimary(props: Props) {
   return (
     <TouchableOpacity
-      activeOpacity={props.disable != 0 ? 1 : 0.7}
-      onPress={props.disable != 0 ? null : props.onPressBtn}
+      activeOpacity={0.7}
+      onPress={props.onPressBtn}
       style={{
         backgroundColor: props.color,
         borderRadius: 8,
@@ -20,6 +20,7 @@ export default function ButtonPrimary(props: Props) {
         justifyContent: "center",
         alignItems: "center",
         marginVertical: 15,
+        cursor: "pointer",
       }}
     >
       <Text
