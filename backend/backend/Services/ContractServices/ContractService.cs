@@ -238,5 +238,62 @@ namespace backend.Services.ContractServices
             };
             return result;
         }
+
+        public async Task<ExportContractDto> GetDataExportContractMobile(CreateUpdateContractDto contractDto)
+        {
+            var roomQueryable = _roomRepository.GetQueryable();
+            var room = await roomQueryable.AsNoTracking()
+                           .Include(x => x.Customers)
+                           .ThenInclude(x => x.Contracts)
+                           .Include(x => x.House.User)
+                           .FirstOrDefaultAsync(x => x.Id.Equals(contractDto.RoomId)) ??
+                       throw new Exception("Không tìm thấy phòng");
+            var user = room.House.User;
+            var customer = room?.Customers
+                .Where(x =>
+                    (x.Contracts.Any(y => y.EffectDate <= DateTime.Now && y.ExpiredDate >= DateTime.Now)) ||
+                    (x.Contracts.Any(y => y.EffectDate > DateTime.Now && y.ExpiredDate > DateTime.Now)) ||
+                    x.Contracts == null || x.Contracts.Count == 0)
+                .FirstOrDefault(x => x.Id.Equals(contractDto.CustomerId));
+
+            var result = new ExportContractDto()
+            {
+                CurrentDay = contractDto.SignedDate.Day.ToString(),
+                CurrentMonth = contractDto.SignedDate.Month.ToString(),
+                CurrentYear = contractDto.SignedDate.Year.ToString(),
+                EffectDate = contractDto.EffectDate.ToString("dd/MM/yyyy"),
+                Month = contractDto.Month,
+                ContractNumber = contractDto.ContractNumber,
+                SignedDate = contractDto.SignedDate.ToString("dd/MM/yyyy"),
+                Customer = new CustomerExportDto
+                {
+                    FullName = customer?.FullName,
+                    DateOfBirth = customer?.Birthday?.ToString("dd/MM/yyyy"),
+                    IdentityNo = customer?.IdentityNo,
+                    IssueDate = customer?.IssueDate?.ToString("dd/MM/yyyy"),
+                    IssuePlace = customer?.IssuePlace,
+                    PermanentAddress = customer?.PermanentAddress,
+                    PhoneNumber = customer?.PhoneNumber1,
+                    Deposit = MoneyConverter.ToLocaleDotString(customer?.Deposit ?? 0),
+                    DepositWord = MoneyConverter.ConvertToMoneyString(customer?.Deposit ?? 0)
+                },
+                Room = new RoomExportDto
+                {
+                    Price = MoneyConverter.ToLocaleDotString(room.Price),
+                    PriceWord = MoneyConverter.ConvertToMoneyString(room.Price)
+                },
+                User = new UserExportDto
+                {
+                    FullName = user.FullName,
+                    PhoneNumber = user.PhoneNumber,
+                    Address = user.Address,
+                    DateOfBirth = user.DateOfBirth?.ToString("dd/MM/yyyy"),
+                    IdentityNo = user.IdentityNo,
+                    IssueDate = user.IssueDate?.ToString("dd/MM/yyyy"),
+                    IssuePlace = user.IssuePlace
+                }
+            };
+            return result;
+        }
     }
 }

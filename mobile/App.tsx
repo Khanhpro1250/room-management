@@ -53,6 +53,7 @@ const App = () => {
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen name="RegisterScreen" component={RegisterScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="LoginV2" component={LoginScreen} options={{ headerShown: false }} />
             </Stack.Navigator>
         </NavigationContainer>
     );

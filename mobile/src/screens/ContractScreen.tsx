@@ -1,29 +1,42 @@
-import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView } from 'react-native';
 import React from 'react';
-import { ChevronLeftIcon, ShareIcon } from 'react-native-heroicons/outline';
-import { black } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function ContractScreen() {
     return (
-        <View style={{ flex: 1, backgroundColor: '#D7F9F9' }}>
-            <View style={{ justifyContent: 'center', alignItems: 'center', marginVertical: 15 }}>
-                <Image
-                    source={require('../../assets/contract.png')}
-                    style={{ height: 48, width: 48, borderRadius: 32 / 2 }}
-                />
-                <Text style={{ fontWeight: 'bold' }}>Hợp đồng (#200254)</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <View
-                        style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: 50,
-                            backgroundColor: 'green',
-                            marginHorizontal: 5,
-                        }}
-                    />
-                    <Text style={{ fontSize: 12 }}>Trong thời hạn hợp đồng</Text>
-                </View>
+        <View>
+            <View
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                }}
+            >
+                <Text
+                    style={{
+                        backgroundColor: '#28803520',
+                        color: '#288035',
+                        // padding: 10,
+                        display: 'flex',
+                        borderRadius: 50,
+                        width: 40,
+                        height: 40,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        fontWeight: 'bold',
+                        fontSize: 20,
+                    }}
+                >
+                    #
+                </Text>
+                <Text
+                    style={{
+                        fontSize: 20,
+                        fontWeight: 'bold',
+                        marginLeft: 10,
+                    }}
+                >
+                    HD10012312
+                </Text>
             </View>
             <ScrollView
                 style={{
