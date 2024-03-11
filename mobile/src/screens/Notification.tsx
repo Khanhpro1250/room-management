@@ -86,7 +86,7 @@ export default function Notification({ navigation }) {
     });
 
     return (
-        <SafeAreaView style={{ backgroundColor: '#fff' }}>
+        <SafeAreaView style={{ backgroundColor: '#fff', flex: 1 }}>
             <View
                 style={{
                     flexDirection: 'row',
@@ -145,6 +145,7 @@ export default function Notification({ navigation }) {
             <ScrollView
                 style={{
                     paddingHorizontal: 15,
+                    flex: 1,
                 }}
             >
                 {state.data?.map((item, index) => {

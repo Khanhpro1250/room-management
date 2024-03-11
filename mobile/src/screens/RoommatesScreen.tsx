@@ -33,7 +33,7 @@ export default function RoommatesScreen({ navigation }) {
     if (state.loading) return <Loading />;
 
     return (
-        <View style={{ padding: 10 }}>
+        <View style={{ padding: 10, flex: 1 }}>
             <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                 <Text style={{ fontWeight: 'bold', fontSize: 16, marginVertical: 10 }}>Tổng thành viên: </Text>
                 <Text style={{ fontStyle: 'italic', fontSize: 13 }}>({state.user?.members?.length + 1 ?? 1})</Text>

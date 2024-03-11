@@ -444,7 +444,7 @@ export default function DetailRoomScreen({ navigation }) {
                         </View>
                     </View>
                     {/* Dich vu */}
-                    <ScrollView>
+                    <ScrollView style={{ flex: 1 }}>
                         <Text style={{ fontWeight: 'bold', fontSize: 16, marginVertical: 10 }}>Chi phí thanh toán</Text>
                         {state.user?.calculateCharges
                             ?.filter(x => x.status !== 'PAID')

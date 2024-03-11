@@ -35,7 +35,7 @@ export default function PaymentHistoryScreen({ navigation }) {
     if (state.loading) return <Loading />;
 
     return (
-        <ScrollView style={{ padding: 10 }}>
+        <ScrollView style={{ padding: 10, flex: 1 }}>
             <Text style={{ fontWeight: 'bold', fontSize: 16, marginVertical: 10 }}>Lịch sử thanh toán</Text>
             {state.user?.calculateCharges?.map((item, index) => {
                 return (

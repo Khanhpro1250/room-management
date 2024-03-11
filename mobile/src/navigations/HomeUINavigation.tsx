@@ -11,7 +11,7 @@ export default function HomeUINavigation() {
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <Tab.Navigator
-                initialRouteName="Notification"
+                initialRouteName="Home"
                 screenOptions={{
                     tabBarStyle: {
                         borderTopLeftRadius: 20,
@@ -40,7 +40,7 @@ export default function HomeUINavigation() {
                 />
 
                 <Tab.Screen
-                    name="Request"
+                    name="Rules"
                     component={RequestsScreen}
                     options={{
                         headerShown: false,
