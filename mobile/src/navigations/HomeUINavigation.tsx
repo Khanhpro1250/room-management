@@ -11,7 +11,7 @@ export default function HomeUINavigation() {
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <Tab.Navigator
-                initialRouteName="Home"
+                initialRouteName="Notification"
                 screenOptions={{
                     tabBarStyle: {
                         borderTopLeftRadius: 20,

@@ -9,6 +9,7 @@ import { useMergeState } from '../hooks/useMergeState';
 import { requestApi } from '../lib/axios';
 import { DateUtil } from '../utils/DateUtil';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import Loading from '../components/Loading';
 
 export default function DetailRoomScreen({ navigation }) {
     const [state, setState] = useMergeState({
@@ -53,6 +54,8 @@ export default function DetailRoomScreen({ navigation }) {
         //     setState({ loading: false, user: res.data.result });
         // }
     };
+
+    if (state.loading) return <Loading />;
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 22 }}>
@@ -443,22 +446,24 @@ export default function DetailRoomScreen({ navigation }) {
                     {/* Dich vu */}
                     <ScrollView>
                         <Text style={{ fontWeight: 'bold', fontSize: 16, marginVertical: 10 }}>Chi phí thanh toán</Text>
-                        {state.user?.calculateCharges?.map((item, index) => {
-                            return (
-                                <CalculateItem
-                                    key={index}
-                                    id={item?.id}
-                                    navigation={navigation}
-                                    fromDate={item?.fromDate}
-                                    toDate={item?.toDate}
-                                    monthDate={item?.monthDate}
-                                    totalCost={item?.totalCost}
-                                    status={item?.status}
-                                    statusName={item?.statusName}
-                                    isCurrent={item?.isCurrent}
-                                />
-                            );
-                        })}
+                        {state.user?.calculateCharges
+                            ?.filter(x => x.status !== 'PAID')
+                            ?.map((item, index) => {
+                                return (
+                                    <CalculateItem
+                                        key={index}
+                                        id={item?.id}
+                                        navigation={navigation}
+                                        fromDate={item?.fromDate}
+                                        toDate={item?.toDate}
+                                        monthDate={item?.monthDate}
+                                        totalCost={item?.totalCost}
+                                        status={item?.status}
+                                        statusName={item?.statusName}
+                                        isCurrent={item?.isCurrent}
+                                    />
+                                );
+                            })}
                     </ScrollView>
                 </View>
             </ScrollView>

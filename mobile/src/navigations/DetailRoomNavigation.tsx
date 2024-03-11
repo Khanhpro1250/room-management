@@ -8,7 +8,6 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { ArrowRightOnRectangleIcon } from 'react-native-heroicons/outline';
 import Popover from 'react-native-popover-view';
 import { USER_DATA_STORED } from '../constants/AppConstant';
-import ContractScreen from '../screens/ContractScreen';
 import PaymentHistoryScreen from '../screens/PaymentHistoryScreen';
 import RoommatesScreen from '../screens/RoommatesScreen';
 const Tab = createMaterialTopTabNavigator();
@@ -32,7 +31,8 @@ export default function DetailRoomNavigation({ navigation }) {
                     style={{
                         flexDirection: 'row',
                         justifyContent: 'center',
-                        marginBottom: 20,
+                        alignItems: 'center',
+                        // marginBottom: 20,
                         marginHorizontal: 22,
                         marginTop: 10,
                     }}
@@ -71,14 +71,11 @@ export default function DetailRoomNavigation({ navigation }) {
                             <Text style={{ fontSize: 14, marginLeft: 3 }}>Đăng xuất</Text>
                         </TouchableOpacity>
                     </Popover>
-                    {/* <ShareIcon stroke={"black"} /> */}
                 </View>
                 <Tab.Navigator>
-                    {/* <Tab.Screen name="Contract" component={ContractScreen} options={{ tabBarLabel: 'Hợp đồng' }} /> */}
                     <Tab.Screen name="Info" component={Home} options={{ tabBarLabel: 'Thông tin' }} />
-                    <Tab.Screen name="Roommates" component={RoommatesScreen} options={{ tabBarLabel: 'Người thuê' }} />
+                    <Tab.Screen name="Roommates" component={RoommatesScreen} options={{ tabBarLabel: 'Thành viên' }} />
                     <Tab.Screen name="History" component={PaymentHistoryScreen} options={{ tabBarLabel: 'Lịch sử' }} />
-                    {/* <Tab.Screen name="Contract" component={ContractScreen} options={{ tabBarLabel: 'Hợp đồng' }} /> */}
                 </Tab.Navigator>
             </View>
         </SafeAreaView>
