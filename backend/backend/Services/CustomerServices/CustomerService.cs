@@ -199,7 +199,9 @@ namespace backend.Services.CustomerServices
 
         public async Task<CustomerDto> GetCustomerById(Guid customerId)
         {
-            var customer = await _customerRepository.GetQueryable().FirstOrDefaultAsync(x => x.Id.Equals(customerId));
+            var customer = await _customerRepository.GetQueryable()
+                .Include(x => x.Members)
+                .FirstOrDefaultAsync(x => x.Id.Equals(customerId));
             var result = _mapper.Map<Customer, CustomerDto>(customer);
             return result;
         }
@@ -288,7 +290,7 @@ namespace backend.Services.CustomerServices
             if (!isValidOtp) throw new Exception("Otp code is invalid");
             var queryable = _customerRepository.GetQueryable();
             var customer = await queryable
-                // .Include(x => x.Room.House.User)
+                .Include(x => x.Room.House.User)
                 // .Include(x => x.Services)
                 // .ThenInclude(x => x.Service)
                 // .Include(x => x.Members)
@@ -303,7 +305,7 @@ namespace backend.Services.CustomerServices
             var result = _mapper.Map<Customer, CustomerMobileDto>(customer);
             //
             // result.Contract = _mapper.Map<Contract, ContractDto>(contract);
-            // result.HouseOwn = _mapper.Map<User, HouseOwnerDto>(customer.Room.House.User);
+            result.HouseOwn = _mapper.Map<User, HouseOwnerDto>(customer.Room.House.User);
 
             return result;
         }

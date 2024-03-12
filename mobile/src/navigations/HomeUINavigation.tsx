@@ -40,7 +40,7 @@ export default function HomeUINavigation() {
                 />
 
                 <Tab.Screen
-                    name="Request"
+                    name="Rules"
                     component={RequestsScreen}
                     options={{
                         headerShown: false,

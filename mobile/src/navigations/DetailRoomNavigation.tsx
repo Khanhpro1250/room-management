@@ -1,17 +1,22 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Image, SafeAreaView, StatusBar, Text, View } from 'react-native';
 import Home from '../screens/Home';
 
-import ContractScreen from '../screens/ContractScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { ArrowRightOnRectangleIcon } from 'react-native-heroicons/outline';
+import Popover from 'react-native-popover-view';
+import { USER_DATA_STORED } from '../constants/AppConstant';
 import PaymentHistoryScreen from '../screens/PaymentHistoryScreen';
 import RoommatesScreen from '../screens/RoommatesScreen';
-import { useMergeState } from '../hooks/useMergeState';
-import { USER_DATA_STORED } from '../constants/AppConstant';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 const Tab = createMaterialTopTabNavigator();
-export default function DetailRoomNavigation() {
+export default function DetailRoomNavigation({ navigation }) {
+    const onLogout = async () => {
+        AsyncStorage.removeItem(USER_DATA_STORED).then(() => {
+            navigation.replace('LoginV2');
+        });
+    };
     return (
         <SafeAreaView
             style={{
@@ -26,7 +31,8 @@ export default function DetailRoomNavigation() {
                     style={{
                         flexDirection: 'row',
                         justifyContent: 'center',
-                        marginBottom: 20,
+                        alignItems: 'center',
+                        // marginBottom: 20,
                         marginHorizontal: 22,
                         marginTop: 10,
                     }}
@@ -36,17 +42,40 @@ export default function DetailRoomNavigation() {
                     <View style={{ flex: 1 }}>
                         <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Trang chủ</Text>
                     </View>
-                    <Image
-                        source={require('../../assets/profile.jpg')}
-                        style={{ height: 32, width: 32, borderRadius: 32 / 2 }}
-                    />
-                    {/* <ShareIcon stroke={"black"} /> */}
+
+                    <Popover
+                        from={
+                            <TouchableOpacity>
+                                <Image
+                                    source={require('../../assets/profile.jpg')}
+                                    style={{ height: 32, width: 32, borderRadius: 32 / 2 }}
+                                />
+                            </TouchableOpacity>
+                        }
+                    >
+                        <TouchableOpacity
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: 120,
+                                borderWidth: 1,
+                                borderColor: 'black',
+                                paddingHorizontal: 10,
+                                paddingVertical: 5,
+                            }}
+                            onPress={onLogout}
+                        >
+                            <ArrowRightOnRectangleIcon size={15} stroke={'black'} />
+                            <Text style={{ fontSize: 14, marginLeft: 3 }}>Đăng xuất</Text>
+                        </TouchableOpacity>
+                    </Popover>
                 </View>
                 <Tab.Navigator>
                     <Tab.Screen name="Info" component={Home} options={{ tabBarLabel: 'Thông tin' }} />
-                    <Tab.Screen name="Roommates" component={RoommatesScreen} options={{ tabBarLabel: 'Người thuê' }} />
+                    <Tab.Screen name="Roommates" component={RoommatesScreen} options={{ tabBarLabel: 'Thành viên' }} />
                     <Tab.Screen name="History" component={PaymentHistoryScreen} options={{ tabBarLabel: 'Lịch sử' }} />
-                    <Tab.Screen name="Contract" component={ContractScreen} options={{ tabBarLabel: 'Hợp đồng' }} />
                 </Tab.Navigator>
             </View>
         </SafeAreaView>

@@ -1,14 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { CurrencyDollarIcon, HomeIcon, UserIcon } from 'react-native-heroicons/outline';
+import { ArrowDownTrayIcon, CurrencyDollarIcon, HomeIcon, UserIcon } from 'react-native-heroicons/outline';
 import CalculateItem from '../components/CalculateItem';
 import ServicesCard from '../components/ServicesCard';
 import { USER_DATA_STORED } from '../constants/AppConstant';
 import { useMergeState } from '../hooks/useMergeState';
 import { requestApi } from '../lib/axios';
 import { DateUtil } from '../utils/DateUtil';
-// import moment from 'moment';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import Loading from '../components/Loading';
 
 export default function DetailRoomScreen({ navigation }) {
     const [state, setState] = useMergeState({
@@ -34,6 +35,27 @@ export default function DetailRoomScreen({ navigation }) {
     useEffect(() => {
         fetchCustomerData();
     }, []);
+
+    const onDownloadContract = async () => {
+        const payload = {
+            Id: state.user?.contract?.id,
+            contractNumber: state.user?.contract?.contractNumber,
+            roomId: state.user?.roomId,
+            customerId: state.user?.id,
+            month: state.user?.contract?.month,
+            signedDate: state.user?.contract?.signedDate,
+            effectDate: state.user?.contract?.effectDate,
+            expiredDate: state.user?.contract?.expiredDate,
+        };
+        const res = await requestApi('post', `http://localhost:5179/api/contract/export-contract-mobile`, {
+            ...payload,
+        });
+        // if (res.data.success) {
+        //     setState({ loading: false, user: res.data.result });
+        // }
+    };
+
+    if (state.loading) return <Loading />;
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 22 }}>
@@ -166,7 +188,7 @@ export default function DetailRoomScreen({ navigation }) {
                                         fontSize: 12,
                                     }}
                                 >
-                                    MÃ SỐ HỢP ĐỒNG
+                                    NGÀY KÝ HỢP ĐỒNG
                                 </Text>
                                 <View>
                                     <Text
@@ -175,7 +197,7 @@ export default function DetailRoomScreen({ navigation }) {
                                             fontSize: 14,
                                         }}
                                     >
-                                        {state.user?.contract?.contractNumber}
+                                        {DateUtil.formatDate(state.user?.contract?.signedDate)}
                                     </Text>
                                 </View>
                             </View>
@@ -315,6 +337,71 @@ export default function DetailRoomScreen({ navigation }) {
                             </View>
                         </View>
                     </View>
+                    <View
+                        style={{
+                            borderStyle: 'solid',
+                            borderWidth: 1,
+                            borderColor: '#265679',
+                            borderLeftWidth: 6,
+                            borderRadius: 10,
+                            padding: 10,
+                            marginVertical: 10,
+                        }}
+                    >
+                        <View
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <View
+                                style={{
+                                    flex: 1,
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        color: '#a3a8ad',
+                                        fontSize: 12,
+                                    }}
+                                >
+                                    MÃ SỐ HỢP ĐỒNG
+                                </Text>
+                                <View>
+                                    <Text
+                                        style={{
+                                            color: '#265679',
+                                            fontSize: 14,
+                                        }}
+                                    >
+                                        {state.user?.contract?.contractNumber}
+                                    </Text>
+                                </View>
+                            </View>
+                            <TouchableOpacity
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                                onPress={onDownloadContract}
+                            >
+                                <Text
+                                    style={{
+                                        color: '#a3a8ad',
+                                        fontSize: 14,
+                                        marginRight: 5,
+                                    }}
+                                >
+                                    Tải hợp đồng
+                                </Text>
+                                <ArrowDownTrayIcon size={14} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                     {/* Dich vu */}
                     <View>
                         <Text style={{ fontWeight: 'bold', fontSize: 16, marginVertical: 10 }}>Dịch vụ</Text>
@@ -357,24 +444,26 @@ export default function DetailRoomScreen({ navigation }) {
                         </View>
                     </View>
                     {/* Dich vu */}
-                    <ScrollView>
+                    <ScrollView style={{ flex: 1 }}>
                         <Text style={{ fontWeight: 'bold', fontSize: 16, marginVertical: 10 }}>Chi phí thanh toán</Text>
-                        {state.user?.calculateCharges?.map((item, index) => {
-                            return (
-                                <CalculateItem
-                                    key={index}
-                                    id={item?.id}
-                                    navigation={navigation}
-                                    fromDate={item?.fromDate}
-                                    toDate={item?.toDate}
-                                    monthDate={item?.monthDate}
-                                    totalCost={item?.totalCost}
-                                    status={item?.status}
-                                    statusName={item?.statusName}
-                                    isCurrent={item?.isCurrent}
-                                />
-                            );
-                        })}
+                        {state.user?.calculateCharges
+                            ?.filter(x => x.status !== 'PAID')
+                            ?.map((item, index) => {
+                                return (
+                                    <CalculateItem
+                                        key={index}
+                                        id={item?.id}
+                                        navigation={navigation}
+                                        fromDate={item?.fromDate}
+                                        toDate={item?.toDate}
+                                        monthDate={item?.monthDate}
+                                        totalCost={item?.totalCost}
+                                        status={item?.status}
+                                        statusName={item?.statusName}
+                                        isCurrent={item?.isCurrent}
+                                    />
+                                );
+                            })}
                     </ScrollView>
                 </View>
             </ScrollView>

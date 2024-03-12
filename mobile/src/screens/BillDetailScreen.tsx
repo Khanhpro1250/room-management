@@ -51,8 +51,6 @@ export default function BillDetailScreen({ route, navigation }) {
                     style={{
                         flexDirection: 'row',
                         justifyContent: 'center',
-                        marginBottom: 20,
-                        marginHorizontal: 22,
                     }}
                 >
                     <TouchableOpacity
@@ -64,6 +62,94 @@ export default function BillDetailScreen({ route, navigation }) {
                     </TouchableOpacity>
                     <View style={{ flex: 1 }}>
                         <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Hóa đơn</Text>
+                    </View>
+                </View>
+            </View>
+
+            <View
+                style={{
+                    elevation: 3,
+                    shadowColor: 'black',
+                    borderRadius: 10,
+                    padding: 10,
+                    flex: 1,
+                    marginTop: 10,
+                    justifyContent: 'center',
+                    borderStyle: 'solid',
+                    borderWidth: 1,
+                    borderColor: '#265679',
+                }}
+            >
+                <View
+                    style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: 'white',
+                        marginBottom: 10,
+                    }}
+                >
+                    <Text style={{ fontSize: 20, fontWeight: 'bold' }}>HÓA ĐƠN TIỀN NHÀ</Text>
+                    <Text style={{ fontWeight: 'bold' }}>
+                        Tháng {state.billDetail?.month}/{state.billDetail?.year}
+                    </Text>
+                    <Text style={{ fontSize: 13 }}>
+                        Từ ngày {state.billDetail?.calculateFromDate} đến ngày {state.billDetail?.calculateToDate}
+                    </Text>
+                </View>
+                <View style={{ backgroundColor: 'white', paddingHorizontal: 10 }}>
+                    <Text style={{ fontWeight: 'bold' }}>Họ và tên: {state.billDetail?.customerName}</Text>
+                    <Text style={{ fontWeight: 'bold' }}>Phòng: {state.billDetail?.roomCode}</Text>
+                    <Text style={{ fontWeight: 'bold' }}>Ngày vào: {state.billDetail?.dateCustomerMoveIn}</Text>
+                </View>
+                <View style={{ height: 1, backgroundColor: 'gray', marginTop: 10, marginBottom: 10 }} />
+                <View style={{ backgroundColor: 'white', marginTop: 2, padding: 10 }}>
+                    {state?.billDetail?.calculateChargeDetails?.map((item, index) => {
+                        return (
+                            <View
+                                key={index}
+                                style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}
+                            >
+                                <View
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                    }}
+                                >
+                                    <Text style={{ fontSize: 12 }}>{item?.title}</Text>
+                                    {item?.isHasDescription && (
+                                        <Text style={{ fontSize: 12, marginLeft: 3 }}>({item?.description})</Text>
+                                    )}
+                                </View>
+                                <Text style={{ fontSize: 12, marginLeft: 3 }}>{item?.cost}đ</Text>
+                            </View>
+                        );
+                    })}
+                </View>
+                <View style={{ height: 1, backgroundColor: 'gray', marginTop: 10, marginBottom: 10 }} />
+                <View style={{ backgroundColor: 'white', marginTop: 2, padding: 10 }}>
+                    <View style={{ marginHorizontal: 20 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>TỔNG CỘNG</Text>
+                            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{state?.billDetail?.totalCost}đ</Text>
+                        </View>
+                        <Text style={{ color: 'green', fontSize: 12, fontStyle: 'italic', textAlign: 'right' }}>
+                            (Bằng chữ: {state?.billDetail?.totalCostWord})
+                        </Text>
+                        <Text style={{ color: 'red', alignSelf: 'flex-end', fontWeight: 'bold', marginTop: 20 }}>
+                            <Text
+                                style={{
+                                    fontSize: 11,
+                                    fontWeight: 'bold',
+                                    color: `${statusColor}`,
+                                    backgroundColor: `${statusColor}20`,
+                                    padding: 5,
+                                    borderRadius: 5,
+                                    width: 'auto',
+                                }}
+                            >
+                                {statusName}
+                            </Text>
+                        </Text>
                     </View>
                 </View>
             </View>
@@ -148,92 +234,6 @@ export default function BillDetailScreen({ route, navigation }) {
                 >
                     <Text>Chủ tài khoản:</Text>
                     <Text>{state.user?.houseOwn?.bankAccountName}</Text>
-                </View>
-            </View>
-            <View
-                style={{
-                    elevation: 3,
-                    shadowColor: 'black',
-                    borderRadius: 10,
-                    padding: 10,
-                    flex: 1,
-                    justifyContent: 'center',
-                    borderStyle: 'solid',
-                    borderWidth: 1,
-                    borderColor: '#265679',
-                }}
-            >
-                <View
-                    style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: 'white',
-                        marginBottom: 10,
-                    }}
-                >
-                    <Text style={{ fontSize: 20, fontWeight: 'bold' }}>HÓA ĐƠN TIỀN NHÀ</Text>
-                    <Text style={{ fontWeight: 'bold' }}>
-                        Tháng {state.billDetail?.month}/{state.billDetail?.year}
-                    </Text>
-                    <Text style={{ fontSize: 13 }}>
-                        Từ ngày {state.billDetail?.calculateFromDate} đến ngày {state.billDetail?.calculateToDate}
-                    </Text>
-                </View>
-                <View style={{ backgroundColor: 'white', paddingHorizontal: 10 }}>
-                    <Text style={{ fontWeight: 'bold' }}>Họ và tên: {state.billDetail?.customerName}</Text>
-                    <Text style={{ fontWeight: 'bold' }}>Phòng: {state.billDetail?.roomCode}</Text>
-                    <Text style={{ fontWeight: 'bold' }}>Ngày vào: {state.billDetail?.dateCustomerMoveIn}</Text>
-                </View>
-                <View style={{ height: 1, backgroundColor: 'gray', marginTop: 10, marginBottom: 10 }} />
-                <View style={{ backgroundColor: 'white', marginTop: 2, padding: 10 }}>
-                    {state?.billDetail?.calculateChargeDetails?.map((item, index) => {
-                        return (
-                            <View
-                                key={index}
-                                style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}
-                            >
-                                <View
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                    }}
-                                >
-                                    <Text style={{ fontSize: 12 }}>{item?.title}</Text>
-                                    {item?.isHasDescription && (
-                                        <Text style={{ fontSize: 12, marginLeft: 3 }}>({item?.description})</Text>
-                                    )}
-                                </View>
-                                <Text style={{ fontSize: 12, marginLeft: 3 }}>{item?.cost}đ</Text>
-                            </View>
-                        );
-                    })}
-                </View>
-                <View style={{ height: 1, backgroundColor: 'gray', marginTop: 10, marginBottom: 10 }} />
-                <View style={{ backgroundColor: 'white', marginTop: 2, padding: 10 }}>
-                    <View style={{ marginHorizontal: 20 }}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>TỔNG CỘNG</Text>
-                            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{state?.billDetail?.totalCost}đ</Text>
-                        </View>
-                        <Text style={{ color: 'green', fontSize: 12, fontStyle: 'italic', textAlign: 'right' }}>
-                            (Bằng chữ: {state?.billDetail?.totalCostWord})
-                        </Text>
-                        <Text style={{ color: 'red', alignSelf: 'flex-end', fontWeight: 'bold', marginTop: 20 }}>
-                            <Text
-                                style={{
-                                    fontSize: 11,
-                                    fontWeight: 'bold',
-                                    color: `${statusColor}`,
-                                    backgroundColor: `${statusColor}20`,
-                                    padding: 5,
-                                    borderRadius: 5,
-                                    width: 'auto',
-                                }}
-                            >
-                                {statusName}
-                            </Text>
-                        </Text>
-                    </View>
                 </View>
             </View>
         </SafeAreaView>

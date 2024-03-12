@@ -15,6 +15,7 @@ namespace backend.Services.ContractServices
         Task<ContractDto> GetCurrentContractRoomId(Guid roomId, Guid? customerId = null);
 
         Task<ExportContractDto> GetDataExportContract(CreateUpdateContractDto contractDto);
+        Task<ExportContractDto> GetDataExportContractMobile(CreateUpdateContractDto contractDto);
         
         Task<bool> ValidateContract(CreateUpdateContractDto contractDto, Guid? id = null);
     }
