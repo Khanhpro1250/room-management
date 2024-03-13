@@ -2,11 +2,11 @@
 import { Form, FormInstance, Input } from 'antd';
 import * as React from 'react';
 import { useRef } from 'react';
-import bgImageUrl from '~/assets/login/login_background.svg';
 import { RegisterParam } from '~/types/ums/AuthUser';
 import { ButtonBase } from '../Elements/Button/ButtonBase';
-import BaseForm, { BaseFormRef } from '../Form/BaseForm';
 
+import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
+import _ from 'lodash';
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import { RootState } from '~/AppStore';
@@ -15,11 +15,9 @@ import NotificationConstant from '~/configs/contants';
 import { requestApi } from '~/lib/axios';
 import NotifyUtil from '~/util/NotifyUtil';
 import { ValidateUtils } from '~/util/ValidateUltil';
-import ModalBase, { ModalRef } from '../Modal/ModalBase';
-import OTPForm from '../Form/OTPForm';
-import _ from 'lodash';
-import CommonUtil from '~/util/CommonUtil';
 import Overlay, { OverlayRef } from '../Elements/loading/Overlay';
+import OTPForm from '../Form/OTPForm';
+import ModalBase, { ModalRef } from '../Modal/ModalBase';
 
 const RegisterView: React.FC = () => {
     const formRef = useRef<FormInstance>(null);
@@ -137,11 +135,14 @@ const RegisterView: React.FC = () => {
                                         required
                                         name={nameof.full<RegisterParam>(x => x.password)}
                                     >
-                                        <Input
+                                        <Input.Password
                                             size="large"
                                             type="password"
                                             placeholder="Nhập password..."
                                             className="mb-4"
+                                            iconRender={visible =>
+                                                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                                            }
                                         />
                                     </Form.Item>
                                     <Form.Item
@@ -149,11 +150,14 @@ const RegisterView: React.FC = () => {
                                         required
                                         name={nameof.full<RegisterParam>(x => x.rePassword)}
                                     >
-                                        <Input
+                                        <Input.Password
                                             size="large"
                                             type="password"
                                             placeholder="Nhập lại password..."
                                             className="mb-4"
+                                            iconRender={visible =>
+                                                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                                            }
                                         />
                                     </Form.Item>
                                 </div>

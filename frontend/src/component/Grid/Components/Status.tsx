@@ -8,7 +8,9 @@ interface Props {
 export const Status = (props: Props) => {
     const className = {
         New: 'h-[18px] w-fit p-[12px] flex justify-center items-center border rounded-[3px] overflow-hidden bg-[#52505020] text-[#525050]',
+        RENT: 'h-[18px] w-fit p-[12px]  flex justify-center items-center border rounded-[3px] overflow-hidden bg-[#248a5220] text-[#248a52]',
         Rented: 'h-[18px] w-fit p-[12px]  flex justify-center items-center border rounded-[3px] overflow-hidden bg-[#248a5220] text-[#248a52]',
+        Rent: 'h-[18px] w-fit p-[12px]  flex justify-center items-center border rounded-[3px] overflow-hidden bg-[#248a5220] text-[#248a52]',
         Renting:
             'h-[18px] w-fit p-[12px]  flex justify-center items-center border rounded-[3px] overflow-hidden bg-[#4d74a520] text-[#4d74a5]',
         Deposited:

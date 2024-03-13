@@ -9,6 +9,7 @@ import { loginAsync } from '~/store/authSlice';
 import { LoginParam } from '~/types/ums/AuthUser';
 import { ButtonBase } from '../Elements/Button/ButtonBase';
 import Overlay, { OverlayRef } from '../Elements/loading/Overlay';
+import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 
 const LoginView: React.FC = () => {
     const dispatch = useDispatch();
@@ -67,12 +68,13 @@ const LoginView: React.FC = () => {
                                     />
                                 </Form.Item>
                                 <Form.Item required name={nameof.full<LoginParam>(x => x.password)}>
-                                    <Input
+                                    <Input.Password
                                         size="large"
                                         name="password"
                                         type="password"
                                         placeholder="Nhập password..."
                                         className="mb-4"
+                                        iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                                     />
                                 </Form.Item>
                                 <div className="mb-4 flex items-center justify-end">

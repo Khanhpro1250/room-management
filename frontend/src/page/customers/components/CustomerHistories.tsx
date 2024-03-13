@@ -42,7 +42,7 @@ const CustomerHistories: React.FC<Props> = props => {
         {
             headerName: 'Hành động',
             field: nameof.full<RoomProcessGridDto>(x => x.actionName),
-            width: 100,
+            width: 120,
             cellStyle: { textAlign: 'center' },
             cellRenderer: (params: any) => {
                 return <Status status={params.data.action} statusName={params.data.actionName} />;

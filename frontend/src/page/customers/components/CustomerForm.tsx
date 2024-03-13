@@ -270,7 +270,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                     {
                         label: 'Email',
                         name: nameof.full<Customer>(x => x.email),
-                        children: <Input disabled={props.readonly} placeholder="Nhập nơi cấp" />,
+                        children: <Input disabled={props.readonly} placeholder="Nhập email" />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                         className: 'col-span-6',
                     },

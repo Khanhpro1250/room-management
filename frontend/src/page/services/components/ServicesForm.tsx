@@ -11,6 +11,7 @@ import { Service } from '~/types/shared/Service';
 import { Role } from '~/types/ums/Role';
 import NotifyUtil from '~/util/NotifyUtil';
 import { SERVICE_CREATE_API, SERVICE_UPDATE_API } from '../api/services.api';
+import CustomInputNumber from '~/component/Form/CustomInputNumber';
 
 interface Props {
     initialValues?: Partial<Service>;
@@ -127,7 +128,7 @@ const ServicesForm: React.FC<Props> = props => {
                     {
                         label: 'Đơn giá',
                         name: nameof.full<Service>(x => x.price),
-                        children: <Input addonAfter="VND" placeholder="Nhập đơn giá ..." />,
+                        children: <CustomInputNumber addonAfter="VND" placeholder="Nhập đơn giá ..." />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                     },
                     {

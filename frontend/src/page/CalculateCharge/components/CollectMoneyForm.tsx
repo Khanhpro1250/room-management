@@ -2,7 +2,7 @@ import { faClose, faSave } from '@fortawesome/free-solid-svg-icons';
 import { DatePicker } from 'antd';
 import { Method } from 'axios';
 import moment from 'moment';
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
 import BaseForm, { BaseFormRef } from '~/component/Form/BaseForm';
 import CustomInputNumber from '~/component/Form/CustomInputNumber';
@@ -75,14 +75,14 @@ const CollectMoneyForm: React.FC<Props> = props => {
                     dateCollectMoney: props.initialValues?.lastDateCollectMoney
                         ? moment(props.initialValues?.lastDateCollectMoney)
                         : moment(),
-                    moneyCollect: props.initialValues?.totalPaid ?? 0,
+                    moneyCollect: props.initialValues?.totalUnpaid ?? 0,
                 }}
                 ref={formRef}
                 baseFormItem={[
                     {
                         label: 'Ngày',
                         name: nameof.full<CollectMoneyDto>(x => x.dateCollectMoney),
-                        initialValue: moment(),
+
                         children: <DatePicker className="w-full" format={'DD/MM/YYYY'} />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                         className: 'col-span-6',
@@ -90,7 +90,7 @@ const CollectMoneyForm: React.FC<Props> = props => {
                     {
                         label: 'Số tiền',
                         name: nameof.full<CollectMoneyDto>(x => x.moneyCollect),
-                        children: <CustomInputNumber addonAfter="VND" placeholder="Nhập số tiền" />,
+                        children: <CustomInputNumber addonAfter="VND" placeholder="Nhập số tiền" min={0} />,
                         className: 'col-span-6',
                     },
                 ]}

@@ -50,7 +50,7 @@ namespace backend.Services.ContractServices
             {
                 RoomId = contract.RoomId,
                 CustomerId = contract.CustomerId,
-                Action = "RENT",
+                Action = "Rent",
                 CreatedTime = DateTime.Now
             };
             var result = await _contractRepository.AddAsync(contractEntity, true);

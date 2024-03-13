@@ -189,9 +189,9 @@ namespace backend.Services.CustomerServices
             var results = _mapper.Map<List<Customer>, List<CustomerDto>>(listCustomer);
             var listCustomerIds = listCustomer.Where(x => x.Contracts.Any(y =>
                     y.CustomerId.Equals(x.Id) && y.EffectDate!.Value.Date <= DateTime.Now.Date &&
-                    y.ExpiredDate!.Value.Date >= DateTime.Now.Date))
+                    y.ExpiredDate!.Value.Date >= DateTime.Now.Date && !y.IsEarly ))
                 .Select(x => x.Id).ToList();
-            results = results.Where(x => !listCustomerIds.Contains(x.Id)).ToList();
+            results = results.Where(x => !listCustomerIds.Contains(x.Id!.Value)).ToList();
 
             return new PaginatedList<CustomerDto>(results, 0, paginatedListQuery.Offset,
                 paginatedListQuery.Limit);
@@ -259,6 +259,10 @@ namespace backend.Services.CustomerServices
                 else if (item.Action == "Deposited")
                 {
                     item.ActionName = "Đặt cọc";
+                }
+                else if (item.Action == "Cancel")
+                {
+                    item.ActionName = "Hủy";
                 }
             }
 

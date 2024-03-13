@@ -345,7 +345,8 @@ public class CalculateChargeService : ICalculateChargeService
             throw new NotFoundException("Không tìm thấy thông tin tính cước");
         }
 
-        calculateCharge.TotalPaid = calculateChargeDto.MoneyCollect;
+        var calculateChargeTotalPaid = calculateCharge?.TotalPaid ?? 0;
+        calculateCharge.TotalPaid = calculateChargeTotalPaid += calculateChargeDto.MoneyCollect;
         calculateCharge.TotalUnpaid = calculateCharge.TotalCost - calculateCharge.TotalPaid;
 
         var process = new CollectMoneyProcess()

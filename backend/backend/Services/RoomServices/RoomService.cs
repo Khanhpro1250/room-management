@@ -166,8 +166,8 @@ public class RoomService : IRoomService
         {
             listRoom = listRoom.Where(x => x.Customers != null &&
                                            x.Customers.Any() &&
-                                           x.Customers.Any(y =>
-                                               y.Contracts != null &&
+                                           x.Customers.Any(y => 
+                                               y.Contracts != null &&                                                                       
                                                y.Contracts.Any() &&
                                                y.Contracts.MaxBy(z => z.CreatedTime).ExpiredDate >= DateTime.Now &&
                                                y.Contracts.MaxBy(z => z.CreatedTime).EffectDate <= DateTime.Now))
@@ -236,7 +236,8 @@ public class RoomService : IRoomService
             result.Add(roomDto);
         }
 
-        return new PaginatedList<RoomDto>(result, count, filterDto.PaginatedListQuery.Offset,
+        return new PaginatedList<RoomDto>(result.OrderBy(x => x.RoomCode).ToList(), count,
+            filterDto.PaginatedListQuery.Offset,
             filterDto.PaginatedListQuery.Limit);
     }
 
@@ -296,7 +297,7 @@ public class RoomService : IRoomService
         var customers = room.Customers.ToList();
         var customer = customers
             .FirstOrDefault(x =>
-                (x.Contracts.Any(y => y.EffectDate <= DateTime.Now && y.ExpiredDate >= DateTime.Now)) ||
+                (x.Contracts.Any(y => y.EffectDate <= DateTime.Now && y.ExpiredDate >= DateTime.Now && !y.IsEarly)) ||
                 (x.Contracts.Any(y => y.EffectDate > DateTime.Now && y.ExpiredDate > DateTime.Now)) ||
                 x.Contracts == null || x.Contracts.Count == 0);
 
@@ -391,7 +392,7 @@ public class RoomService : IRoomService
                 ServiceId = x.ServiceId
             }).ToList();
         }
-        
+
         result.AddRange(rooms
             .Where(x => x.RoomServiceIndices == null || !x.RoomServiceIndices.Any()
                                                      || !x.RoomServiceIndices.Any(y =>
@@ -420,7 +421,8 @@ public class RoomService : IRoomService
         // }
 
 
-        return new PaginatedList<RoomElectricServiceDto>(result.OrderByDescending(x => x.CreatedTime).ToList(), count,
+        return new PaginatedList<RoomElectricServiceDto>(
+            result.OrderBy(x => x.HouseName).ThenBy(x => x.RoomCode).ToList(), count,
             filterDto.Offset,
             filterDto.Limit);
     }

@@ -133,7 +133,7 @@ const RoomForm: React.FC<Props> = props => {
                     {
                         label: 'Diện tích',
                         name: nameof.full<Room>(x => x.acreage),
-                        children: <Input disabled={props.readonly} placeholder="Nhập diện tích ..." />,
+                        children: <Input disabled={props.readonly} placeholder="Nhập diện tích ..." addonAfter="m2" />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                     },
                     {

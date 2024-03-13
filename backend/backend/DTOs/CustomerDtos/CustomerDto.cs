@@ -5,7 +5,7 @@ namespace backend.DTOs.CustomerDtos
 {
     public class CustomerDto
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public string FullName { get; set; }
 
         public int Gender { get; set; }

@@ -31,8 +31,9 @@ const OTPForm: React.FC<Props> = props => {
         if (response.data?.success) {
             overlayRef.current?.close();
             NotifyUtil.success(NotificationConstant.TITLE, props.message);
-            props?.onSubmitSuccessfully?.();
+
             props.onClose?.();
+            setTimeout(() => props?.onSubmitSuccessfully?.(), 300);
             return;
         } else {
             overlayRef.current?.close();

@@ -114,7 +114,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                 onClose={modalRef.current?.onClose}
                 parentId={props.houseId}
             />,
-            'Tạo mới nhà',
+            'Tạo mới phòng',
             '50%',
         );
     };
@@ -130,7 +130,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                 parentId={props.houseId}
                 initialValues={data}
             />,
-            'Tạo mới phòng',
+            'Cập nhật phòng',
             '50%',
             icon(faEdit),
         );

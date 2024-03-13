@@ -77,13 +77,7 @@ const MemberForm = React.forwardRef<MemberFormRef, Props>((props, ref): JSX.Elem
         }
         if (
             data.some(
-                (x: Member) =>
-                    !x.name ||
-                    !x.dateOfBirth ||
-                    !x.identityNo ||
-                    !x.permanentAddress ||
-                    !x.phoneNumber ||
-                    !x.vehicleNumber,
+                (x: Member) => !x.name || !x.dateOfBirth || !x.identityNo || !x.permanentAddress || !x.phoneNumber,
             )
         ) {
             return NotifyUtil.error(NotificationConstant.TITLE, 'Vui lòng nhập đầy đủ thông tin thành viên');
