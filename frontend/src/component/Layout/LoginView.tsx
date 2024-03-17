@@ -63,7 +63,7 @@ const LoginView: React.FC = () => {
                                         size="large"
                                         name="email"
                                         type="email"
-                                        placeholder="Nhập email..."
+                                        placeholder="Nhập username hoặc email..."
                                         className="mb-4"
                                     />
                                 </Form.Item>

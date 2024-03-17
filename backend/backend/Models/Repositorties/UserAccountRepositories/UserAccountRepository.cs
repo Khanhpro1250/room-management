@@ -44,7 +44,7 @@ public class UserAccountRepository : EfCoreRepository<ApplicationDbContext, User
     //     return result ?? new User();
     // }
     //
-    // public async Task<User> GetUserByUserName(string userName)
+    // public async Task<User> GetUserByUserNameOrEmail(string userName)
     // {
     //     var result = await _user.Find(x => x.UserName == userName).FirstOrDefaultAsync();
     //

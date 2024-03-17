@@ -47,10 +47,11 @@ public class UserService : IUserService
         return result;
     }
 
-    public async Task<User> GetUserByUserName(string userName)
+    public async Task<User> GetUserByUserNameOrEmail(string userName)
     {
         var user = await _userAccountRepository.GetQueryable()
-            .FirstOrDefaultAsync(x => x.UserName.ToLower().Contains(userName.ToLower()));
+            .FirstOrDefaultAsync(x => x.UserName.ToLower().Contains(userName.ToLower()) || 
+                                      x.EmailAddress.ToLower().Contains(userName.ToLower()));
         return user;
     }
 

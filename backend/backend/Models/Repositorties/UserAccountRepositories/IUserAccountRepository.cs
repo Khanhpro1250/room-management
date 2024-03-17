@@ -10,7 +10,7 @@ public interface IUserAccountRepository : IRepository<User>
     DbSet<User> GetRepository();
     IQueryable<User> GetQueryable();
     // Task<User> GetUserById(string userId);
-    // Task<User> GetUserByUserName(string userName);
+    // Task<User> GetUserByUserNameOrEmail(string userName);
     Task<User> CreateUser(User user);
     Task<User> UpdateUser(User user,Guid userId);
     // IMongoCollection<User> GetQueryable();

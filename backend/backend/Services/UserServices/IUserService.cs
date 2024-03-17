@@ -9,7 +9,7 @@ public interface IUserService
 {
     Task<PaginatedList<UserDto>> GetListUser(PaginatedListQuery paginatedListQuery);
     Task<UserDto> GetUserById(Guid userId);
-    Task<User> GetUserByUserName(string userName);
+    Task<User> GetUserByUserNameOrEmail(string userName);
     Task<UserDto> CreateUser(CreateUpdateUserDtos user);
     Task<UserDto> UpdateUser(CreateUpdateUserDtos user, Guid userId);
     Task UpdateUserProfile(UpdateUserProfileDto user);

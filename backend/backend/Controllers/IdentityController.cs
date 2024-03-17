@@ -45,7 +45,7 @@ public class IdentityController : ControllerBase
             {
                 string username = usernameClaim.Value;
 
-                var findUser = await _userService.GetUserByUserName(username);
+                var findUser = await _userService.GetUserByUserNameOrEmail(username);
 
                 var userClone = _mapper.Map<User, UserDto>(findUser);
                 var result = new LoginReponseDto
@@ -65,7 +65,7 @@ public class IdentityController : ControllerBase
     [HttpPost("login")]
     public async Task<ApiResponse<LoginReponseDto>> Login([FromBody] LoginDto login)
     {
-        var findUser = await _userService.GetUserByUserName(login.UserName);
+        var findUser = await _userService.GetUserByUserNameOrEmail(login.UserName);
         var isValidPassword = findUser != null && PasswordHasher.VerifyPassword(login.Password, findUser.PasswordHash);
         if (isValidPassword)
         {
