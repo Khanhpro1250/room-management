@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+      {
+        "source": "/api",
+        "destination": "https://khanh123.bsite.net"
+      }
+    ]
+  }
