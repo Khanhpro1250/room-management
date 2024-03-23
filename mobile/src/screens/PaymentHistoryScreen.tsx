@@ -19,7 +19,7 @@ export default function PaymentHistoryScreen({ navigation }) {
                 const userStorage = JSON.parse(storage);
                 const res = await requestApi(
                     'get',
-                    `http://localhost:5179/api/customer/mobile/detail/${userStorage?.id}`,
+                    `https://khanh123.bsite.net/api/customer/mobile/detail/${userStorage?.id}`,
                 );
                 if (res.data.success) {
                     setState({ loading: false, user: res.data.result });

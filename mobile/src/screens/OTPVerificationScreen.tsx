@@ -23,7 +23,7 @@ export default function OTPVerificationScreen({ route, navigation }) {
     const onSubmit = async () => {
         if (!!!state.otpCode) return;
         setState({ loading: true });
-        const res = await requestApi('post', 'http://localhost:5179/api/identity/validation-otp-customer', {
+        const res = await requestApi('post', 'https://khanh123.bsite.net/api/identity/validation-otp-customer', {
             otpCode: state.otpCode,
             email,
         });
@@ -38,7 +38,7 @@ export default function OTPVerificationScreen({ route, navigation }) {
 
     const resentOtp = async () => {
         setState({ loading: true });
-        const res = await requestApi('post', 'http://localhost:5179/api/identity/sent-opt-customer-login', {
+        const res = await requestApi('post', 'https://khanh123.bsite.net/api/identity/sent-opt-customer-login', {
             email: email,
         });
         if (res.data.success) {

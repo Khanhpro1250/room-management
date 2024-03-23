@@ -21,7 +21,7 @@ export default function BillDetailScreen({ route, navigation }) {
         if (!!calculateId) {
             const res = await requestApi(
                 'get',
-                `http://localhost:5179/api/room/calculate-charge/detail/${calculateId}`,
+                `https://khanh123.bsite.net/api/room/calculate-charge/detail/${calculateId}`,
             );
             if (res.data.success) {
                 setState({ loading: false, billDetail: res.data.result });

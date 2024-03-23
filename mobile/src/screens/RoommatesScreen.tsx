@@ -18,7 +18,10 @@ export default function RoommatesScreen({ navigation }) {
         AsyncStorage.getItem(USER_DATA_STORED).then(async storage => {
             if (storage) {
                 const userStorage = JSON.parse(storage);
-                const res = await requestApi('get', `http://localhost:5179/api/customer/detail/${userStorage?.id}`);
+                const res = await requestApi(
+                    'get',
+                    `https://khanh123.bsite.net/api/customer/detail/${userStorage?.id}`,
+                );
                 if (res.data.success) {
                     setState({ loading: false, user: res.data.result });
                 }

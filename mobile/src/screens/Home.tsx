@@ -23,7 +23,7 @@ export default function DetailRoomScreen({ navigation }) {
                 const userStorage = JSON.parse(storage);
                 const res = await requestApi(
                     'get',
-                    `http://localhost:5179/api/customer/mobile/detail/${userStorage?.id}`,
+                    `https://khanh123.bsite.net/api/customer/mobile/detail/${userStorage?.id}`,
                 );
                 if (res.data.success) {
                     setState({ loading: false, user: res.data.result });
@@ -47,7 +47,7 @@ export default function DetailRoomScreen({ navigation }) {
             effectDate: state.user?.contract?.effectDate,
             expiredDate: state.user?.contract?.expiredDate,
         };
-        const res = await requestApi('post', `http://localhost:5179/api/contract/export-contract-mobile`, {
+        const res = await requestApi('post', `https://khanh123.bsite.net/api/contract/export-contract-mobile`, {
             ...payload,
         });
         // if (res.data.success) {

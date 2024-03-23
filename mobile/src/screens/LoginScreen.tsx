@@ -29,7 +29,7 @@ export default function LoginScreen({ navigation }) {
     const onClick = async () => {
         if (!!state.errorText) return;
         setState({ loading: true });
-        const res = await requestApi('post', 'http://localhost:5179/api/identity/sent-opt-customer-login', {
+        const res = await requestApi('post', 'https://khanh123.bsite.net/api/identity/sent-opt-customer-login', {
             email: state.email,
         });
         if (res.data.success) {
