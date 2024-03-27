@@ -1,7 +1,7 @@
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { DatePicker, Input } from 'antd';
 import { Method } from 'axios';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import React, { useImperativeHandle, useRef } from 'react';
 import 'react-quill/dist/quill.snow.css';
 import { ButtonBase } from '~/component/Elements/Button/ButtonBase';
@@ -22,6 +22,7 @@ interface Props {
     onSubmitSuccessfully?: () => void;
     customer?: Customer;
     roomId?: string | null;
+    roomCode?: string | null;
     mask?: () => void;
     unMask?: () => void;
 }
@@ -31,6 +32,13 @@ export interface ContractFormRef {
     onExport: () => void;
     onSaveAndExport: () => void;
 }
+
+const genContractNumber = (signedDate: Moment, roomCode: string | null) => {
+    if (!signedDate || !roomCode) return '';
+    const date = signedDate;
+    return `HD-${roomCode}-${date.format('YYYYMMDD')}`;
+    // return `HD-${roomCode}-${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}`;
+};
 
 const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.Element => {
     const formRef = useRef<BaseFormRef>(null);
@@ -163,7 +171,7 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
                     {
                         label: 'Số hợp đồng',
                         name: nameof.full<Contract>(x => x.contractNumber),
-                        children: <Input placeholder="Nhập sô hợp đồng ..." />,
+                        children: <Input readOnly disabled placeholder="Nhập sô hợp đồng ..." />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                         className: 'col-span-6',
                     },
@@ -176,6 +184,11 @@ const ContractForm = React.forwardRef<ContractFormRef, Props>((props, ref): JSX.
                                 // disabled={props.readonly}
                                 placeholder="Ngày ký hợp đồng"
                                 format={'DD/MM/YYYY'}
+                                onChange={(value: any) => {
+                                    console.log(value);
+                                    const contractNumber = genContractNumber(value, props?.roomCode ?? '');
+                                    formRef.current?.setFieldsValue({ contractNumber: contractNumber });
+                                }}
                             />
                         ),
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],

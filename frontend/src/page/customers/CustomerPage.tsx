@@ -220,6 +220,7 @@ const CustomerPage: React.FC = () => {
                     <ContractForm
                         ref={contractFormRef}
                         roomId={roomId}
+                        roomCode={data?.room?.roomCode}
                         customer={data?.customer}
                         initialValues={data?.contract}
                         mask={() => overlayRef.current?.open()}

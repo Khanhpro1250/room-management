@@ -114,20 +114,23 @@ public class RoomService : IRoomService
             listRooms = listRooms
                 .Where(x => !depositRoomIds.Contains(x.Id))
                 .Where(x => x.Customers == null ||
-                            !x.Customers.Any() ||
-                            x.Customers.MaxBy(y => y.CreatedTime)?.Deposit is null ||
-                            x.Customers.SelectMany(y => y.Contracts).MaxBy(y => y.CreatedTime)
+                            !(x.Customers != null && x.Customers.Any()) ||
+                            x.Customers != null && x.Customers.MaxBy(y => y.CreatedTime)?.Deposit is null ||
+                            x.Customers != null && x.Customers.SelectMany(y => y.Contracts)?.MaxBy(y => y.CreatedTime)?
                                 .ExpiredDate < DateTime.Now
-                ).ToList();
+                )
+                .ToList();
         }
 
 
         var result = listRooms.Select(x => new RoomComboOptionDto()
-        {
-            Label = x.RoomCode,
-            Value = x.Id,
-            HouseId = x.HouseId
-        }).ToList();
+            {
+                Label = x.RoomCode,
+                Value = x.Id,
+                HouseId = x.HouseId
+            })
+            .OrderBy(x => x.Label)
+            .ToList();
 
         return result;
     }
@@ -166,8 +169,8 @@ public class RoomService : IRoomService
         {
             listRoom = listRoom.Where(x => x.Customers != null &&
                                            x.Customers.Any() &&
-                                           x.Customers.Any(y => 
-                                               y.Contracts != null &&                                                                       
+                                           x.Customers.Any(y =>
+                                               y.Contracts != null &&
                                                y.Contracts.Any() &&
                                                y.Contracts.MaxBy(z => z.CreatedTime).ExpiredDate >= DateTime.Now &&
                                                y.Contracts.MaxBy(z => z.CreatedTime).EffectDate <= DateTime.Now))
@@ -296,10 +299,22 @@ public class RoomService : IRoomService
 
         var customers = room.Customers.ToList();
         var customer = customers
+            .OrderByDescending(x => x.CreatedTime)
             .FirstOrDefault(x =>
-                (x.Contracts.Any(y => y.EffectDate <= DateTime.Now && y.ExpiredDate >= DateTime.Now && !y.IsEarly)) ||
-                (x.Contracts.Any(y => y.EffectDate > DateTime.Now && y.ExpiredDate > DateTime.Now)) ||
-                x.Contracts == null || x.Contracts.Count == 0);
+                (x.Contracts.MaxBy(y => y.CreatedTime).EffectDate <= DateTime.Now &&
+                 x.Contracts.MaxBy(y => y.CreatedTime).ExpiredDate < DateTime.Now &&
+                 x.Contracts.MaxBy(y => y.CreatedTime).IsEarly) ||
+                (x.Contracts.MaxBy(y => y.CreatedTime).EffectDate <= DateTime.Now &&
+                 x.Contracts.MaxBy(y => y.CreatedTime).ExpiredDate >= DateTime.Now &&
+                 !x.Contracts.MaxBy(y => y.CreatedTime).IsEarly)||
+                (x.Contracts.MaxBy(y => y.CreatedTime).EffectDate > DateTime.Now &&
+                 x.Contracts.MaxBy(y => y.CreatedTime).ExpiredDate > DateTime.Now) ||
+                (x.Contracts == null || x.Contracts.Count == 0)
+            );
+        // .FirstOrDefault(x =>
+        //     (x.Contracts.Any(y => y.EffectDate < DateTime.Now && y.ExpiredDate >= DateTime.Now && !y.IsEarly)) ||
+        //     (x.Contracts.Any(y => y.EffectDate > DateTime.Now && y.ExpiredDate > DateTime.Now)) ||
+        //     x.Contracts == null || x.Contracts.Count == 0);
 
         ContractDto contract = null;
         if (customer is not null)
@@ -365,12 +380,20 @@ public class RoomService : IRoomService
             .ToList();
 
         var prevRoomServiceIndices = rooms.SelectMany(x => x.RoomServiceIndices)
-            .Where(x => x.Month.Equals(filterDto.CurrentDate.Month - 1) && x.Year.Equals(filterDto.CurrentDate.Year))
+            .Where(x =>
+                new DateTime(filterDto.CurrentDate.Year, filterDto.CurrentDate.Month, 1).AddMonths(-1).Month
+                    .Equals(x.Month) && new DateTime(filterDto.CurrentDate.Year, filterDto.CurrentDate.Month, 1)
+                    .AddMonths(-1).Year.Equals(x.Year))
             .Where(x => x.ServiceId.Equals(service.Id))
             .ToList();
 
+
         var nextRoomServiceIndices = rooms.SelectMany(x => x.RoomServiceIndices)
-            .Where(x => x.Month.Equals(filterDto.CurrentDate.Month + 1) && x.Year.Equals(filterDto.CurrentDate.Year))
+            // .Where(x => x.Month.Equals(filterDto.CurrentDate.Month + 1) && x.Year.Equals(filterDto.CurrentDate.Year))
+            .Where(x =>
+                new DateTime(filterDto.CurrentDate.Year, filterDto.CurrentDate.Month, 1).AddMonths(1).Month
+                    .Equals(x.Month) && new DateTime(filterDto.CurrentDate.Year, filterDto.CurrentDate.Month, 1)
+                    .AddMonths(1).Year.Equals(x.Year))
             .Where(x => x.ServiceId.Equals(service.Id))
             .ToList();
 
@@ -430,13 +453,17 @@ public class RoomService : IRoomService
     public async Task UpdateServiceIndex(RoomServiceIndexCreateUpdateDto updateDto)
     {
         var queryable = _roomServiceIndexRepository.GetQueryable();
+
+        var nextMonth = new DateTime(updateDto.Year, updateDto.Month, 1).AddMonths(1);
+        var preMonth = new DateTime(updateDto.Year, updateDto.Month, 1).AddMonths(-1);
+
         var prevValues = await queryable
-            .Where(x => x.Month.Equals(updateDto.Month - 1) && x.Year.Equals(updateDto.Year))
+            .Where(x => x.Month.Equals(preMonth.Month) && x.Year.Equals(preMonth.Year))
             .Where(x => x.ServiceId.Equals(updateDto.ServiceId))
             .FirstOrDefaultAsync(x => x.RoomId.Equals(updateDto.RoomId));
 
         var nextValues = await queryable
-            .Where(x => x.Month.Equals(updateDto.Month + 1) && x.Year.Equals(updateDto.Year))
+            .Where(x => x.Month.Equals(nextMonth.Month) && x.Year.Equals(nextMonth.Year))
             .Where(x => x.ServiceId.Equals(updateDto.ServiceId))
             .FirstOrDefaultAsync(x => x.RoomId.Equals(updateDto.RoomId));
 
@@ -520,6 +547,7 @@ public class RoomService : IRoomService
             }
 
             contract.CheckOutDate = DateTime.Now;
+            contract.ExpiredDate = DateTime.Now.AddDays(-1);
 
             var customer = contract.Customer;
 

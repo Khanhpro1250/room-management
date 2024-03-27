@@ -5,7 +5,7 @@ import { useBaseGrid } from '~/hook/useBaseGrid';
 import { House } from '~/types/shared/House';
 import qs from 'qs';
 import { icon } from '@fortawesome/fontawesome-svg-core';
-import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faAdd, faEdit } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Loading from '~/component/Elements/loading/Loading';
@@ -16,10 +16,11 @@ import NotifyUtil from '~/util/NotifyUtil';
 import { ROOM_DELETE_API, ROOM_INDEX_API, ROOM_RETURN_API } from '../api/room.api';
 import RoomForm from './RoomForm';
 import { Status } from '~/component/Grid/Components/Status';
+import { AppContainer } from '~/component/Layout/AppContainer';
 
 export interface RoomListViewRef {
     onFilter: (formValues: any) => void;
-    onCreate: () => void;
+    onCreate: (houseId: string) => void;
     refreshData: () => void;
     onExport: () => void;
 }
@@ -33,7 +34,9 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
     const { tab } = qs.parse(location.search, { ignoreQueryPrefix: true });
     const gridRef = useRef<BaseGridRef>(null);
     const modalRef = useRef<ModalRef>(null);
-    const [houseId, setHouseId] = useState(props.houseId ?? tab);
+
+    const [houseId, setHouseId] = useState(tab?.toString() ?? props.houseId);
+
     const navigate = useNavigate();
     const gridController = useBaseGrid<House>({
         url: ROOM_INDEX_API,
@@ -104,7 +107,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
         [],
     );
 
-    const onCreate = () => {
+    const onCreate = (houseId: string) => {
         modalRef.current?.onOpen(
             <RoomForm
                 onSubmitSuccessfully={() => {
@@ -112,10 +115,11 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                     gridController?.reloadData();
                 }}
                 onClose={modalRef.current?.onClose}
-                parentId={props.houseId}
+                parentId={houseId}
             />,
             'Tạo mới phòng',
             '50%',
+            icon(faAdd),
         );
     };
 
@@ -127,7 +131,7 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
                     gridController?.reloadData();
                 }}
                 onClose={modalRef.current?.onClose}
-                parentId={props.houseId}
+                parentId={houseId}
                 initialValues={data}
             />,
             'Cập nhật phòng',
@@ -166,51 +170,54 @@ const RoomListView = React.forwardRef<RoomListViewRef, Props>((props, ref): JSX.
     };
 
     return (
-        <>
-            {gridController?.loading ? (
-                <Loading />
-            ) : (
-                <div className="h-full">
-                    <BaseGrid
-                        columnDefs={colDefs}
-                        data={gridController?.data}
-                        ref={gridRef}
-                        pinAction
-                        numberRows={true}
-                        reloadData={gridController?.reloadData}
-                        rowHeight={40}
-                        pagination={true}
-                        actionRowsList={{
-                            // hasDetailBtn: true,
-                            hasEditBtn: true,
-                            hasDeleteBtn: true,
-                            hasWithdrawBtn(data, rowNode) {
-                                return data.status === RoomStatus.Rented;
-                            },
-                            hasAddCustomerBtn(data) {
-                                return data.status === RoomStatus.New;
-                            },
-                            hasEditCustomerBtn(data, rowNode) {
-                                return data.status !== RoomStatus.New;
-                            },
-                            onClickEditCustomerBtn: (data: Room) => {
-                                navigate(`/customer?roomId=${data.id}`);
-                            },
-                            onClickCustomerBtn: (data: Room) => {
-                                navigate(`/customer?roomId=${data.id}`);
-                            },
-                            onClickWithdrawBtn: onReturnRoom,
-                            // onClickDetailBtn: onDetail,
-                            onClickEditBtn: onUpdate,
-                            onClickDeleteBtn: onDelete,
-                        }}
-                        actionRowsWidth={200}
-                        groupDefaultExpanded={-1}
-                    />
-                    <ModalBase ref={modalRef} />
-                </div>
-            )}
-        </>
+        <AppContainer className="!p-0 overflow-hidden" loading={gridController?.loading}>
+            <div className="h-full">
+                <BaseGrid
+                    columnDefs={colDefs}
+                    data={gridController?.data}
+                    ref={gridRef}
+                    pinAction
+                    numberRows={true}
+                    reloadData={gridController?.reloadData}
+                    rowHeight={40}
+                    pagination={true}
+                    actionRowsList={{
+                        // hasDetailBtn: true,
+                        hasEditBtn: true,
+                        hasDeleteBtn: true,
+                        hasWithdrawBtn(data, rowNode) {
+                            return data.status === RoomStatus.Rented;
+                        },
+                        hasAddCustomerBtn(data) {
+                            return data.status === RoomStatus.New;
+                        },
+                        hasEditCustomerBtn(data, rowNode) {
+                            return data.status !== RoomStatus.New;
+                        },
+                        onClickEditCustomerBtn: (data: Room) => {
+                            navigate(`/customer?roomId=${data.id}`);
+                        },
+                        onClickCustomerBtn: (data: Room) => {
+                            navigate(`/customer?roomId=${data.id}`);
+                        },
+                        onClickWithdrawBtn: onReturnRoom,
+                        // onClickDetailBtn: onDetail,
+                        onClickEditBtn: onUpdate,
+                        onClickDeleteBtn: onDelete,
+                    }}
+                    actionRowsWidth={200}
+                    groupDefaultExpanded={-1}
+                />
+                <ModalBase ref={modalRef} />
+            </div>
+        </AppContainer>
+        // <>
+        //     {gridController?.loading ? (
+        //         <Loading />
+        //     ) : (
+
+        //     )}
+        // </>
     );
 });
 

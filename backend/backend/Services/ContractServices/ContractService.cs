@@ -167,7 +167,7 @@ namespace backend.Services.ContractServices
                 .WhereIf(id.HasValue, x => x.Id != id)
                 .Where(x => x.ContractNumber.Contains(contractDto.ContractNumber))
                 .FirstOrDefaultAsync();
-
+            
             if (findContractNo is not null) throw new Exception("Số hợp đồng đã tồn tại!");
 
             var listContract = await queryable

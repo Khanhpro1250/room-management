@@ -236,6 +236,7 @@ const RoomPage: React.FC = () => {
                 onChange={key => {
                     pushDomain({ search: qs.stringify({ tab: key }) });
                     setCurrentTab(key);
+                    console.log(roomListViewRef);
                 }}
                 style={{ height: 220 }}
                 defaultActiveKey={tab ? String(tab) : (currTab as string)}
@@ -245,7 +246,11 @@ const RoomPage: React.FC = () => {
                     right: state.house.length && (
                         <div className="flex-1 flex items-center justify-end mb-2">
                             <ButtonBase
-                                onClick={() => roomListViewRef.current?.onCreate()}
+                                onClick={() =>
+                                    roomListViewRef.current?.onCreate(
+                                        state.house.find(item => item.id === currentTab)?.id ?? '',
+                                    )
+                                }
                                 className={'btn-create'}
                                 variant={'success'}
                                 title={'Thêm phòng'}

@@ -5,10 +5,12 @@ using backend.DTOs.ReportDtos;
 using backend.DTOs.RoomDtos;
 using backend.Models.Entities.Rooms;
 using backend.Models.Repositorties.ContractRepositories;
+using backend.Models.Repositorties.CustomerRepositories;
 using backend.Models.Repositorties.RoomRepositories;
 using backend.Services.UserServices;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver.Linq;
 
 namespace backend.Services.ReportServices;
 
@@ -20,12 +22,14 @@ public class ReportService : IReportService
     private readonly IContractRepository _contractRepository;
     private readonly IUserService _userService;
     private readonly IIncurredCostRepository _incurredCostRepository;
+    private readonly ICustomerRepository _customerRepository;
 
     private readonly IMapper _mapper;
 
     public ReportService(IRoomRepository roomRepository, ICurrentUser currentUser,
         ICalculateChargeRepository calculateChargeRepository, IMapper mapper, IContractRepository contractRepository,
-        IUserService userService, IIncurredCostRepository incurredCostRepository)
+        IUserService userService, IIncurredCostRepository incurredCostRepository,
+        ICustomerRepository customerRepository)
     {
         _roomRepository = roomRepository;
         _currentUser = currentUser;
@@ -34,6 +38,7 @@ public class ReportService : IReportService
         _contractRepository = contractRepository;
         _userService = userService;
         _incurredCostRepository = incurredCostRepository;
+        _customerRepository = customerRepository;
     }
 
     public async Task<List<ReportRoomStateDto>> GetReportRoomState(DateTime? filterDateTime)
@@ -85,6 +90,22 @@ public class ReportService : IReportService
         var startDate = DateTimeSpanExtension.GetStartOfMonth(filterDto.DateTime ?? DateTime.Now);
         var endDate = DateTimeSpanExtension.GetEndOfMonth(DateTime.Now);
         var queryable = _calculateChargeRepository.GetQueryable();
+
+        var dataReturnEarlyRes = await _contractRepository.GetQueryable()
+            .Where(x => x.IsEarly)
+            .Where(x => x.CheckOutDate.HasValue)
+            .Select(x => new
+            {
+                DateCheckOut = x.CheckOutDate,
+                Deposit = x.Customer.Deposit ?? 0,
+                HouseId = x.Room.HouseId,
+                HouseName = x.Room.House.Name
+            })
+            .ToListAsync();
+
+        var dataReturnEarly =
+            dataReturnEarlyRes.GroupBy(x => new DateTime(x.DateCheckOut.Value.Year, x.DateCheckOut.Value.Month, 1));
+
         var currentUserId = _currentUser.Id;
         queryable = queryable
                 .Where(x => x.Room.House.UserId.Equals(currentUserId))
@@ -131,29 +152,101 @@ public class ReportService : IReportService
             result.Add(data);
         }
 
+        foreach (var item in dataReturnEarly)
+        {
+            var data = new ReportRoomRevenueDto
+            {
+                Month = new MonthDto()
+                {
+                    Month = item.Key.Month,
+                    Year = item.Key.Year
+                }
+            };
+            var dataReturnEarlyByHouse = item.GroupBy(x => x.HouseId);
+
+            var listDetails = new List<ReportRevenueDetailDto>();
+
+            foreach (var dataHouseItem in dataReturnEarlyByHouse)
+            {
+                var revenue = dataHouseItem.Sum(x => (decimal)x.Deposit);
+                listDetails.Add(new ReportRevenueDetailDto()
+                {
+                    HouseName = dataHouseItem.Select(x => x.HouseName).FirstOrDefault(),
+                    HouseId = dataHouseItem.Key,
+                    Month = item.Key.Month,
+                    Year = item.Key.Year,
+                    Revenue = revenue
+                });
+            }
+
+            data.Details = listDetails;
+            result.Add(data);
+        }
+
         return result;
     }
 
     public async Task<PaginatedList<ReportContractExpireDto>> GetContractExpired(DateTime? filterDateTime)
     {
         var currentUserId = _currentUser.Id;
-        var contracts = await _contractRepository.GetQueryable()
+
+        var customers = await _customerRepository.GetQueryable()
             .Where(x => x.Room.House.UserId.Equals(currentUserId))
-            .Include(x => x.Customer)
-            .Where(x => !x.IsEarly)
-            .Where(x => x.EffectDate.HasValue && x.EffectDate.Value.Date <= DateTime.Now.Date)
-            // .Where(x => x.ExpiredDate.HasValue && (x.ExpiredDate.Value.Date - DateTime.Now.Date).TotalDays <= 30)
-            .ProjectTo<ReportContractExpireDto>(_mapper.ConfigurationProvider)
+            .Include(x => x.Contracts)
+            .Include(x => x.Room.House)
             .ToListAsync();
-        contracts = contracts.Where(x =>
-            x.ExpiredDate.HasValue && (x.ExpiredDate.Value.Date - DateTime.Now.Date).TotalDays <= 30).ToList();
-        foreach (var item in contracts)
-        {
-            item.NumberOfDayToExpire = (item.ExpiredDate!.Value.Date - DateTime.Now.Date).TotalDays;
-        }
+
+        var result = customers
+            .Where(x =>
+            {
+                var effectDate = x.Contracts.MaxBy(y => y.CreatedTime).EffectDate;
+                return effectDate != null &&
+                       effectDate.Value <= DateTime.Now;
+            })
+            .Where(x =>
+            {
+                var expiredDate = x.Contracts.MaxBy(y => y.CreatedTime).ExpiredDate;
+                return expiredDate != null && expiredDate.Value.Date >= DateTime.Now.Date &&
+                       (expiredDate.Value - DateTime.Now).TotalDays <= 30;
+            })
+            .Select(x =>
+            {
+                var expiredDate = x.Contracts.MaxBy(y => y.CreatedTime).ExpiredDate;
+
+                return new ReportContractExpireDto
+                {
+                    CustomerId = x.Id,
+                    CustomerName = x.FullName,
+                    ExpiredDate = expiredDate,
+                    CustomerEmail = x.Email,
+                    HouseName = x.Room.House.Name,
+                    RoomCode = x.Room.RoomCode,
+                    ContractNumber = x.Contracts.MaxBy(y => y.CreatedTime).ContractNumber,
+                    NumberOfDayToExpire =
+                        expiredDate != null ? (expiredDate.Value.Date - DateTime.Now.Date).TotalDays : 0,
+                };
+            })
+            .ToList();
 
 
-        return new PaginatedList<ReportContractExpireDto>(contracts, contracts.Count, 0, -1);
+        // var contracts = await _contractRepository.GetQueryable()
+        //     .Where(x => x.Room.House.UserId.Equals(currentUserId))
+        //     .Include(x => x.Customer)
+        //     .Where(x => !x.IsEarly)
+        //     .Where(x => x.EffectDate.HasValue && x.EffectDate.Value.Date <= DateTime.Now.Date)
+        //     // .Where(x => x.ExpiredDate.HasValue && (x.ExpiredDate.Value.Date - DateTime.Now.Date).TotalDays <= 30)
+        //     .ProjectTo<ReportContractExpireDto>(_mapper.ConfigurationProvider)
+        //     .ToListAsync();
+        //
+        // contracts = contracts.Where(x =>
+        //     x.ExpiredDate.HasValue && (x.ExpiredDate.Value.Date - DateTime.Now.Date).TotalDays <= 30).ToList();
+        // foreach (var item in contracts)
+        // {
+        //     item.NumberOfDayToExpire = (item.ExpiredDate!.Value.Date - DateTime.Now.Date).TotalDays;
+        // }
+
+
+        return new PaginatedList<ReportContractExpireDto>(result, result.Count, 0, -1);
     }
 
     public async Task<List<ReportRoomRevenueDto>> GetReportRoomTotalSpendAmount(ReportFilterDto filterDto)
