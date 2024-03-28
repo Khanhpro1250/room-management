@@ -301,15 +301,15 @@ public class RoomService : IRoomService
         var customer = customers
             .OrderByDescending(x => x.CreatedTime)
             .FirstOrDefault(x =>
+                (x.Contracts == null || x.Contracts.Count == 0) ||
                 (x.Contracts.MaxBy(y => y.CreatedTime).EffectDate <= DateTime.Now &&
                  x.Contracts.MaxBy(y => y.CreatedTime).ExpiredDate < DateTime.Now &&
                  x.Contracts.MaxBy(y => y.CreatedTime).IsEarly) ||
                 (x.Contracts.MaxBy(y => y.CreatedTime).EffectDate <= DateTime.Now &&
                  x.Contracts.MaxBy(y => y.CreatedTime).ExpiredDate >= DateTime.Now &&
-                 !x.Contracts.MaxBy(y => y.CreatedTime).IsEarly)||
+                 !x.Contracts.MaxBy(y => y.CreatedTime).IsEarly) ||
                 (x.Contracts.MaxBy(y => y.CreatedTime).EffectDate > DateTime.Now &&
-                 x.Contracts.MaxBy(y => y.CreatedTime).ExpiredDate > DateTime.Now) ||
-                (x.Contracts == null || x.Contracts.Count == 0)
+                 x.Contracts.MaxBy(y => y.CreatedTime).ExpiredDate > DateTime.Now)
             );
         // .FirstOrDefault(x =>
         //     (x.Contracts.Any(y => y.EffectDate < DateTime.Now && y.ExpiredDate >= DateTime.Now && !y.IsEarly)) ||
