@@ -81,6 +81,7 @@ const CalculateMoneyForm: React.FC<Props> = props => {
         overlayRef.current?.open?.();
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
+            dateCalculate: formValues?.dateCalculate?.format('YYYY-MM-DD'),
         });
 
         if (response.data?.success) {

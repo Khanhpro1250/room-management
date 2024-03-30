@@ -57,7 +57,7 @@ const CollectMoneyForm: React.FC<Props> = props => {
 
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
-            unit: JSON.stringify(formValues?.unit),
+            dateCollectMoney: formValues?.dateCollectMoney?.format('YYYY-MM-DD'),
         });
 
         if (response.data?.success) {

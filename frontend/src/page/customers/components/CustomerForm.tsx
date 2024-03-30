@@ -119,9 +119,9 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
         const data = ApiUtil.createFormMultipartForNet({
             ...formBody,
             roomId: props?.parentId,
-            issueDate: moment(formBody?.issueDate).format('YYYY-MM-DD'),
-            rentalStartTime: moment(formBody?.rentalStartTime).format('YYYY-MM-DD'),
-            birthday: moment(formBody?.birthday).format('YYYY-MM-DD'),
+            issueDate: formBody?.issueDate.format('YYYY-MM-DD'),
+            rentalStartTime: formBody?.rentalStartTime.format('YYYY-MM-DD'),
+            birthday: formBody?.birthday.format('YYYY-MM-DD'),
         });
 
         const urlParam = props.initialValues ?? formBody.id ? urlParams.update : urlParams.create;

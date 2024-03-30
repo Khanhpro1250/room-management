@@ -140,16 +140,36 @@ public class CalculateChargeService : ICalculateChargeService
 
         var customer = customers
             .FirstOrDefault(x => x.Contracts.Any(y => y.EffectDate <= dateCalculate && y.ExpiredDate >= dateCalculate));
+
         if (customer is null)
         {
             return listCharges;
         }
 
-        var roomServiceIndices = room?.RoomServiceIndices
-            ?.Where(x => x.Month.Equals(dateCalculate.Month) && x.Year.Equals(dateCalculate.Year)).ToList();
+        var currentContract = customer.Contracts.MaxBy(x => x.CreatedTime);
+        if (currentContract.ExpiredDate < dateCalculate || currentContract.EffectDate > dateCalculate)
+        {
+            currentContract = null;
+        }
 
-        var roomElectricServiceIndices = roomServiceIndices?.Where(x => x.Service.Type.Equals("DIEN")).FirstOrDefault();
-        var roomWaterServiceIndices = roomServiceIndices?.Where(x => x.Service.Type.Equals("NUOC")).FirstOrDefault();
+
+        var isNewCustomer = currentContract != null &&
+                            currentContract.ExpiredDate.HasValue &&
+                            currentContract?.ExpiredDate.Value.Month == dateCalculate.Month &&
+                            currentContract?.ExpiredDate.Value.Year == dateCalculate.Year;
+        
+        var dateCalculateElectitc = dateCalculate.AddMonths(-1);
+
+        var roomServiceIndices = room?.RoomServiceIndices
+            ?.Where(x => x.Month.Equals(dateCalculateElectitc.Month) && x.Year.Equals(dateCalculateElectitc.Year))
+            .ToList();
+
+        var roomElectricServiceIndices = !isNewCustomer
+            ? roomServiceIndices?.Where(x => x.Service.Type.Equals("DIEN")).FirstOrDefault()
+            : null;
+        var roomWaterServiceIndices = !isNewCustomer
+            ? roomServiceIndices?.Where(x => x.Service.Type.Equals("NUOC")).FirstOrDefault()
+            : null;
 
 
         var incurredCosts = room?.IncurredCosts?
@@ -475,7 +495,7 @@ public class CalculateChargeService : ICalculateChargeService
                 new DateTime(calculateCharge.DateCalculate.Year, calculateCharge.DateCalculate.Month, 1).ToString(
                     "dd/MM/yyyy"),
             CalculateToDate = calculateCharge.DateCalculate.ToString("dd/MM/yyyy"),
-            DateCustomerMoveIn = calculateCharge.Customer.CreatedTime?.ToString("dd/MM/yyyy"),
+            DateCustomerMoveIn = calculateCharge.Customer.RentalStartTime?.ToString("dd/MM/yyyy"),
             TotalCost = MoneyConverter.ToLocaleDotString(calculateCharge.TotalCost),
             TotalCostWord = MoneyConverter.ConvertToMoneyString(calculateCharge.TotalCost),
             CalculateChargeDetails = calculateChargeDetailList,

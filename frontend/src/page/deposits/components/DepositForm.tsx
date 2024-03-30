@@ -76,6 +76,8 @@ const DepositForm: React.FC<Props> = props => {
 
         const response = await requestApi(urlParam.method, urlParam.url, {
             ...formValues,
+            depositDate: formValues?.depositDate?.format('YYYY-MM-DD'),
+            expectedDate: formValues?.expectedDate?.format('YYYY-MM-DD'),
         });
 
         if (response.data?.success) {
@@ -95,8 +97,8 @@ const DepositForm: React.FC<Props> = props => {
                 disabled={props.readonly}
                 initialValues={{
                     ...props.initialValues,
-                    depositDate: moment(props.initialValues?.expectedDate),
-                    expectedDate: moment(props.initialValues?.depositDate),
+                    depositDate: moment(props.initialValues?.depositDate),
+                    expectedDate: moment(props.initialValues?.expectedDate),
                 }}
                 ref={formRef}
                 baseFormItem={[

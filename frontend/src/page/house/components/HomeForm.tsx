@@ -78,7 +78,7 @@ const HomeForm: React.FC<Props> = props => {
                     {
                         label: 'Địa chỉ',
                         name: nameof.full<House>(x => x.location),
-                        children: <Input placeholder="Nhập địa chỉ email ..." />,
+                        children: <Input placeholder="Nhập địa chỉ nhà ..." />,
                         rules: [{ required: true, message: NotificationConstant.NOT_EMPTY }],
                     },
                 ]}
