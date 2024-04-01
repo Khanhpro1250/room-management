@@ -34,7 +34,7 @@ export default function DetailRoomNavigation({ navigation }) {
                         alignItems: 'center',
                         // marginBottom: 20,
                         marginHorizontal: 22,
-                        marginTop: 10,
+                        // marginTop: 10,
                     }}
                 >
                     <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'blue' }}>IRoom</Text>

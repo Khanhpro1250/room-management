@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect } from 'react';
-import { Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ChevronLeftIcon, ClipboardDocumentIcon } from 'react-native-heroicons/outline';
 import { USER_DATA_STORED } from '../constants/AppConstant';
 import { useMergeState } from '../hooks/useMergeState';
@@ -42,9 +42,10 @@ export default function BillDetailScreen({ route, navigation }) {
     return (
         <SafeAreaView
             style={{
-                padding: 10,
+                paddingTop: StatusBar.currentHeight,
                 backgroundColor: 'white',
                 height: '100%',
+                flex: 1,
             }}
         >
             <View>

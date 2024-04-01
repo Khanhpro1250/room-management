@@ -86,13 +86,13 @@ export default function Notification({ navigation }) {
     });
 
     return (
-        <SafeAreaView style={{ backgroundColor: '#fff', flex: 1 }}>
+        <SafeAreaView style={{ backgroundColor: '#fff', flex: 1, paddingTop: StatusBar.currentHeight }}>
             <View
                 style={{
                     flexDirection: 'row',
                     justifyContent: 'center',
                     marginHorizontal: 22,
-                    marginTop: 10,
+                    // marginTop: 10,
                 }}
             >
                 <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'blue' }}>IRoom</Text>
@@ -153,6 +153,7 @@ export default function Notification({ navigation }) {
                     const statusRow = item.status === 'unread' ? '#ed4e39' : '#30394f';
                     return (
                         <View
+                            key={index}
                             style={{
                                 position: 'relative',
                                 borderStyle: 'solid',
