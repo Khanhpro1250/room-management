@@ -43,6 +43,7 @@ export default function BillDetailScreen({ route, navigation }) {
         <SafeAreaView
             style={{
                 paddingTop: StatusBar.currentHeight,
+                paddingHorizontal: 10,
                 backgroundColor: 'white',
                 height: '100%',
                 flex: 1,
