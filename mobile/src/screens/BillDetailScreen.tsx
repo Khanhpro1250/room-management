@@ -44,6 +44,7 @@ export default function BillDetailScreen({ route, navigation }) {
             style={{
                 padding: 10,
                 backgroundColor: 'white',
+                height: '100%',
             }}
         >
             <View>
@@ -72,12 +73,14 @@ export default function BillDetailScreen({ route, navigation }) {
                     shadowColor: 'black',
                     borderRadius: 10,
                     padding: 10,
-                    flex: 1,
+                    // flex: 1,
                     marginTop: 10,
                     justifyContent: 'center',
                     borderStyle: 'solid',
                     borderWidth: 1,
                     borderColor: '#265679',
+                    height: 'auto',
+                    minHeight: 500,
                 }}
             >
                 <View
@@ -90,7 +93,7 @@ export default function BillDetailScreen({ route, navigation }) {
                 >
                     <Text style={{ fontSize: 20, fontWeight: 'bold' }}>HÓA ĐƠN TIỀN NHÀ</Text>
                     <Text style={{ fontWeight: 'bold' }}>
-                        Tháng {state.billDetail?.month}/{state.billDetail?.year}
+                        Tháng {state?.billDetail?.month}/{state?.billDetail?.year}
                     </Text>
                     <Text style={{ fontSize: 13 }}>
                         Từ ngày {state.billDetail?.calculateFromDate} đến ngày {state.billDetail?.calculateToDate}
