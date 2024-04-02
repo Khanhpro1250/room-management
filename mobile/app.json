@@ -1,28 +1,36 @@
 {
-    "expo": {
-        "name": "QuanLiPhongTro",
-        "slug": "QuanLiPhongTro",
-        "version": "1.0.0",
-        "orientation": "portrait",
-        "icon": "./assets/room-logo_prev_ui.png",
-        "userInterfaceStyle": "light",
-        "splash": {
-            "image": "./assets/room-logo_prev_ui.png",
-            "resizeMode": "contain",
-            "backgroundColor": "#ffffff"
-        },
-        "assetBundlePatterns": ["**/*"],
-        "ios": {
-            "supportsTablet": true
-        },
-        "android": {
-            "adaptiveIcon": {
-                "foregroundImage": "./assets/room-logo_prev_ui.png",
-                "backgroundColor": "#ffffff"
-            }
-        },
-        "web": {
-            "favicon": "./assets/favicon.png"
-        }
+  "expo": {
+    "name": "iroom",
+    "slug": "iroom",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/room-logo_prev_ui.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/room-logo_prev_ui.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/room-logo_prev_ui.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.klasjnk.iroom"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a25fa2ca-cf66-48a5-be03-b22127267880"
+      }
     }
+  }
 }
