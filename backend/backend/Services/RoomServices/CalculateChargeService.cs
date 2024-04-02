@@ -116,21 +116,32 @@ public class CalculateChargeService : ICalculateChargeService
 
         var calculteChangeQueryable = _calculateChargeRepository.GetQueryable();
 
+        var charges = calculateCharges;
         var calculateForDeletes = await calculteChangeQueryable
             .Include(x => x.CalculateChargeDetails)
-            .Where(x => calculateCharges.Select(y => y.RoomId).Contains(x.RoomId))
+            .Where(x => charges.Select(y => y.RoomId).Contains(x.RoomId))
             .Where(x => x.DateCalculate.Date.Month == calculateRoomRequestDto.DateCalculate.Month &&
                         x.DateCalculate.Date.Year == calculateRoomRequestDto.DateCalculate.Year)
             .ToListAsync();
-        if (calculateForDeletes.Any() && calculateRoomRequestDto.IsRecalculate)
+        if (calculateRoomRequestDto.IsRecalculate)
         {
-            foreach (var calculateForDelete in calculateForDeletes)
+            if (calculateForDeletes.Any())
             {
-                await _calculateChargeRepository.DeleteAsync(calculateForDelete, true);
+                foreach (var calculateForDelete in calculateForDeletes)
+                {
+                    await _calculateChargeRepository.DeleteAsync(calculateForDelete, true);
+                }
             }
-        }
 
-        await _calculateChargeRepository.AddRangeAsync(calculateCharges, true);
+            await _calculateChargeRepository.AddRangeAsync(calculateCharges, true);
+        }
+        else
+        {
+            calculateCharges = calculateCharges
+                .Where(x => !calculateForDeletes.Select(y => y.RoomId).Contains(x.RoomId))
+                .ToList();
+            await _calculateChargeRepository.AddRangeAsync(calculateCharges, true);
+        }
     }
 
     private async Task<List<RoomServiceCalculateDto>> CalculateRoomCharge(Room room, DateTime dateCalculate)
@@ -157,7 +168,7 @@ public class CalculateChargeService : ICalculateChargeService
                             currentContract.ExpiredDate.HasValue &&
                             currentContract?.ExpiredDate.Value.Month == dateCalculate.Month &&
                             currentContract?.ExpiredDate.Value.Year == dateCalculate.Year;
-        
+
         var dateCalculateElectitc = dateCalculate.AddMonths(-1);
 
         var roomServiceIndices = room?.RoomServiceIndices
