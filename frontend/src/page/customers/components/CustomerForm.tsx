@@ -68,6 +68,23 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
         }
     };
 
+    const initialValues = {
+        ...props.initialValues,
+        id: props.initialValues?.id === '00000000-0000-0000-0000-000000000000' ? undefined : props.initialValues?.id,
+        genders: props.initialValues?.gender ?? 1,
+        issueDate: props.initialValues?.issueDate ? moment(props.initialValues?.issueDate) : null,
+        rentalStartTime: props.initialValues?.rentalStartTime ? moment(props.initialValues?.rentalStartTime) : null,
+        birthday: props.initialValues?.birthday ? moment(props.initialValues?.birthday) : null,
+        fileEntryCollection: props.initialValues?.fileEntryCollection
+            ? props.initialValues?.fileEntryCollection?.fileEntries?.map(file => ({
+                  id: file.id,
+                  name: file.fileName,
+                  status: 'done',
+                  url: file.url,
+              }))
+            : [],
+    };
+
     const onSubmit = async () => {
         const formValues = formRef.current?.getFieldsValue();
         const formBody = {
@@ -87,7 +104,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
                 message: NotificationConstant.DESCRIPTION_CREATE_SUCCESS,
             },
             update: {
-                url: `${CUSTOMER_UPDATE_API}/${props.initialValues?.id ?? formBody.id}`,
+                url: `${CUSTOMER_UPDATE_API}/${initialValues?.id ?? formBody.id}`,
                 method: 'put',
                 message: NotificationConstant.DESCRIPTION_UPDATE_SUCCESS,
             },
@@ -124,7 +141,7 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
             birthday: formBody?.birthday.format('YYYY-MM-DD'),
         });
 
-        const urlParam = props.initialValues ?? formBody.id ? urlParams.update : urlParams.create;
+        const urlParam = props.initialValues && initialValues?.id ? urlParams.update : urlParams.create;
         props.mask?.();
         const response = await requestApi(urlParam.method, urlParam.url, data, {
             headers: {
@@ -169,21 +186,6 @@ const CustomerForm = React.forwardRef<CustomerFormRef, Props>((props, ref): JSX.
         [],
     );
 
-    const initialValues = {
-        ...props.initialValues,
-        genders: props.initialValues?.gender ?? 1,
-        issueDate: props.initialValues?.issueDate ? moment(props.initialValues?.issueDate) : null,
-        rentalStartTime: props.initialValues?.rentalStartTime ? moment(props.initialValues?.rentalStartTime) : null,
-        birthday: props.initialValues?.birthday ? moment(props.initialValues?.birthday) : null,
-        fileEntryCollection: props.initialValues?.fileEntryCollection
-            ? props.initialValues?.fileEntryCollection?.fileEntries?.map(file => ({
-                  id: file.id,
-                  name: file.fileName,
-                  status: 'done',
-                  url: file.url,
-              }))
-            : [],
-    };
     return (
         <AppModalContainer>
             <BaseForm
