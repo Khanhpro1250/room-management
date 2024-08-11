@@ -141,7 +141,17 @@ const RegisterView: React.FC = () => {
                                             placeholder="Nhập password..."
                                             className="mb-4"
                                             iconRender={visible =>
-                                                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                                                visible ? (
+                                                    <EyeTwoTone
+                                                        onPointerEnterCapture={undefined}
+                                                        onPointerLeaveCapture={undefined}
+                                                    />
+                                                ) : (
+                                                    <EyeInvisibleOutlined
+                                                        onPointerEnterCapture={undefined}
+                                                        onPointerLeaveCapture={undefined}
+                                                    />
+                                                )
                                             }
                                         />
                                     </Form.Item>
@@ -156,7 +166,17 @@ const RegisterView: React.FC = () => {
                                             placeholder="Nhập lại password..."
                                             className="mb-4"
                                             iconRender={visible =>
-                                                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                                                visible ? (
+                                                    <EyeTwoTone
+                                                        onPointerEnterCapture={undefined}
+                                                        onPointerLeaveCapture={undefined}
+                                                    />
+                                                ) : (
+                                                    <EyeInvisibleOutlined
+                                                        onPointerEnterCapture={undefined}
+                                                        onPointerLeaveCapture={undefined}
+                                                    />
+                                                )
                                             }
                                         />
                                     </Form.Item>

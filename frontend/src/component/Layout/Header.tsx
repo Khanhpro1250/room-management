@@ -53,7 +53,12 @@ const Header: React.FC<Props> = props => {
                     id="sidebar-trigger"
                     onClick={toggle}
                 >
-                    <MenuUnfoldOutlined className="absolute top-1.5 left-1.5" style={{ fontSize: '22px' }} />
+                    <MenuUnfoldOutlined
+                        className="absolute top-1.5 left-1.5"
+                        style={{ fontSize: '22px' }}
+                        onPointerEnterCapture={undefined}
+                        onPointerLeaveCapture={undefined}
+                    />
                 </div>
                 <div className="pl-3 uppercase">IRoom</div>
             </div>
@@ -62,11 +67,17 @@ const Header: React.FC<Props> = props => {
                     <div className="h-9 cursor-pointer flex items-center mx-1.5 justify-center uppercase rounded text-white px-2 hover:bg-white hover:bg-opacity-20 duration-75">
                         <Avatar
                             size={32}
-                            icon={<UserOutlined style={{ color: '#198ae3' }} />}
+                            icon={
+                                <UserOutlined
+                                    style={{ color: '#198ae3' }}
+                                    onPointerEnterCapture={undefined}
+                                    onPointerLeaveCapture={undefined}
+                                />
+                            }
                             className="flex items-center justify-center bg-white rounded-full"
                         />
                         <span className="mx-2">{authUser?.user?.userName}</span>
-                        <CaretDownFilled />
+                        <CaretDownFilled onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
                     </div>
                 </Dropdown>
             </div>

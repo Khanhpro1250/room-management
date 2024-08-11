@@ -74,7 +74,19 @@ const LoginView: React.FC = () => {
                                         type="password"
                                         placeholder="Nhập password..."
                                         className="mb-4"
-                                        iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                                        iconRender={visible =>
+                                            visible ? (
+                                                <EyeTwoTone
+                                                    onPointerEnterCapture={undefined}
+                                                    onPointerLeaveCapture={undefined}
+                                                />
+                                            ) : (
+                                                <EyeInvisibleOutlined
+                                                    onPointerEnterCapture={undefined}
+                                                    onPointerLeaveCapture={undefined}
+                                                />
+                                            )
+                                        }
                                     />
                                 </Form.Item>
                                 <div className="mb-4 flex items-center justify-end">

@@ -46,7 +46,7 @@ const ImagePickerField: React.FC<ImagePickerFieldProps> = ({ name, initialValue,
 
     const uploadButton = (
         <div>
-            <UploadOutlined />
+            <UploadOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
             <div style={{ marginTop: 8 }}>Tải ảnh</div>
         </div>
     );
