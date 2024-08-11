@@ -23,7 +23,7 @@ jobs:
 
       - name: Build web host UI image
         run: |
-          cd ../../frontend
+          cd frontend
           docker build -f Dockerfile -t room-manage/build-front-end
   build-web-api:
     runs-on: ubuntu-latest
@@ -48,7 +48,7 @@ jobs:
 
       - name: Build web API image
         run: |
-          cd ../../backend/backend
+          cd backend/backend
           docker build -f Dockerfile -t room-manage ../
   push-docker-image:
     runs-on: ubuntu-latest
