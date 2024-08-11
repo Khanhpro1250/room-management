@@ -22,7 +22,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build web host UI image
-        run: docker build ../../frontend -t room-manage/build-front-end
+        run: docker build ../frontend -t room-manage/build-front-end
   build-web-api:
     runs-on: ubuntu-latest
     steps:
@@ -39,7 +39,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build web API image
-        run: docker build -f ../../backend/backend/Dockerfile -t room-manage ../
+        run: docker build -f ../backend/backend/Dockerfile -t room-manage ../
   push-docker-image:
     runs-on: ubuntu-latest
     needs: [build-front-end, build-web-api]
