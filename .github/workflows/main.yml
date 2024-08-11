@@ -66,5 +66,5 @@ jobs:
           docker tag room-manage/build-front-end khanhpro1250/room-manage/build-front-end:${{ github.run_number }}
           docker push khanhpro1250/room-manage/build-front-end:${{ github.run_number }}
           docker tag room-manage/build-web-api khanhpro1250/room-manage/build-web-api:${{ github.run_number }}
-          docker push khanhpro1250/room-manage/build-web-api:${{ github.run_number }
+          docker push khanhpro1250/room-manage/build-web-api:${{ github.run_number }}
     if: github.ref == 'refs/heads/deploy'
