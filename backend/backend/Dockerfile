@@ -7,10 +7,10 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
 WORKDIR /src
 ENV TZ=Asia/Ho_Chi_Minh
-COPY ["backend", "backend"]
-RUN dotnet restore "backend.csproj"
-COPY . .
-WORKDIR "/src/backend/backend"
+COPY backend/backend.csproj backend/
+RUN dotnet restore backend/backend.csproj
+COPY backend/ backend/
+WORKDIR /src/backend
 RUN dotnet build "backend.csproj" -c Release -o /app/build
 
 FROM build AS publish

@@ -49,7 +49,7 @@ jobs:
       - name: Build web API image
         run: |
           cd backend/backend
-          docker build -f Dockerfile -t room-manage ../
+          docker build -f Dockerfile -t room-manage backend/backend
   push-docker-image:
     runs-on: ubuntu-latest
     needs: [build-front-end, build-web-api]
