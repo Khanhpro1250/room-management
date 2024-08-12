@@ -48,7 +48,7 @@ jobs:
       - name: Build web API image
         run: |
           cd backend/backend
-          docker build -f Dockerfile -t room-manage ../
+          docker build -f Dockerfile -t room-manage/build-web-api .
           docker images
       - name: Tag and push Docker image
         run: |
