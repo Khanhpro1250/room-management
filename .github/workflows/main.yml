@@ -63,8 +63,8 @@ jobs:
 
       - name: Tag and push Docker image
         run: |
-          docker tag room-manage/build-front-end khanhpro1250/room-manage/build-front-end
-          docker push khanhpro1250/room-manage/build-front-end
-          docker tag room-manage/build-web-api khanhpro1250/room-manage/build-web-api
-          docker push khanhpro1250/room-manage/build-web-api
+          docker tag room-manage/build-front-end hub.docker.com/repository/docker/khanhpro1250/room-manage/build-front-end:${{ github.run_number }}
+          docker push hub.docker.com/repository/docker/khanhpro1250/room-manage/build-front-end:${{ github.run_number }}
+          docker tag room-manage/build-web-api hub.docker.com/repository/docker/khanhpro1250/room-manage/build-web-api:${{ github.run_number }}
+          docker push hub.docker.com/repository/docker/khanhpro1250/room-manage/build-web-api:${{ github.run_number }}
     if: github.ref == 'refs/heads/deploy'
