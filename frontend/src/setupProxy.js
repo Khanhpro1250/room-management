@@ -5,7 +5,8 @@ module.exports = function (app) {
         '/api',
         createProxyMiddleware({
             // target: 'https://khanh123.bsite.net',
-            target: `http://${process.env.REACT_APP_PROXY_API_HOST}:${process.env.REACT_APP_PROXY_API_PORT}`,
+            target: 'http://localhost:5000/',
+            // target: `http://${process.env.REACT_APP_PROXY_API_HOST}:${process.env.REACT_APP_PROXY_API_PORT}`,
             changeOrigin: true,
         }),
     );

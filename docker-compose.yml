@@ -1,0 +1,33 @@
+services:
+  frontend: 
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    image: "khanhpro1250/room-manage.build-front-end"
+    container_name: web-ui
+    ports:
+      - 3000:80
+    environment:
+      - "PORT=80"
+      - "REACT_APP_API_URL=/api"
+    networks:
+      - my-network
+  web-api:
+    build:
+      context: ./backend
+      dockerfile: ./backend/Dockerfile
+    image: "khanhpro1250/room-manage.build-web-api"
+    container_name: web-api
+    ports:
+      - 5000:80
+    volumes:
+      - type: bind
+        source: ./config/web-api/appsettings.json
+        target: /app/appsettings.json
+    environment:
+      - "DefaultConnection=Data Source=KHANHHUYNH\\KHANH;User ID=test;Password=123456;Initial Catalog=QLPT_Dev"
+    networks:
+      - my-network
+networks:
+  my-network:
+    driver: bridge

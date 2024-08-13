@@ -1,5 +1,5 @@
 // export const APP_API_PATH = `${window.location.host}`
-export const APP_API_PATH = process.env.REACT_APP_API_URL as string;
+export const APP_API_PATH = '/api';
 
 export const API_CHECK_LOGIN = APP_API_PATH + '/identity/check-login';
 export const API_LOGIN = APP_API_PATH + '/identity/login';
