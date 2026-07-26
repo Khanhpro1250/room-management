@@ -45,6 +45,7 @@ public class SendMailService : ISendMailService
             {
                 // Handle email sending error
                 Console.WriteLine($"Email sending error: {ex.Message}");
+                Console.WriteLine($"[DEV] Email to: {toEmail} | Subject: {subject} | Body: {body}");
             }
         }
     }

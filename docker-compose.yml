@@ -1,0 +1,44 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: db
+    user: root
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Secret@123"
+      MSSQL_PID: Express
+      DB_NAME: "QLPT_Dev"
+      DB_USER: "test"
+      DB_PASSWORD: "Test@123456"
+    ports:
+      - "1433:1433"
+    volumes:
+      - db_data:/var/opt/mssql/data
+      - ./qlpt_demo_1.bak:/var/opt/mssql/backup/db.bak
+      - ./db/entrypoint.sh:/db/entrypoint.sh
+      - ./db/restore.sh:/db/restore.sh
+    entrypoint: /bin/bash /db/entrypoint.sh
+  backend:
+    build:
+      context: ./backend/backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=QLPT_Dev;User Id=test;Password=Test@123456;TrustServerCertificate=True;
+    depends_on:
+      - db
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
